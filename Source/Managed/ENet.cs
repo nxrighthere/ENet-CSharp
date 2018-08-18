@@ -415,6 +415,10 @@ namespace ENet {
 			return result;
 		}
 
+		public Peer Connect(Address address) {
+			return Connect(address, 0, 0);
+		}
+
 		public Peer Connect(Address address, int channelLimit, uint data) {
 			CheckCreated();
 			CheckChannelLimit(channelLimit);

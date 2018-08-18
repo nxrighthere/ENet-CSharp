@@ -22,7 +22,7 @@ Address address = new Address();
 address.Port = port;
 server.Create(address, maxClients);
 
-while (true) {
+while (!Console.KeyAvailable) {
 	server.Service(15, out Event netEvent);
 
 	switch (netEvent.Type) {
@@ -60,7 +60,7 @@ client.Create();
 
 Peer peer = client.Connect(address);
 
-while (true) {
+while (!Console.KeyAvailable) {
 	client.Service(15, out Event netEvent);
 
 	switch (netEvent.Type) {

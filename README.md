@@ -6,6 +6,10 @@
 
 This project is based on collaborative work with [@inlife](https://github.com/inlife) and inherited all the features of the original [fork](https://github.com/zpl-c/enet). This version is extended and optimized to run safely in the managed .NET environment with the highest possible performance.
 
+Building
+--------
+To build a native library, you will need [CMake](https://cmake.org/download/) with GNU Make or Visual Studio. You can always just grab the compiled binaries from the release section.
+
 Usage
 --------
 Before starting to work, the library should be initialized using `ENet.Library.Initialize();` function.
@@ -80,4 +84,14 @@ while (true) {
 client.Flush();
 client.Dispose();
 ```
+
+Create and send a new packet:
+```csharp
+Packet packet = new Packet();
+byte[] data = new byte[64];
+
+packet.Create(data);
+peer.Send(channelID, packet);
+```
+
 When the work is done, deinitialize the library using `ENet.Library.Deinitialize();` function.

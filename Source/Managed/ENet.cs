@@ -1,4 +1,4 @@
-﻿/*
+/*
  *  Managed C# wrapper for an extended version of ENet
  *  Copyright (c) 2013 James Bellinger
  *  Copyright (c) 2016 Nate Shoffner
@@ -350,6 +350,10 @@ namespace ENet {
 		private void CheckChannelLimit(int channelLimit) {
 			if (channelLimit < 0 || channelLimit > Library.maxChannelCount)
 				throw new ArgumentOutOfRangeException("channelLimit");
+		}
+
+		public void Create() {
+			Create(null, 1, 0);
 		}
 
 		public void Create(Address? address, int peerLimit) {

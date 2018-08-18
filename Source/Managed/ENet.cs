@@ -432,15 +432,6 @@ namespace ENet {
 			return peer;
 		}
 
-		public int Service(int timeout) {
-			if (timeout < 0)
-				throw new ArgumentOutOfRangeException("timeout");
-
-			CheckCreated();
-
-			return Native.enet_host_service(nativeHost, IntPtr.Zero, (uint)timeout);
-		}
-
 		public int Service(int timeout, out Event @event) {
 			if (timeout < 0)
 				throw new ArgumentOutOfRangeException("timeout");

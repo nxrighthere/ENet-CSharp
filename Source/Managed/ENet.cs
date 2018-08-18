@@ -553,7 +553,7 @@ namespace ENet {
 			}
 		}
 
-		internal IntPtr Data {
+		public IntPtr Data {
 			get {
 				return Native.enet_peer_get_data(nativePeer);
 			}

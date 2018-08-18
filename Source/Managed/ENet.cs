@@ -318,25 +318,25 @@ namespace ENet {
 			}
 		}
 
-		public uint TransportPacketsSent {
+		public uint PacketsSent {
 			get {
 				return Native.enet_host_get_packets_sent(nativeHost);
 			}
 		}
 
-		public uint TransportPacketsReceived {
+		public uint PacketsReceived {
 			get {
 				return Native.enet_host_get_packets_received(nativeHost);
 			}
 		}
 
-		public uint TransportBytesSent {
+		public uint BytesSent {
 			get {
 				return Native.enet_host_get_bytes_sent(nativeHost);
 			}
 		}
 
-		public uint TransportBytesReceived {
+		public uint BytesReceived {
 			get {
 				return Native.enet_host_get_bytes_received(nativeHost);
 			}
@@ -529,25 +529,25 @@ namespace ENet {
 			}
 		}
 
-		public ulong TransportPacketsSent {
+		public ulong PacketsSent {
 			get {
 				return Native.enet_peer_get_packets_sent(nativePeer);
 			}
 		}
 
-		public uint TransportPacketsLost {
+		public uint PacketsLost {
 			get {
 				return Native.enet_peer_get_packets_lost(nativePeer);
 			}
 		}
 
-		public ulong TransportBytesSent {
+		public ulong BytesSent {
 			get {
 				return Native.enet_peer_get_bytes_sent(nativePeer);
 			}
 		}
 
-		public ulong TransportBytesReceived {
+		public ulong BytesReceived {
 			get {
 				return Native.enet_peer_get_bytes_received(nativePeer);
 			}

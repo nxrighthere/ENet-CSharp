@@ -214,7 +214,7 @@ namespace ENet {
 			}
 		}
 
-		internal IntPtr Data {
+		public IntPtr Data {
 			get {
 				CheckCreated();
 

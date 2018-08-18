@@ -60,7 +60,7 @@ while (true) {
 
 	switch (netEvent.Type) {
 		case EventType.Connect:
-			Console.WriteLine("Client connected to server");
+			Console.WriteLine("Client connected to server (ID: " + peer.ID + ")");
 			break;
 
 		case EventType.Disconnect:

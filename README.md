@@ -52,7 +52,8 @@ Address address = new Address();
 address.SetHost(ip);
 address.Port = port;
 client.Create();
-client.Connect(address);
+
+Peer peer = client.Connect(address);
 
 while (true) {
 	client.Service(15, out Event netEvent);

@@ -3,3 +3,77 @@
 </p>
 
 This project is based on collaborative work with [@inlife](https://github.com/inlife) and inherited all the features of the original [fork](https://github.com/zpl-c/enet). This version is extended and optimized to run safely in the managed .NET environment with the highest possible performance.
+
+Usage
+--------
+Before starting to work, the library should be initialized using `ENet.Library.Initialize();` function.
+
+Start a new server:
+```c#
+Host server = new Host();
+Address address = new Address();
+
+address.Port = port;
+server.Create(address, maxClients);
+
+while (true) {
+	server.Service(15, out Event netEvent);
+
+	switch (netEvent.Type) {
+		case EventType.Connect:
+			Console.WriteLine("Client connected (ID: " + netEvent.Peer.ID + ", IP: " + netEvent.Peer.Address.GetIP() + ")");
+			break;
+
+		case EventType.Disconnect:
+			Console.WriteLine("Client disconnected (ID: " + netEvent.Peer.ID + ", IP: " + netEvent.Peer.Address.GetIP() + ")");
+			break;
+
+		case EventType.Timeout:
+			Console.WriteLine("Client timeout (ID: " + netEvent.Peer.ID + ", IP: " + netEvent.Peer.Address.GetIP() + ")");
+			break;
+
+		case EventType.Receive:
+			Console.WriteLine("Packet received from (ID: " + netEvent.Peer.ID + ", IP: " + netEvent.Peer.Address.GetIP() + ", Channel ID: " + netEvent.ChannelID + ", Data length: " + netEvent.Packet.Length + ")");
+			break;
+	}
+}
+
+server.Flush();
+server.Dispose();
+```
+
+Create a new client:
+```c#
+Host client = new Host();
+Address address = new Address();
+
+address.SetHost(ip);
+address.Port = port;
+client.Create();
+
+while (true) {
+	client.Service(15, out Event netEvent);
+
+	switch (netEvent.Type) {
+		case EventType.Connect:
+			Console.WriteLine("Client connected to server");
+			break;
+
+		case EventType.Disconnect:
+			Console.WriteLine("Client disconnected from server");
+			break;
+
+		case EventType.Timeout:
+			Console.WriteLine("Client connection timeout");
+			break;
+
+		case EventType.Receive:
+			Console.WriteLine("Packet received from server (Channel ID: " + netEvent.ChannelID + ", Data length: " + netEvent.Packet.Length + ")");
+			break;
+	}
+}
+
+client.Flush();
+client.Dispose();
+```
+When the work is done, deinitialize the library using `ENet.Library.Deinitialize();` function.

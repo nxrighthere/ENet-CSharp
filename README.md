@@ -186,7 +186,7 @@ Contains a managed pointer to the packet.
 
 `Packet.Dispose()` destroys the packet.
 
-`Packet.IsSet` returns the state of the packet pointer.
+`Packet.IsSet` returns the state of the managed pointer.
 
 `Packet.Length` returns the length of payload in the packet.
 
@@ -197,6 +197,12 @@ Contains a managed pointer to the packet.
 #### Peer
 Contains a managed pointer to the peer.
 
-`Peer.IsSet` returns the state of the peer pointer.
+`Peer.IsSet` returns the state of the managed pointer.
 
 `Peer.ID` returns the ID of the peer.
+
+`Peer.Address` returns the `Address` structure.
+
+`Peer.State` returns the peer state described in the `PeerState` enumeration.
+
+`Peer.RoundTripTime` returns the round trip time in milliseconds.

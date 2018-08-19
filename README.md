@@ -221,7 +221,21 @@ Contains a managed pointer to the peer.
 
 ### Classes
 #### Library
+Contains a constant fields.
 
+`Library.maxChannelCount` the maximum possible number of channels.
+
+`Library.maxPeers` the maximum possible number of peers.
+
+`Library.version` the current version of the native library.
+
+`Library.Initialize()` initializes the native library. Should be called before starting the work.
+
+`Library.Deinitialize()` deinitializes the native library. Should be called after the work is done.
+
+`Library.Time` returns the current monotonic time. It never reset while the application is alive.
 
 #### Host
+Contains a managed pointer to the host.
 
+`Host.Dispose()` 

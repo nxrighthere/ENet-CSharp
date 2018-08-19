@@ -125,10 +125,10 @@ Definitions of event types for `Event.Type` structure:
 
 `EventType.None` no event occurred within the specified time limit.
 
-`EventType.Connect` a connection request initiated by `Peer.Connect` has completed. `Event.Peer` contains the managed pointer to the peer which successfully connected. `Peer.Data` contains user supplied `uint` data describing the connection, or zero, if none is available.
+`EventType.Connect` a connection request initiated by `Peer.Connect` has completed. `Event.Peer` returns the managed pointer to the peer which successfully connected. `Peer.Data` returns user supplied `uint` data describing the connection, or zero, if none is available.
 
-`EventType.Disconnect` a peer has disconnected. This event is generated on a successful completion of a disconnect initiated by `Peer.Disconnect`. `Event.Peer` contains the managed pointer to the peer which disconnected. `Peer.Data` contains user supplied `uint` data describing the disconnection, or zero, if none is available.
+`EventType.Disconnect` a peer has disconnected. This event is generated on a successful completion of a disconnect initiated by `Peer.Disconnect`. `Event.Peer` returns the managed pointer to the peer which disconnected. `Peer.Data` returns user supplied `uint` data describing the disconnection, or zero, if none is available.
 
-`EventType.Receive` a packet has been received from a peer. `Event.Peer` contains the managed pointer to the peer which sent the packet. `Event.ChannelID` specifies the channel number upon which the packet was received. `Event.Packet` contains the managed pointer to the packet that was received. This packet must be destroyed with `Event.Packet.Dispose()` after use.
+`EventType.Receive` a packet has been received from a peer. `Event.Peer` returns the managed pointer to the peer which sent the packet. `Event.ChannelID` specifies the channel number upon which the packet was received. `Event.Packet` returns the managed pointer to the packet that was received. This packet must be destroyed with `Event.Packet.Dispose()` after use.
 
-`EventType.Timeout` a peer has timed out. This event occurs if a peer has timed out, or if a connection request intialized by `Peer.Connection` has timed out. `Event.Peer` contains the managed pointer to the peer which timed out.
+`EventType.Timeout` a peer has timed out. This event occurs if a peer has timed out, or if a connection request intialized by `Peer.Connection` has timed out. `Event.Peer` returns the managed pointer to the peer which timed out.

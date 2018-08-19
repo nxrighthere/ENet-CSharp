@@ -10,9 +10,9 @@ Building
 --------
 To build a native library, you will need [CMake](https://cmake.org/download/) with GNU Make or Visual Studio.
 
-Compiled binaries
+Compiled libraries
 --------
-You can grab compiled binaries from the [release](https://github.com/nxrighthere/ENet-CSharp/releases) section for the target platform:
+You can grab compiled libraries from the [release](https://github.com/nxrighthere/ENet-CSharp/releases) section for the target platform:
 
 `ENet-CSharp` contains compiled assembly with native libraries for the .NET environment.
 

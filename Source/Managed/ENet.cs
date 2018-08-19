@@ -246,14 +246,14 @@ namespace ENet {
 			Create(data, length, PacketFlags.None);
 		}
 
-		public void Create(byte[] data, int length, PacketFlags flag) {
+		public void Create(byte[] data, int length, PacketFlags flags) {
 			if (data == null)
 				throw new ArgumentNullException("data");
 
 			if (length < 0 || length > data.Length)
 				throw new ArgumentOutOfRangeException();
 
-			nativePacket = Native.enet_packet_create(data, (IntPtr)length, flag);
+			nativePacket = Native.enet_packet_create(data, (IntPtr)length, flags);
 		}
 
 		public void CopyTo(byte[] array) {
@@ -683,7 +683,7 @@ namespace ENet {
 		internal static extern int enet_address_get_host_ip(ref ENetAddress address, byte[] hostIP, IntPtr ipLength);
 
 		[DllImport(nativeLibrary, CallingConvention = CallingConvention.Cdecl)]
-		internal static extern IntPtr enet_packet_create(byte[] data, IntPtr dataLength, PacketFlags flag);
+		internal static extern IntPtr enet_packet_create(byte[] data, IntPtr dataLength, PacketFlags flags);
 
 		[DllImport(nativeLibrary, CallingConvention = CallingConvention.Cdecl)]
 		internal static extern IntPtr enet_packet_get_data(IntPtr packet);

@@ -126,7 +126,7 @@ Definitions of flag for `Peer.Send` function:
 
 `PacketFlags.NoAllocate` packet will not allocate data, and user must supply it instead.
 
-`PacketFlags.UnreliableFragment` unreliable sequenced, packet will be fragmented if it exceeds the MTU.
+`PacketFlags.UnreliableFragment` packet will be fragmented if it exceeds the MTU.
 
 #### EventType
 Definitions of event types for `Event.Type` property:
@@ -190,7 +190,7 @@ Contains a managed pointer to the packet.
 
 `Packet.Length` returns the length of payload in the packet.
 
-`Packet.Create(byte[] data, int length, PacketFlags flag)` creates a packet that may be sent to a peer. The length and flag parameters are optional.
+`Packet.Create(byte[] data, int length, PacketFlags flags)` creates a packet that may be sent to a peer. The length and flags parameters are optional. Multiple flags can be specified at once.
 
 `Packet.CopyTo(byte[] array, int offset, int length)` copies payload from the packet to the destination array. The offset and length parameters are optional.
 

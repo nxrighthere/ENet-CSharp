@@ -136,17 +136,17 @@ Definitions of event types for `Event.Type` property:
 #### PeerState
 Definitions of peer states for `Peer.State` property:
 
-`PeerState.Uninitialized` a peer was not initialized.
+`PeerState.Uninitialized` a peer not initialized.
 
-`PeerState.Disconnected` a peer was disconnected or timed out.
+`PeerState.Disconnected` a peer disconnected or timed out.
 
 `PeerState.Connecting` a peer connection in-progress.
 
-`PeerState.Connected` a peer has successfuly connected.
+`PeerState.Connected` a peer successfuly connected.
 
 `PeerState.Disconnecting` a peer disconnection in-progress.
 
-`PeerState.Zombie` a peer was not properly disconnected.
+`PeerState.Zombie` a peer not properly disconnected.
 
 ### Structures
 #### Address
@@ -159,3 +159,16 @@ Contains a marshalled structure from the unmanaged side with host data and port 
 `Address.GetIP` gives the printable form of the IP address.
 
 `Address.GetName` attempts to do a reverse lookup of the host.
+
+#### Event
+Contains a marshalled structure from the unmanaged side with event type, managed pointer to the peer, channel ID, user supplied data, and managed pointer to the packet.
+
+`Event.Type` type of the event.
+
+`Event.Peer` peer that generated a connect, disconnect, receive, or timeout event.
+
+`Event.ChannelID` channel on the peer that generated the event, if appropriate.
+
+`Event.Data` user supplied data, if appropriate.
+
+`Event.Packet` packet associated with the event, if appropriate.

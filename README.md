@@ -121,7 +121,7 @@ Definitions of flag for `Peer.Send` function:
 `PacketFlags.UnreliableFragment` unreliable sequenced, packet will be fragmented if it exceeds the MTU.
 
 #### EventType
-Definitions of event types for `Event.Type` structure:
+Definitions of event types for `Event.Type` property:
 
 `EventType.None` no event occurred within the specified time limit.
 
@@ -131,4 +131,19 @@ Definitions of event types for `Event.Type` structure:
 
 `EventType.Receive` a packet has been received from a peer. `Event.Peer` returns the managed pointer to the peer which sent the packet. `Event.ChannelID` specifies the channel number upon which the packet was received. `Event.Packet` returns the managed pointer to the packet that was received. This packet must be destroyed with `Event.Packet.Dispose()` after use.
 
-`EventType.Timeout` a peer has timed out. This event occurs if a peer has timed out, or if a connection request intialized by `Peer.Connection` has timed out. `Event.Peer` returns the managed pointer to the peer which timed out.
+`EventType.Timeout` a peer has timed out. This event occurs if a peer has timed out, or if a connection request intialized by `Peer.Connect` has timed out. `Event.Peer` returns the managed pointer to the peer which timed out.
+
+#### PeerState
+Definitions of peer states for `Peer.State` property:
+
+`PeerState.Uninitialized` a peer was not initialized.
+
+`PeerState.Disconnected` a peer was disconnected or timed out.
+
+`PeerState.Connecting` a peer connection in-progress.
+
+`PeerState.Connected` a peer has successfuly connected.
+
+`PeerState.Disconnecting` a peer disconnection in-progress.
+
+`PeerState.Zombie` a peer not properly disconnected.

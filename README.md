@@ -146,4 +146,8 @@ Definitions of peer states for `Peer.State` property:
 
 `PeerState.Disconnecting` a peer disconnection in-progress.
 
-`PeerState.Zombie` a peer not properly disconnected.
+`PeerState.Zombie` a peer was not properly disconnected.
+
+### Structures
+#### Address
+Contains a marshalled structure from unmanaged side with IP address (IPv4/IPV6) and port number.

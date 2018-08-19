@@ -18,6 +18,8 @@ You can grab compiled libraries from the [release](https://github.com/nxrighther
 
 `ENet-Unity` contains script with native libraries for the Unity.
 
+These packages are provided only for traditional platforms: Windows, Linux and MacOS.
+
 Usage
 --------
 Before starting to work, the library should be initialized using `ENet.Library.Initialize();` function.
@@ -206,3 +208,7 @@ Contains a managed pointer to the peer.
 `Peer.State` returns the peer state described in the `PeerState` enumeration.
 
 `Peer.RoundTripTime` returns the round trip time in milliseconds.
+
+### Classes
+#### Host
+

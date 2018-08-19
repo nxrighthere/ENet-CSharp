@@ -8,7 +8,7 @@ This project is based on collaborative work with [@inlife](https://github.com/in
 
 Building
 --------
-To build a native library, you will need [CMake](https://cmake.org/download/) with GNU Make or Visual Studio. You can always just grab the compiled binaries from the release section.
+To build a native library, you will need [CMake](https://cmake.org/download/) with GNU Make or Visual Studio. You can always just grab compiled binaries from the release section.
 
 Usage
 --------
@@ -125,9 +125,9 @@ Definitions of event types for `Event.Type` property:
 
 `EventType.None` no event occurred within the specified time limit.
 
-`EventType.Connect` a connection request initiated by `Peer.Connect` has completed. `Event.Peer` returns the managed pointer to the peer which successfully connected. `Peer.Data` returns user supplied `uint` data describing the connection, or zero, if none is available.
+`EventType.Connect` a connection request initiated by `Peer.Connect` has completed. `Event.Peer` returns the managed pointer to the peer which successfully connected. `Peer.Data` returns user-supplied `uint` data describing the connection, or zero, if none is available.
 
-`EventType.Disconnect` a peer has disconnected. This event is generated on a successful completion of a disconnect initiated by `Peer.Disconnect`. `Event.Peer` returns the managed pointer to the peer which disconnected. `Peer.Data` returns user supplied `uint` data describing the disconnection, or zero, if none is available.
+`EventType.Disconnect` a peer has disconnected. This event is generated on a successful completion of a disconnect initiated by `Peer.Disconnect`. `Event.Peer` returns the managed pointer to the peer which disconnected. `Peer.Data` returns user-supplied `uint` data describing the disconnection, or zero, if none is available.
 
 `EventType.Receive` a packet has been received from a peer. `Event.Peer` returns the managed pointer to the peer which sent the packet. `Event.ChannelID` specifies the channel number upon which the packet was received. `Event.Packet` returns the managed pointer to the packet that was received. This packet must be destroyed with `Event.Packet.Dispose()` after use.
 
@@ -161,7 +161,7 @@ Contains a marshalled structure from the unmanaged side with host data and port 
 `Address.GetName` attempts to do a reverse lookup of the host.
 
 #### Event
-Contains a marshalled structure from the unmanaged side with event type, managed pointer to the peer, channel ID, user supplied data, and managed pointer to the packet.
+Contains a marshalled structure from the unmanaged side with the event type, managed pointer to the peer, channel ID, user-supplied data, and managed pointer to the packet.
 
 `Event.Type` type of the event.
 
@@ -169,6 +169,19 @@ Contains a marshalled structure from the unmanaged side with event type, managed
 
 `Event.ChannelID` channel on the peer that generated the event, if appropriate.
 
-`Event.Data` user supplied data, if appropriate.
+`Event.Data` user-supplied data, if appropriate.
 
 `Event.Packet` packet associated with the event, if appropriate.
+
+#### Packet
+Contains a managed pointer to the packet.
+
+`Packet.Dispose()` destroys the packet.
+
+`Packet.IsSet` returns the state of the packet.
+
+`Packet.Length` returns the length of payload in the packet.
+
+`Packet.Create(byte[] data, int length, PacketFlags flag)` creates a packet that may be sent to a peer. The length and flag parameters are optional.
+
+`Packet.CopyTo(byte[] array, int offset, int length)` copies payload from the packet to the destination array. The offset and length parameters are optional.

@@ -14,9 +14,9 @@ Compiled binaries
 --------
 You can grab compiled binaries from the [release](https://github.com/nxrighthere/ENet-CSharp/releases) section for the target platform:
 
-`ENet-CSharp-2.0.3-x64` contains compiled assembly with native libraries for the .NET environment.
+`ENet-CSharp` contains compiled assembly with native libraries for the .NET environment.
 
-`ENet-Unity-2.0.3-x64` contains script with native libraries for the Unity.
+`ENet-Unity` contains script with native libraries for the Unity.
 
 Usage
 --------
@@ -193,3 +193,6 @@ Contains a managed pointer to the packet.
 `Packet.Create(byte[] data, int length, PacketFlags flag)` creates a packet that may be sent to a peer. The length and flag parameters are optional.
 
 `Packet.CopyTo(byte[] array, int offset, int length)` copies payload from the packet to the destination array. The offset and length parameters are optional.
+
+#### Peer
+Contains a managed pointer to the peer.

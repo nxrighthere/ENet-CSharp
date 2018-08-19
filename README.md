@@ -122,7 +122,7 @@ Definitions of flag for `Peer.Send` function:
 
 `PacketFlags.Reliable` reliable sequenced, packet must be received by the target peer and resend attempts should be made until the packet is delivered.
 
-`PacketFlags.Unsequenced` unreliable unsequenced, packet will not be sequenced with other packets and may be delivered out of order.
+`PacketFlags.Unsequenced` unsequenced, packet will not be sequenced with other packets and may be delivered out of order.
 
 `PacketFlags.NoAllocate` packet will not allocate data, and user must supply it instead.
 
@@ -186,7 +186,7 @@ Contains a managed pointer to the packet.
 
 `Packet.Dispose()` destroys the packet.
 
-`Packet.IsSet` returns the state of the packet.
+`Packet.IsSet` returns the state of the packet pointer.
 
 `Packet.Length` returns the length of payload in the packet.
 
@@ -196,3 +196,6 @@ Contains a managed pointer to the packet.
 
 #### Peer
 Contains a managed pointer to the peer.
+
+`Packet.IsSet` returns the state of the peer pointer.
+

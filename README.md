@@ -8,7 +8,15 @@ This project is based on collaborative work with [@inlife](https://github.com/in
 
 Building
 --------
-To build a native library, you will need [CMake](https://cmake.org/download/) with GNU Make or Visual Studio. You can always just grab compiled binaries from the release section.
+To build a native library, you will need [CMake](https://cmake.org/download/) with GNU Make or Visual Studio.
+
+Compiled binaries
+--------
+You can grab compiled binaries from the [release](https://github.com/nxrighthere/ENet-CSharp/releases) section for the target platform:
+
+`ENet-CSharp-2.0.3-x64` contains compiled assembly with native libraries for the .NET environment.
+
+`ENet-Unity-2.0.3-x64` contains script with native libraries for the Unity.
 
 Usage
 --------

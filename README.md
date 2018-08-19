@@ -150,4 +150,12 @@ Definitions of peer states for `Peer.State` property:
 
 ### Structures
 #### Address
-Contains a marshalled structure from unmanaged side with IP address (IPv4/IPV6) and port number.
+Contains a marshalled structure from the unmanaged side with host data and port number.
+
+`Address.Port` set or get a port number.
+
+`Address.SetHost` set host name or an IP address (IPv4/IPv6).
+
+`Address.GetIP` gives the printable form of the IP address.
+
+`Address.GetName` attempts to do a reverse lookup of the host.

@@ -125,7 +125,7 @@ Definitions of event types for `Event.Type` structure:
 
 `EventType.None` no event occurred within the specified time limit.
 
-`EventType.Connect` a connection request initiated by `Peer.Connect` has completed. `Event.Peer` contains the managed pointer to the peer which successfully connected.
+`EventType.Connect` a connection request initiated by `Peer.Connect` has completed. `Event.Peer` contains the managed pointer to the peer which successfully connected. `Peer.Data` contains user supplied `uint` data describing the connection, or zero, if none is available.
 
 `EventType.Disconnect` a peer has disconnected. This event is generated on a successful completion of a disconnect initiated by `Peer.Disconnect`. `Event.Peer` contains the managed pointer to the peer which disconnected. `Peer.Data` contains user supplied `uint` data describing the disconnection, or zero, if none is available.
 

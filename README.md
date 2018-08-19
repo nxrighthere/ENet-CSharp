@@ -209,6 +209,19 @@ Contains a managed pointer to the peer.
 
 `Peer.RoundTripTime` returns the round trip time in milliseconds.
 
+`Peer.PacketsSent` returns the total number of packets sent during the connection.
+
+`Peer.PacketsLost` returns the total number of lost packets during the connection.
+
+`Peer.BytesSent` returns the total number of bytes sent during the connection.
+
+`Peer.BytesReceived` returns the total number of bytes received during the connection.
+
+`Peer.Data` set or get the user-supplied data. Consider a cast to the desired primitive data type.
+
 ### Classes
+#### Library
+
+
 #### Host
 

@@ -26,6 +26,9 @@ while (!Console.KeyAvailable) {
 	server.Service(15, out Event netEvent);
 
 	switch (netEvent.Type) {
+		case EventType.None:
+			break;
+
 		case EventType.Connect:
 			Console.WriteLine("Client connected (ID: " + netEvent.Peer.ID + ", IP: " + netEvent.Peer.Address.GetIP() + ")");
 			break;
@@ -64,6 +67,9 @@ while (!Console.KeyAvailable) {
 	client.Service(15, out Event netEvent);
 
 	switch (netEvent.Type) {
+		case EventType.None:
+			break;
+
 		case EventType.Connect:
 			Console.WriteLine("Client connected to server (ID: " + peer.ID + ")");
 			break;
@@ -97,3 +103,32 @@ peer.Send(channelID, packet);
 ```
 
 When the work is done, deinitialize the library using `ENet.Library.Deinitialize();` function.
+
+API reference
+--------
+### Enumerations
+#### PacketFlags
+Definitions of flag for `Peer.Send` function:
+
+`PacketFlags.None` unreliable sequenced, delivery of packet is not guaranteed.
+
+`PacketFlags.Reliable` reliable sequenced, packet must be received by the target peer and resend attempts should be made until the packet is delivered.
+
+`PacketFlags.Unsequenced` unreliable unsequenced, packet will not be sequenced with other packets and may be delivered out of order.
+
+`PacketFlags.NoAllocate` packet will not allocate data, and user must supply it instead.
+
+`PacketFlags.UnreliableFragment` unreliable sequenced, packet will be fragmented if it exceeds the MTU.
+
+#### EventType
+Definitions of event types for `Event.Type` structure:
+
+`EventType.None` no event occurred within the specified time limit.
+
+`EventType.Connect` a connection request initiated by `Peer.Connect` has completed. `Event.Peer` contains the managed pointer to the peer which successfully connected.
+
+`EventType.Disconnect` a peer has disconnected. This event is generated on a successful completion of a disconnect initiated by `Peer.Disconnect`. `Event.Peer` contains the managed pointer to the peer which disconnected. `Peer.Data` contains user supplied `uint` data describing the disconnection, or zero, if none is available.
+
+`EventType.Receive` a packet has been received from a peer. `Event.Peer` contains the managed pointer to the peer which sent the packet. `Event.ChannelID` specifies the channel number upon which the packet was received. `Event.Packet` contains the managed pointer to the packet that was received. This packet must be destroyed with `Event.Packet.Dispose()` after use.
+
+`EventType.Timeout` a peer has timed out. This event occurs if a peer has timed out, or if a connection request intialized by `Peer.Connection` has timed out. `Event.Peer` contains the managed pointer to the peer which timed out.

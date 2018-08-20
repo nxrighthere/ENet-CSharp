@@ -164,9 +164,9 @@ Contains a marshalled structure from the unmanaged side with host data and port 
 
 `Address.Port` set or get a port number.
 
-`Address.SetHost` set host name or an IP address (IPv4/IPv6).
+`Address.SetHost` set host name or an IP address (IPv4/IPv6). Returns 0	on success or < 0 on failure.
 
-`Address.GetIP` gives the printable form of the IP address.
+`Address.GetIP` returns the printable form of the IP address.
 
 `Address.GetName` attempts to do a reverse lookup of the host.
 

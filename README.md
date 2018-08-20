@@ -173,15 +173,15 @@ Contains a marshalled structure from the unmanaged side with host data and port 
 #### Event
 Contains a marshalled structure from the unmanaged side with the event type, managed pointer to the peer, channel ID, user-supplied data, and managed pointer to the packet.
 
-`Event.Type` type of the event.
+`Event.Type` returns the type of the event.
 
-`Event.Peer` peer that generated a connect, disconnect, receive, or timeout event.
+`Event.Peer` returns the peer that generated a connect, disconnect, receive, or timeout event.
 
-`Event.ChannelID` channel on the peer that generated the event, if appropriate.
+`Event.ChannelID` returns the channel on the peer that generated the event, if appropriate.
 
-`Event.Data` user-supplied data, if appropriate.
+`Event.Data` returns the user-supplied data, if appropriate.
 
-`Event.Packet` packet associated with the event, if appropriate.
+`Event.Packet` returns the packet associated with the event, if appropriate.
 
 #### Packet
 Contains a managed pointer to the packet.

@@ -135,13 +135,13 @@ Definitions of event types for `Event.Type` property:
 
 `EventType.None` no event occurred within the specified time limit.
 
-`EventType.Connect` a connection request initiated by `Peer.Connect` has completed. `Event.Peer` returns the peer which successfully connected. `Event.Data` returns user-supplied data describing the connection, or 0, if none is available.
+`EventType.Connect` a connection request initiated by `Peer.Connect` has completed. `Event.Peer` returns a peer which successfully connected. `Event.Data` returns user-supplied data describing the connection, or 0, if none is available.
 
-`EventType.Disconnect` a peer has disconnected. This event is generated on a successful completion of a disconnect initiated by `Peer.Disconnect`. `Event.Peer` returns the peer which disconnected. `Event.Data` returns user-supplied data describing the disconnection, or 0, if none is available.
+`EventType.Disconnect` a peer has disconnected. This event is generated on a successful completion of a disconnect initiated by `Peer.Disconnect`. `Event.Peer` returns a peer which disconnected. `Event.Data` returns user-supplied data describing the disconnection, or 0, if none is available.
 
-`EventType.Receive` a packet has been received from a peer. `Event.Peer` returns the peer which sent the packet. `Event.ChannelID` specifies the channel number upon which the packet was received. `Event.Packet` returns the packet that was received. This packet must be destroyed with `Event.Packet.Dispose()` after use.
+`EventType.Receive` a packet has been received from a peer. `Event.Peer` returns a peer which sent the packet. `Event.ChannelID` specifies the channel number upon which the packet was received. `Event.Packet` returns a packet that was received. This packet must be destroyed with `Event.Packet.Dispose()` after use.
 
-`EventType.Timeout` a peer has timed out. This event occurs if a peer has timed out, or if a connection request intialized by `Peer.Connect` has timed out. `Event.Peer` returns the peer which timed out.
+`EventType.Timeout` a peer has timed out. This event occurs if a peer has timed out, or if a connection request intialized by `Peer.Connect` has timed out. `Event.Peer` returns a peer which timed out.
 
 #### PeerState
 Definitions of peer states for `Peer.State` property:
@@ -166,31 +166,31 @@ Contains a marshalled structure from the unmanaged side with host data and port 
 
 `Address.SetHost(string hostName)` set host name or an IP address (IPv4/IPv6). Returns 0	on success or < 0 on failure.
 
-`Address.GetIP()` returns the printable form of the IP address.
+`Address.GetIP()` returns a printable form of the IP address.
 
-`Address.GetName()` returns the name. Attempts to do a reverse lookup of the host.
+`Address.GetName()` returns a name. Attempts to do a reverse lookup of the host.
 
 #### Event
 Contains a marshalled structure from the unmanaged side with the event type, managed pointer to the peer, channel ID, user-supplied data, and managed pointer to the packet.
 
-`Event.Type` returns the type of the event.
+`Event.Type` returns a type of the event.
 
-`Event.Peer` returns the peer that generated a connect, disconnect, receive, or timeout event.
+`Event.Peer` returns a peer that generated a connect, disconnect, receive, or timeout event.
 
-`Event.ChannelID` returns the channel on the peer that generated the event, if appropriate.
+`Event.ChannelID` returns a channel ID on the peer that generated the event, if appropriate.
 
-`Event.Data` returns the user-supplied data, if appropriate.
+`Event.Data` returns a user-supplied data, if appropriate.
 
-`Event.Packet` returns the packet associated with the event, if appropriate.
+`Event.Packet` returns a packet associated with the event, if appropriate.
 
 #### Packet
 Contains a managed pointer to the packet.
 
 `Packet.Dispose()` destroys the packet.
 
-`Packet.IsSet` returns the state of the managed pointer.
+`Packet.IsSet` returns a state of the managed pointer.
 
-`Packet.Length` returns the length of payload in the packet.
+`Packet.Length` returns a length of payload in the packet.
 
 `Packet.Create(byte[] data, int length, PacketFlags flags)` creates a packet that may be sent to a peer. The length and flags parameters are optional. Multiple flags can be specified at once.
 
@@ -199,23 +199,23 @@ Contains a managed pointer to the packet.
 #### Peer
 Contains a managed pointer to the peer.
 
-`Peer.IsSet` returns the state of the managed pointer.
+`Peer.IsSet` returns a state of the managed pointer.
 
-`Peer.ID` returns the ID of the peer.
+`Peer.ID` returns a peer ID.
 
-`Peer.Address` returns the address associated with the peer.
+`Peer.Address` returns a address associated with the peer.
 
-`Peer.State` returns the peer state described in the `PeerState` enumeration.
+`Peer.State` returns a peer state described in the `PeerState` enumeration.
 
-`Peer.RoundTripTime` returns the round trip time in milliseconds.
+`Peer.RoundTripTime` returns a round trip time in milliseconds.
 
-`Peer.PacketsSent` returns the total number of packets sent during the connection.
+`Peer.PacketsSent` returns a total number of packets sent during the connection.
 
-`Peer.PacketsLost` returns the total number of lost packets during the connection.
+`Peer.PacketsLost` returns a total number of lost packets during the connection.
 
-`Peer.BytesSent` returns the total number of bytes sent during the connection.
+`Peer.BytesSent` returns a total number of bytes sent during the connection.
 
-`Peer.BytesReceived` returns the total number of bytes received during the connection.
+`Peer.BytesReceived` returns a total number of bytes received during the connection.
 
 `Peer.Data` set or get the user-supplied data. Should be used with cast to data type.
 
@@ -241,15 +241,15 @@ Contains a managed pointer to the host.
 
 `Host.Dispose()` destroys the host.
 
-`Host.IsSet` returns the state of the managed pointer.
+`Host.IsSet` returns a state of the managed pointer.
 
-`Host.PacketsSent` returns the total number of packets sent during the session.
+`Host.PacketsSent` returns a total number of packets sent during the session.
 
-`Host.PacketsReceived` returns the total number of packets received during the session.
+`Host.PacketsReceived` returns a total number of packets received during the session.
 
-`Host.BytesSent` returns the total number of bytes sent during the session.
+`Host.BytesSent` returns a total number of bytes sent during the session.
 
-`Host.BytesReceived` returns the total number of bytes received during the session.
+`Host.BytesReceived` returns a total number of bytes received during the session.
 
 `Host.Create(Address? address, int peerLimit, int channelLimit, uint incomingBandwidth, uint outgoingBandwidth)` creates a host for communicating with peers. The bandwidth parameters determine the window size of a connection which limits the number of reliable packets that may be in transit at any given time. ENet will strategically drop packets on specific sides of a connection between hosts to ensure the host's bandwidth is not overwhelmed. All the parameters are optional except the address and peer limit in cases where the function is used to create a host which will listen to incoming connections.
 
@@ -280,4 +280,4 @@ Contains a constant fields.
 
 `Library.Deinitialize()` deinitializes the native library. Should be called after the work is done.
 
-`Library.Time` returns the current monotonic time in milliseconds. It never reset while the application remains alive.
+`Library.Time` returns a current monotonic time in milliseconds. It never reset while the application remains alive.

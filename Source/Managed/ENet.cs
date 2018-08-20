@@ -640,6 +640,10 @@ namespace ENet {
 	public static class Library {
 		public const int maxChannelCount = 0xFF;
 		public const int maxPeers = 0xFFF;
+		public const int throttleScale = 32;
+		public const int throttleAcceleration = 2;
+		public const int throttleDeceleration = 2;
+		public const int throttleInterval = 5000;
 		public const uint version = (2 << 16) | (0 << 8) | (3);
 
 		public static int Initialize() {

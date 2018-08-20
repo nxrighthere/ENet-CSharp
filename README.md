@@ -217,9 +217,9 @@ Contains a managed pointer to the peer.
 
 `Peer.BytesReceived` returns the total number of bytes received during the connection.
 
-`Peer.Data` set or get the user-supplied data. Consider a cast to the desired primitive data type.
+`Peer.Data` set or get the user-supplied data. Should be used with cast to data type.
 
-`Peer.ConfigureThrottle(uint interval, uint acceleration, uint deceleration)` 
+`Peer.ConfigureThrottle(uint interval, uint acceleration, uint deceleration)` configures throttle parameter for a peer. Unreliable packets are dropped by ENet in response to the varying conditions of the connection to the peer. The throttle represents a probability that an unreliable packet should not be dropped and thus sent by ENet to the peer. The lowest mean round trip time from the sending of a reliable packet to the receipt of its acknowledgement is measured over an amount of time specified by the interval parameter in milliseconds. If a measured round trip time happens to be significantly less than the mean round trip time measured over the interval, then the throttle probability is increased to allow more traffic by an amount specified in the acceleration parameter, which is a ratio to the `Library.throttleScale` constant. If a measured round trip time happens to be significantly greater than the mean round trip time measured over the interval, then the throttle probability is decreased to limit traffic by an amount specified in the deceleration parameter, which is a ratio to the `Library.throttleScale` constant. When the throttle has a value of `Library.throttleScale`, no unreliable packets are dropped by ENet, and so 100% of all unreliable packets will be sent. When the throttle has a value of 0, all unreliable packets are dropped by ENet, and so 0% of all unreliable packets will be sent. Intermediate values for the throttle represent intermediate probabilities between 0% and 100% of unreliable packets being sent. The bandwidth limits of the local and foreign hosts are taken into account to determine a sensible limit for the throttle probability above which it should not raise even in the best of conditions.
 
 `Peer.Send(byte channelID, byte[] data, int length)` 
 
@@ -273,6 +273,14 @@ Contains a constant fields.
 `Library.maxChannelCount` the maximum possible number of channels.
 
 `Library.maxPeers` the maximum possible number of peers.
+
+`Library.throttleScale` 
+
+`Library.throttleAcceleration` 
+
+`Library.throttleDeceleration` 
+
+`Library.throttleInterval` 
 
 `Library.version` the current version of the native library.
 

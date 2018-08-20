@@ -220,6 +220,37 @@ Contains a managed pointer to the peer.
 `Peer.Data` set or get the user-supplied data. Consider a cast to the desired primitive data type.
 
 ### Classes
+#### Host
+Contains a managed pointer to the host.
+
+`Host.Dispose()` destroys the host.
+
+`Host.IsSet` returns the state of the managed pointer.
+
+`Host.PacketsSent` returns the total number of packets sent during the connection.
+
+`Host.PacketsReceived` returns the total number of packets received during the connection.
+
+`Host.BytesSent` returns the total number of bytes sent during the connection.
+
+`Host.BytesReceived` returns the total number of bytes received during the connection.
+
+`Host.Create(Address? address, int peerLimit, int channelLimit, uint incomingBandwidth, uint outgoingBandwidth)` 
+
+`Host.Broadcast(byte channelID, ref Packet packet)` 
+
+`Host.CheckEvents(out Event @event)` 
+
+`Host.Connect(Address address, int channelLimit, uint data)` 
+
+`Host.Service(int timeout, out Event @event)` 
+
+`Host.SetBandwidthLimit(uint incomingBandwidth, uint outgoingBandwidth)` 
+
+`Host.SetChannelLimit(int channelLimit)` 
+
+`Host.Flush()` 
+
 #### Library
 Contains a constant fields.
 
@@ -233,9 +264,4 @@ Contains a constant fields.
 
 `Library.Deinitialize()` deinitializes the native library. Should be called after the work is done.
 
-`Library.Time` returns the current monotonic time. It never reset while the application is alive.
-
-#### Host
-Contains a managed pointer to the host.
-
-`Host.Dispose()` 
+`Library.Time` returns the current monotonic time in milliseconds. It never reset while the application remains alive.

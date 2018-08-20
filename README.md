@@ -221,19 +221,19 @@ Contains a managed pointer to the peer.
 
 `Peer.ConfigureThrottle(uint interval, uint acceleration, uint deceleration)` configures throttle parameter for a peer. Unreliable packets are dropped by ENet in response to the varying conditions of the connection to the peer. The throttle represents a probability that an unreliable packet should not be dropped and thus sent by ENet to the peer. The lowest mean round trip time from the sending of a reliable packet to the receipt of its acknowledgement is measured over an amount of time specified by the interval parameter in milliseconds. If a measured round trip time happens to be significantly less than the mean round trip time measured over the interval, then the throttle probability is increased to allow more traffic by an amount specified in the acceleration parameter, which is a ratio to the `Library.throttleScale` constant. If a measured round trip time happens to be significantly greater than the mean round trip time measured over the interval, then the throttle probability is decreased to limit traffic by an amount specified in the deceleration parameter, which is a ratio to the `Library.throttleScale` constant. When the throttle has a value of `Library.throttleScale`, no unreliable packets are dropped by ENet, and so 100% of all unreliable packets will be sent. When the throttle has a value of 0, all unreliable packets are dropped by ENet, and so 0% of all unreliable packets will be sent. Intermediate values for the throttle represent intermediate probabilities between 0% and 100% of unreliable packets being sent. The bandwidth limits of the local and foreign hosts are taken into account to determine a sensible limit for the throttle probability above which it should not raise even in the best of conditions.
 
-`Peer.Send(byte channelID, byte[] data, int length)` 
+`Peer.Send(byte channelID, byte[] data, int length)` queues a packet to be sent. Byte array with optionally specified length can be used instead of packet.
 
-`Peer.Ping()` 
+`Peer.Ping()` sends a ping request to a peer. ENet automatically pings all connected peers at regular intervals, however, this function may be called to ensure more frequent ping requests.
 
-`PingInterval(uint interval)` 
+`PingInterval(uint interval)` sets the interval at which pings will be sent to a peer. Pings are used both to monitor the liveness of the connection and also to dynamically adjust the throttle during periods of low traffic so that the throttle has reasonable responsiveness during traffic spikes.
 
-`Peer.Disconnect(uint data)` 
+`Peer.Disconnect(uint data)` request a disconnection from a peer.
 
-`Peer.DisconnectNow(uint data)` 
+`Peer.DisconnectNow(uint data)` request a disconnection from a peer, but only after all queued outgoing packets are sent. 
 
-`Peer.DisconnectLater(uint data)` 
+`Peer.DisconnectLater(uint data)` force an immediate disconnection from a peer. 
 
-`Peer.Reset()` 
+`Peer.Reset()` rorcefully disconnects a peer. The foreign host represented by the peer is not notified of the disconnection and will timeout on its connection to the local host.
 
 ### Classes
 #### Host
@@ -259,7 +259,7 @@ Contains a managed pointer to the host.
 
 `Host.Connect(Address address, int channelLimit, uint data)` initiates a connection to a foreign host. Returns a peer representing the foreign host on success or null on failure. The peer returned will have not completed the connection until `Host.Service` notifies of an `EventType.Connect` event for the peer. 
 
-`Host.Service(int timeout, out Event @event)` waits for events on the host specified and shuttles packets between the host and its peers. ENet uses a polled event model to notify the programmer of significant events. ENet hosts are polled for events with this function, where an optional timeout value in milliseconds may be specified to control how long ENet will poll. If a timeout of 0 is specified, this function will return immediately if there are no events to dispatch. Otherwise, it will return 1 if an event was dispatched within the specified timeout. This function should be regularly called to ensure packets are sent and received. The timeout parameter set to 0 means non-blocking execution which required for cases when the function is called in a game loop.
+`Host.Service(int timeout, out Event @event)` waits for events on the host specified and shuttles packets between the host and its peers. ENet uses a polled event model to notify the programmer of significant events. ENet hosts are polled for events with this function, where an optional timeout value in milliseconds may be specified to control how long ENet will poll. If a timeout of 0 is specified, this function will return immediately if there are no events to dispatch. Otherwise, it will return 1 if an event was dispatched within the specified timeout. This function should be regularly called to ensure packets are sent and received. The timeout parameter set to 0 means non-blocking execution which required for cases where the function is called in a game loop.
 
 `Host.SetBandwidthLimit(uint incomingBandwidth, uint outgoingBandwidth)` adjusts the bandwidth limits of a host in bytes per second.
 

@@ -116,7 +116,7 @@ peer.Send(channelID, packet);
 ```
 
 ### Unity
-Usage is almost the same as in the .NET environment, except that the console functions must be replaced with functions provided by Unity. If you are going to call the service function in a game loop, make sure that the timeout parameter set to 0 which means non-blocking. Also, keep Unity run in background by enabling the appropriate option in the player settings.
+Usage is almost the same as in the .NET environment, except that the console functions must be replaced with functions provided by Unity. If the service function will be called in a game loop, then make sure that the timeout parameter set to 0 which means non-blocking. Also, keep Unity run in background by enabling the appropriate option in the player settings.
 
 API reference
 --------

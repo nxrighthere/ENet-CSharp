@@ -164,11 +164,11 @@ Contains a marshalled structure from the unmanaged side with host data and port 
 
 `Address.Port` set or get a port number.
 
-`Address.SetHost` set host name or an IP address (IPv4/IPv6). Returns 0	on success or < 0 on failure.
+`Address.SetHost(string hostName)` set host name or an IP address (IPv4/IPv6). Returns 0	on success or < 0 on failure.
 
-`Address.GetIP` returns the printable form of the IP address.
+`Address.GetIP()` returns the printable form of the IP address.
 
-`Address.GetName` attempts to do a reverse lookup of the host.
+`Address.GetName()` returns the name. Attempts to do a reverse lookup of the host.
 
 #### Event
 Contains a marshalled structure from the unmanaged side with the event type, managed pointer to the peer, channel ID, user-supplied data, and managed pointer to the packet.

@@ -18,7 +18,7 @@ You can grab compiled libraries from the [release](https://github.com/nxrighther
 
 `ENet-Unity` contains script with native libraries for the Unity.
 
-These packages are provided only for traditional platforms: Windows, Linux and MacOS.
+These packages are provided only for traditional platforms: Windows, Linux, and MacOS.
 
 Usage
 --------
@@ -152,7 +152,7 @@ Definitions of peer states for `Peer.State` property:
 
 `PeerState.Connecting` a peer connection in-progress.
 
-`PeerState.Connected` a peer successfuly connected.
+`PeerState.Connected` a peer successfully connected.
 
 `PeerState.Disconnecting` a peer disconnection in-progress.
 
@@ -175,11 +175,11 @@ Contains a marshalled structure from the unmanaged side with the event type, man
 
 `Event.Type` returns a type of the event.
 
-`Event.Peer` returns a peer that generated a connect, disconnect, receive, or timeout event.
+`Event.Peer` returns a peer that generated a connect, disconnect, receive or a timeout event.
 
 `Event.ChannelID` returns a channel ID on the peer that generated the event, if appropriate.
 
-`Event.Data` returns a user-supplied data, if appropriate.
+`Event.Data` returns user-supplied data, if appropriate.
 
 `Event.Packet` returns a packet associated with the event, if appropriate.
 
@@ -203,7 +203,7 @@ Contains a managed pointer to the peer.
 
 `Peer.ID` returns a peer ID.
 
-`Peer.Address` returns a address associated with the peer.
+`Peer.Address` returns an address associated with the peer.
 
 `Peer.State` returns a peer state described in the `PeerState` enumeration.
 
@@ -217,11 +217,11 @@ Contains a managed pointer to the peer.
 
 `Peer.BytesReceived` returns a total number of bytes received during the connection.
 
-`Peer.Data` set or get the user-supplied data. Should be used with cast to data type.
+`Peer.Data` set or get the user-supplied data. Should be used with a cast to data type.
 
-`Peer.ConfigureThrottle(uint interval, uint acceleration, uint deceleration)` configures throttle parameter for a peer. Unreliable packets are dropped by ENet in response to the varying conditions of the connection to the peer. The throttle represents a probability that an unreliable packet should not be dropped and thus sent by ENet to the peer. The lowest mean round trip time from the sending of a reliable packet to the receipt of its acknowledgement is measured over an amount of time specified by the interval parameter in milliseconds. If a measured round trip time happens to be significantly less than the mean round trip time measured over the interval, then the throttle probability is increased to allow more traffic by an amount specified in the acceleration parameter, which is a ratio to the `Library.throttleScale` constant. If a measured round trip time happens to be significantly greater than the mean round trip time measured over the interval, then the throttle probability is decreased to limit traffic by an amount specified in the deceleration parameter, which is a ratio to the `Library.throttleScale` constant. When the throttle has a value of `Library.throttleScale`, no unreliable packets are dropped by ENet, and so 100% of all unreliable packets will be sent. When the throttle has a value of 0, all unreliable packets are dropped by ENet, and so 0% of all unreliable packets will be sent. Intermediate values for the throttle represent intermediate probabilities between 0% and 100% of unreliable packets being sent. The bandwidth limits of the local and foreign hosts are taken into account to determine a sensible limit for the throttle probability above which it should not raise even in the best of conditions.
+`Peer.ConfigureThrottle(uint interval, uint acceleration, uint deceleration)` configures throttle parameter for a peer. Unreliable packets are dropped by ENet in response to the varying conditions of the connection to the peer. The throttle represents a probability that an unreliable packet should not be dropped and thus sent by ENet to the peer. The lowest mean round trip time from the sending of a reliable packet to the receipt of its acknowledgment is measured over an amount of time specified by the interval parameter in milliseconds. If a measured round trip time happens to be significantly less than the mean round trip time measured over the interval, then the throttle probability is increased to allow more traffic by an amount specified in the acceleration parameter, which is a ratio to the `Library.throttleScale` constant. If a measured round trip time happens to be significantly greater than the mean round trip time measured over the interval, then the throttle probability is decreased to limit traffic by an amount specified in the deceleration parameter, which is a ratio to the `Library.throttleScale` constant. When the throttle has a value of `Library.throttleScale`, no unreliable packets are dropped by ENet, and so 100% of all unreliable packets will be sent. When the throttle has a value of 0, all unreliable packets are dropped by ENet, and so 0% of all unreliable packets will be sent. Intermediate values for the throttle represent intermediate probabilities between 0% and 100% of unreliable packets being sent. The bandwidth limits of the local and foreign hosts are taken into account to determine a sensible limit for the throttle probability above which it should not raise even in the best of conditions.
 
-`Peer.Send(byte channelID, byte[] data, int length)` queues a packet to be sent. Byte array with optionally specified length can be passed as parameters instead of packet.
+`Peer.Send(byte channelID, byte[] data, int length)` queues a packet to be sent. Byte array with optionally specified length can be passed as parameters instead of the packet.
 
 `Peer.Ping()` sends a ping request to a peer. ENet automatically pings all connected peers at regular intervals, however, this function may be called to ensure more frequent ping requests.
 
@@ -233,7 +233,7 @@ Contains a managed pointer to the peer.
 
 `Peer.DisconnectLater(uint data)` force an immediate disconnection from a peer. 
 
-`Peer.Reset()` rorcefully disconnects a peer. The foreign host represented by the peer is not notified of the disconnection and will timeout on its connection to the local host.
+`Peer.Reset()` forcefully disconnects a peer. The foreign host represented by the peer is not notified of the disconnection and will timeout on its connection to the local host.
 
 ### Classes
 #### Host
@@ -257,7 +257,7 @@ Contains a managed pointer to the host.
 
 `Host.CheckEvents(out Event @event)` checks for any queued events on the host and dispatches one if available. Returns > 0 if an event was dispatched, 0 if no events are available, < 0 on failure.
 
-`Host.Connect(Address address, int channelLimit, uint data)` initiates a connection to a foreign host. Returns a peer representing the foreign host on success or null on failure. The peer returned will have not completed the connection until `Host.Service` notifies of an `EventType.Connect` event for the peer. 
+`Host.Connect(Address address, int channelLimit, uint data)` initiates a connection to a foreign host. Returns a peer representing the foreign host on success or null on failure. The peer returned will not have completed the connection until `Host.Service` notifies of an `EventType.Connect` event for the peer. 
 
 `Host.Service(int timeout, out Event @event)` waits for events on the host specified and shuttles packets between the host and its peers. ENet uses a polled event model to notify the programmer of significant events. ENet hosts are polled for events with this function, where an optional timeout value in milliseconds may be specified to control how long ENet will poll. If a timeout of 0 is specified, this function will return immediately if there are no events to dispatch. Otherwise, it will return 1 if an event was dispatched within the specified timeout. This function should be regularly called to ensure packets are sent and received. The timeout parameter set to 0 means non-blocking execution which required for cases where the function is called in a game loop.
 

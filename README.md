@@ -170,7 +170,7 @@ Contains a marshalled structure from the unmanaged side with host data and port 
 
 `Address.SetHost(string hostName)` set host name or an IP address (IPv4/IPv6). Returns 0 on success or < 0 on failure.
 
-`Address.GetIP()` returns a printable form of the IP address.
+`Address.GetIP()` returns an IP address in a printable form.
 
 `Address.GetName()` returns a name. Attempts to do a reverse lookup of the host.
 

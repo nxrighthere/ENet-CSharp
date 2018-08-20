@@ -24,6 +24,9 @@ Usage
 --------
 Before starting to work, the library should be initialized using `ENet.Library.Initialize();` function.
 
+When the work is done, deinitialize the library using `ENet.Library.Deinitialize();` function.
+
+### .NET environment
 Start a new server:
 ```c#
 Host server = new Host();
@@ -112,7 +115,8 @@ packet.Create(data);
 peer.Send(channelID, packet);
 ```
 
-When the work is done, deinitialize the library using `ENet.Library.Deinitialize();` function.
+### Unity
+Usage is almost the same as in the .NET environment, except that the console functions must be replaced with functions provided by Unity. If you are going to call the service function in a game loop, make sure that the timeout parameter set to 0 which means non-blocking. Also, keep Unity run in background by enabling the appropriate option in the player settings.
 
 API reference
 --------
@@ -164,7 +168,7 @@ Contains a marshalled structure from the unmanaged side with host data and port 
 
 `Address.Port` set or get a port number.
 
-`Address.SetHost(string hostName)` set host name or an IP address (IPv4/IPv6). Returns 0	on success or < 0 on failure.
+`Address.SetHost(string hostName)` set host name or an IP address (IPv4/IPv6). Returns 0 on success or < 0 on failure.
 
 `Address.GetIP()` returns a printable form of the IP address.
 
@@ -259,7 +263,7 @@ Contains a managed pointer to the host.
 
 `Host.Connect(Address address, int channelLimit, uint data)` initiates a connection to a foreign host. Returns a peer representing the foreign host on success or `null` on failure. The peer returned will not have completed the connection until `Host.Service` notifies of an `EventType.Connect` event for the peer. 
 
-`Host.Service(int timeout, out Event @event)` waits for events on the host specified and shuttles packets between the host and its peers. ENet uses a polled event model to notify the programmer of significant events. ENet hosts are polled for events with this function, where an optional timeout value in milliseconds may be specified to control how long ENet will poll. If a timeout of 0 is specified, this function will return immediately if there are no events to dispatch. Otherwise, it will return 1 if an event was dispatched within the specified timeout. This function should be regularly called to ensure packets are sent and received. The timeout parameter set to 0 means non-blocking execution which required for cases where the function is called in a game loop.
+`Host.Service(int timeout, out Event @event)` waits for events on the host specified and shuttles packets between the host and its peers. ENet uses a polled event model to notify the programmer of significant events. ENet hosts are polled for events with this function, where an optional timeout value in milliseconds may be specified to control how long ENet will poll. If a timeout of 0 is specified, this function will return immediately if there are no events to dispatch. Otherwise, it will return 1 if an event was dispatched within the specified timeout. This function should be regularly called to ensure packets are sent and received. The timeout parameter set to 0 means non-blocking which required for cases where the function is called in a game loop.
 
 `Host.SetBandwidthLimit(uint incomingBandwidth, uint outgoingBandwidth)` adjusts the bandwidth limits of a host in bytes per second.
 

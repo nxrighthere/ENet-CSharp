@@ -565,27 +565,6 @@ namespace ENet {
 			Native.enet_peer_throttle_configure(nativePeer, interval, acceleration, deceleration);
 		}
 
-		public bool Send(byte channelID, byte[] data) {
-			if (data == null)
-				throw new ArgumentNullException("data");
-
-			return Send(channelID, data, data.Length);
-		}
-
-		public bool Send(byte channelID, byte[] data, int length) {
-			if (data == null)
-				throw new ArgumentNullException("data");
-
-			bool result;
-
-			using (var packet = new Packet()) {
-				packet.Create(data, length);
-				result = Send(channelID, packet);
-			}
-
-			return result;
-		}
-
 		public bool Send(byte channelID, Packet packet) {
 			return Native.enet_peer_send(nativePeer, channelID, packet.NativeData) >= 0;
 		}

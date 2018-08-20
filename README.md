@@ -135,9 +135,9 @@ Definitions of event types for `Event.Type` property:
 
 `EventType.None` no event occurred within the specified time limit.
 
-`EventType.Connect` a connection request initiated by `Peer.Connect` has completed. `Event.Peer` returns the peer which successfully connected. `Peer.Data` returns user-supplied `uint` data describing the connection, or 0, if none is available.
+`EventType.Connect` a connection request initiated by `Peer.Connect` has completed. `Event.Peer` returns the peer which successfully connected. `Event.Data` returns user-supplied `uint` data describing the connection, or 0, if none is available.
 
-`EventType.Disconnect` a peer has disconnected. This event is generated on a successful completion of a disconnect initiated by `Peer.Disconnect`. `Event.Peer` returns the peer which disconnected. `Peer.Data` returns user-supplied `uint` data describing the disconnection, or 0, if none is available.
+`EventType.Disconnect` a peer has disconnected. This event is generated on a successful completion of a disconnect initiated by `Peer.Disconnect`. `Event.Peer` returns the peer which disconnected. `Event.Data` returns user-supplied `uint` data describing the disconnection, or 0, if none is available.
 
 `EventType.Receive` a packet has been received from a peer. `Event.Peer` returns the peer which sent the packet. `Event.ChannelID` specifies the channel number upon which the packet was received. `Event.Packet` returns the packet that was received. This packet must be destroyed with `Event.Packet.Dispose()` after use.
 

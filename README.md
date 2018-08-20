@@ -118,15 +118,15 @@ API reference
 --------
 ### Enumerations
 #### PacketFlags
-Definitions of flag for `Peer.Send` function:
+Definitions of a flag for `Peer.Send` function:
 
 `PacketFlags.None` unreliable sequenced, delivery of packet is not guaranteed.
 
-`PacketFlags.Reliable` reliable sequenced, packet must be received by the target peer and resend attempts should be made until the packet is delivered.
+`PacketFlags.Reliable` reliable sequenced, a packet must be received by the target peer and resend attempts should be made until the packet is delivered.
 
 `PacketFlags.Unsequenced` a packet will not be sequenced with other packets and may be delivered out of order.
 
-`PacketFlags.NoAllocate` a packet will not allocate data, and user must supply it instead.
+`PacketFlags.NoAllocate` a packet will not allocate data, and the user must supply it instead.
 
 `PacketFlags.UnreliableFragment` a packet will be fragmented if it exceeds the MTU.
 
@@ -141,7 +141,7 @@ Definitions of event types for `Event.Type` property:
 
 `EventType.Receive` a packet has been received from a peer. `Event.Peer` returns a peer which sent the packet. `Event.ChannelID` specifies the channel number upon which the packet was received. `Event.Packet` returns a packet that was received. This packet must be destroyed with `Event.Packet.Dispose()` after use.
 
-`EventType.Timeout` a peer has timed out. This event occurs if a peer has timed out, or if a connection request intialized by `Peer.Connect` has timed out. `Event.Peer` returns a peer which timed out.
+`EventType.Timeout` a peer has timed out. This event occurs if a peer has timed out, or if a connection request initialized by `Peer.Connect` has timed out. `Event.Peer` returns a peer which timed out.
 
 #### PeerState
 Definitions of peer states for `Peer.State` property:
@@ -268,7 +268,7 @@ Contains a managed pointer to the host.
 `Host.Flush()` sends any queued packets on the host specified to its designated peers. 
 
 #### Library
-Contains a constant fields.
+Contains constant fields.
 
 `Library.maxChannelCount` the maximum possible number of channels.
 

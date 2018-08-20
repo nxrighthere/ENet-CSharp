@@ -172,7 +172,7 @@ Contains a marshalled structure from the unmanaged side with host data and port 
 
 `Address.GetIP()` returns an IP address in a printable form.
 
-`Address.GetName()` returns a name. Attempts to do a reverse lookup of the host.
+`Address.GetName()` returns a name after attempts to do a reverse lookup of the host.
 
 #### Event
 Contains a marshalled structure from the unmanaged side with the event type, managed pointer to the peer, channel ID, user-supplied data, and managed pointer to the packet.

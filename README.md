@@ -219,6 +219,22 @@ Contains a managed pointer to the peer.
 
 `Peer.Data` set or get the user-supplied data. Consider a cast to the desired primitive data type.
 
+`Peer.ConfigureThrottle(uint interval, uint acceleration, uint deceleration)` 
+
+`Peer.Send(byte channelID, byte[] data, int length)` 
+
+`Peer.Ping()` 
+
+`PingInterval(uint interval)` 
+
+`Peer.Disconnect(uint data)` 
+
+`Peer.DisconnectNow(uint data)` 
+
+`Peer.DisconnectLater(uint data)` 
+
+`Peer.Reset()` 
+
 ### Classes
 #### Host
 Contains a managed pointer to the host.

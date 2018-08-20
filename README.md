@@ -203,7 +203,7 @@ Contains a managed pointer to the peer.
 
 `Peer.ID` returns the ID of the peer.
 
-`Peer.Address` returns the `Address` structure.
+`Peer.Address` returns the address associated with the peer.
 
 `Peer.State` returns the peer state described in the `PeerState` enumeration.
 

@@ -116,7 +116,7 @@ peer.Send(channelID, packet);
 ```
 
 ### Unity
-Usage is almost the same as in the .NET environment, except that the console functions must be replaced with functions provided by Unity. If the service function will be called in a game loop, then make sure that the timeout parameter set to 0 which means non-blocking. Also, keep Unity run in background by enabling the appropriate option in the player settings.
+Usage is almost the same as in the .NET environment, except that the console functions must be replaced with functions provided by Unity. If the `Host.Service()` function will be called in a game loop, then make sure that the timeout parameter set to 0 which means non-blocking. Also, keep Unity run in background by enabling the appropriate option in the player settings.
 
 API reference
 --------
@@ -261,7 +261,7 @@ Contains a managed pointer to the host.
 
 `Host.CheckEvents(out Event @event)` checks for any queued events on the host and dispatches one if available. Returns > 0 if an event was dispatched, 0 if no events are available, < 0 on failure.
 
-`Host.Connect(Address address, int channelLimit, uint data)` initiates a connection to a foreign host. Returns a peer representing the foreign host on success or `null` on failure. The peer returned will not have completed the connection until `Host.Service` notifies of an `EventType.Connect` event for the peer. 
+`Host.Connect(Address address, int channelLimit, uint data)` initiates a connection to a foreign host. Returns a peer representing the foreign host on success or `null` on failure. The peer returned will not have completed the connection until `Host.Service()` notifies of an `EventType.Connect` event for the peer. 
 
 `Host.Service(int timeout, out Event @event)` waits for events on the host specified and shuttles packets between the host and its peers. ENet uses a polled event model to notify the programmer of significant events. ENet hosts are polled for events with this function, where an optional timeout value in milliseconds may be specified to control how long ENet will poll. If a timeout of 0 is specified, this function will return immediately if there are no events to dispatch. Otherwise, it will return 1 if an event was dispatched within the specified timeout. This function should be regularly called to ensure packets are sent and received. The timeout parameter set to 0 means non-blocking which required for cases where the function is called in a game loop.
 

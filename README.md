@@ -135,9 +135,9 @@ Definitions of event types for `Event.Type` property:
 
 `EventType.None` no event occurred within the specified time limit.
 
-`EventType.Connect` a connection request initiated by `Peer.Connect` has completed. `Event.Peer` returns the managed pointer to the peer which successfully connected. `Peer.Data` returns user-supplied `uint` data describing the connection, or zero, if none is available.
+`EventType.Connect` a connection request initiated by `Peer.Connect` has completed. `Event.Peer` returns the managed pointer to the peer which successfully connected. `Peer.Data` returns user-supplied `uint` data describing the connection, or 0, if none is available.
 
-`EventType.Disconnect` a peer has disconnected. This event is generated on a successful completion of a disconnect initiated by `Peer.Disconnect`. `Event.Peer` returns the managed pointer to the peer which disconnected. `Peer.Data` returns user-supplied `uint` data describing the disconnection, or zero, if none is available.
+`EventType.Disconnect` a peer has disconnected. This event is generated on a successful completion of a disconnect initiated by `Peer.Disconnect`. `Event.Peer` returns the managed pointer to the peer which disconnected. `Peer.Data` returns user-supplied `uint` data describing the disconnection, or 0, if none is available.
 
 `EventType.Receive` a packet has been received from a peer. `Event.Peer` returns the managed pointer to the peer which sent the packet. `Event.ChannelID` specifies the channel number upon which the packet was received. `Event.Packet` returns the managed pointer to the packet that was received. This packet must be destroyed with `Event.Packet.Dispose()` after use.
 
@@ -235,21 +235,21 @@ Contains a managed pointer to the host.
 
 `Host.BytesReceived` returns the total number of bytes received during the session.
 
-`Host.Create(Address? address, int peerLimit, int channelLimit, uint incomingBandwidth, uint outgoingBandwidth)` creates a host for communicating with peers. ENet will strategically drop packets on specific sides of a connection between hosts to ensure the host's bandwidth is not overwhelmed. The bandwidth parameters determine the window size of a connection which limits the number of reliable packets that may be in transit at any given time. All the parameters are optional except the address and peer limit in a case where the function is used to create a host which will listen to incoming connections.
+`Host.Create(Address? address, int peerLimit, int channelLimit, uint incomingBandwidth, uint outgoingBandwidth)` creates a host for communicating with peers. The bandwidth parameters determine the window size of a connection which limits the number of reliable packets that may be in transit at any given time. ENet will strategically drop packets on specific sides of a connection between hosts to ensure the host's bandwidth is not overwhelmed. All the parameters are optional except the address and peer limit in a cases where the function is used to create a host which will listen to incoming connections.
 
-`Host.Broadcast(byte channelID, ref Packet packet)` Queues a packet to be sent to all peers associated with the host. 
+`Host.Broadcast(byte channelID, ref Packet packet)` queues a packet to be sent to all peers associated with the host. 
 
-`Host.CheckEvents(out Event @event)` 
+`Host.CheckEvents(out Event @event)` checks for any queued events on the host and dispatches one if available. Returns > 0 if an event was dispatched, 0 if no events are available, < 0 on failure.
 
-`Host.Connect(Address address, int channelLimit, uint data)` 
+`Host.Connect(Address address, int channelLimit, uint data)` initiates a connection to a foreign host. Returns a peer representing the foreign host on success or null on failure. The peer returned will have not completed the connection until `Host.Service` notifies of an `EventType.Connect` event for the peer. 
 
-`Host.Service(int timeout, out Event @event)` 
+`Host.Service(int timeout, out Event @event)` waits for events on the host specified and shuttles packets between the host and its peers. This function should be regularly called to ensure packets are sent and received. The timeout parameter set to 0 means non-blocking execution which required for cases when the function is called in a game loop.
 
-`Host.SetBandwidthLimit(uint incomingBandwidth, uint outgoingBandwidth)` 
+`Host.SetBandwidthLimit(uint incomingBandwidth, uint outgoingBandwidth)` adjusts the bandwidth limits of a host in bytes per second.
 
-`Host.SetChannelLimit(int channelLimit)` 
+`Host.SetChannelLimit(int channelLimit)` limits the maximum allowed channels of future incoming connections. 
 
-`Host.Flush()` 
+`Host.Flush()` sends any queued packets on the host specified to its designated peers. 
 
 #### Library
 Contains a constant fields.

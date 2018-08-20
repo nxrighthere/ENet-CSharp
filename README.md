@@ -227,17 +227,17 @@ Contains a managed pointer to the host.
 
 `Host.IsSet` returns the state of the managed pointer.
 
-`Host.PacketsSent` returns the total number of packets sent during the connection.
+`Host.PacketsSent` returns the total number of packets sent during the session.
 
-`Host.PacketsReceived` returns the total number of packets received during the connection.
+`Host.PacketsReceived` returns the total number of packets received during the session.
 
-`Host.BytesSent` returns the total number of bytes sent during the connection.
+`Host.BytesSent` returns the total number of bytes sent during the session.
 
-`Host.BytesReceived` returns the total number of bytes received during the connection.
+`Host.BytesReceived` returns the total number of bytes received during the session.
 
-`Host.Create(Address? address, int peerLimit, int channelLimit, uint incomingBandwidth, uint outgoingBandwidth)` 
+`Host.Create(Address? address, int peerLimit, int channelLimit, uint incomingBandwidth, uint outgoingBandwidth)` creates a host for communicating with peers. ENet will strategically drop packets on specific sides of a connection between hosts to ensure the host's bandwidth is not overwhelmed. The bandwidth parameters determine the window size of a connection which limits the number of reliable packets that may be in transit at any given time. All the parameters are optional except the address and peer limit in a case where the function is used to create a host which will listen to incoming connections.
 
-`Host.Broadcast(byte channelID, ref Packet packet)` 
+`Host.Broadcast(byte channelID, ref Packet packet)` Queues a packet to be sent to all peers associated with the host. 
 
 `Host.CheckEvents(out Event @event)` 
 

@@ -233,9 +233,9 @@ Contains a managed pointer to the peer.
 
 `Peer.Disconnect(uint data)` request a disconnection from a peer.
 
-`Peer.DisconnectNow(uint data)` request a disconnection from a peer, but only after all queued outgoing packets are sent. 
+`Peer.DisconnectNow(uint data)` force an immediate disconnection from a peer.
 
-`Peer.DisconnectLater(uint data)` force an immediate disconnection from a peer. 
+`Peer.DisconnectLater(uint data)` request a disconnection from a peer, but only after all queued outgoing packets are sent.
 
 `Peer.Reset()` forcefully disconnects a peer. The foreign host represented by the peer is not notified of the disconnection and will timeout on its connection to the local host.
 

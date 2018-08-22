@@ -247,6 +247,8 @@ Contains a managed pointer to the host.
 
 `Host.IsSet` returns a state of the managed pointer.
 
+`Host.PeersCount` returns a number of connected peers.
+
 `Host.PacketsSent` returns a total number of packets sent during the session.
 
 `Host.PacketsReceived` returns a total number of packets received during the session.

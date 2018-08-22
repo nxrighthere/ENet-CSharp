@@ -318,6 +318,12 @@ namespace ENet {
 			}
 		}
 
+		public uint PeersCount {
+			get {
+				return Native.enet_host_get_peers_count(nativeHost);
+			}
+		}
+
 		public uint PacketsSent {
 			get {
 				return Native.enet_host_get_packets_sent(nativeHost);
@@ -627,7 +633,7 @@ namespace ENet {
 		public const int throttleAcceleration = 2;
 		public const int throttleDeceleration = 2;
 		public const int throttleInterval = 5000;
-		public const uint version = (2 << 16) | (0 << 8) | (3);
+		public const uint version = (2 << 16) | (0 << 8) | (4);
 
 		public static int Initialize() {
 			return Native.enet_initialize();
@@ -707,6 +713,9 @@ namespace ENet {
 
 		[DllImport(nativeLibrary, CallingConvention = CallingConvention.Cdecl)]
 		internal static extern void enet_host_bandwidth_limit(IntPtr host, uint incomingBandwidth, uint outgoingBandwidth);
+
+		[DllImport(nativeLibrary, CallingConvention = CallingConvention.Cdecl)]
+		internal static extern uint enet_host_get_peers_count(IntPtr host);
 
 		[DllImport(nativeLibrary, CallingConvention = CallingConvention.Cdecl)]
 		internal static extern uint enet_host_get_packets_sent(IntPtr host);

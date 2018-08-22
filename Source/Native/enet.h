@@ -32,7 +32,7 @@
 
 #define ENET_VERSION_MAJOR 2
 #define ENET_VERSION_MINOR 0
-#define ENET_VERSION_PATCH 3
+#define ENET_VERSION_PATCH 4
 #define ENET_VERSION_CREATE(major, minor, patch) (((major)<<16) | ((minor)<<8) | (patch))
 #define ENET_VERSION_GET_MAJOR(version) (((version)>>16)&0xFF)
 #define ENET_VERSION_GET_MINOR(version) (((version)>>8)&0xFF)
@@ -885,6 +885,7 @@ extern "C" {
     */
     ENET_API int enet_address_get_host (const ENetAddress * address, char * hostName, size_t nameLength);
 
+    ENET_API enet_uint32         enet_host_get_peers_count (ENetHost *);
     ENET_API enet_uint32         enet_host_get_packets_sent (ENetHost *);
     ENET_API enet_uint32         enet_host_get_packets_received (ENetHost *);
     ENET_API enet_uint32         enet_host_get_bytes_sent (ENetHost *);
@@ -3290,6 +3291,10 @@ extern "C" {
     }
 
     /* Extended functionality for easier binding in other programming languages */
+    enet_uint32 enet_host_get_peers_count(ENetHost *host) {
+        return host->connectedPeers;
+    }
+
     enet_uint32 enet_host_get_packets_sent(ENetHost *host) {
         return host->totalSentPackets;
     }

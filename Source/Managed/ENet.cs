@@ -576,6 +576,8 @@ namespace ENet {
 		}
 
 		public bool Send(byte channelID, Packet packet) {
+			CheckCreated();
+
 			return Native.enet_peer_send(nativePeer, channelID, packet.NativeData) >= 0;
 		}
 

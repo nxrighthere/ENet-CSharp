@@ -229,7 +229,7 @@ Contains a managed pointer to the peer.
 
 `Peer.Ping()` sends a ping request to a peer. ENet automatically pings all connected peers at regular intervals, however, this function may be called to ensure more frequent ping requests.
 
-`PingInterval(uint interval)` sets the interval at which pings will be sent to a peer. Pings are used both to monitor the liveness of the connection and also to dynamically adjust the throttle during periods of low traffic so that the throttle has reasonable responsiveness during traffic spikes.
+`Peer.PingInterval(uint interval)` sets the interval at which pings will be sent to a peer. Pings are used both to monitor the liveness of the connection and also to dynamically adjust the throttle during periods of low traffic so that the throttle has reasonable responsiveness during traffic spikes.
 
 `Peer.Disconnect(uint data)` request a disconnection from a peer.
 

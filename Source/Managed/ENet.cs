@@ -575,7 +575,7 @@ namespace ENet {
 			Native.enet_peer_throttle_configure(nativePeer, interval, acceleration, deceleration);
 		}
 
-		public bool Send(byte channelID, Packet packet) {
+		public bool Send(byte channelID, ref Packet packet) {
 			CheckCreated();
 
 			return Native.enet_peer_send(nativePeer, channelID, packet.NativeData) >= 0;

@@ -100,6 +100,10 @@ namespace ENet {
 			}
 		}
 
+		public Address(ENetAddress address) {
+			nativeAddress = address;
+		}
+
 		public ushort Port {
 			get {
 				return nativeAddress.port;

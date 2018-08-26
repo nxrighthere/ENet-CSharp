@@ -271,7 +271,7 @@ Contains a managed pointer to the host.
 
 `Host.SetChannelLimit(int channelLimit)` limits the maximum allowed channels of future incoming connections. 
 
-`Host.Flush()` sends any queued packets on the host specified to its designated peers. 
+`Host.Flush()` sends any queued packets on the specified host to its designated peers. 
 
 #### Library
 Contains constant fields.

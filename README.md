@@ -47,19 +47,19 @@ while (!Console.KeyAvailable) {
 			break;
 
 		case EventType.Connect:
-			Console.WriteLine("Client connected - ID: " + netEvent.Peer.ID + ", IP: " + netEvent.Peer.Address.GetIP());
+			Console.WriteLine("Client connected - ID: " + netEvent.Peer.ID + ", IP: " + netEvent.Peer.IP);
 			break;
 
 		case EventType.Disconnect:
-			Console.WriteLine("Client disconnected - ID: " + netEvent.Peer.ID + ", IP: " + netEvent.Peer.Address.GetIP());
+			Console.WriteLine("Client disconnected - ID: " + netEvent.Peer.ID + ", IP: " + netEvent.Peer.IP);
 			break;
 
 		case EventType.Timeout:
-			Console.WriteLine("Client timeout - ID: " + netEvent.Peer.ID + ", IP: " + netEvent.Peer.Address.GetIP());
+			Console.WriteLine("Client timeout - ID: " + netEvent.Peer.ID + ", IP: " + netEvent.Peer.IP);
 			break;
 
 		case EventType.Receive:
-			Console.WriteLine("Packet received from - ID: " + netEvent.Peer.ID + ", IP: " + netEvent.Peer.Address.GetIP() + ", Channel ID: " + netEvent.ChannelID + ", Data length: " + netEvent.Packet.Length);
+			Console.WriteLine("Packet received from - ID: " + netEvent.Peer.ID + ", IP: " + netEvent.Peer.IP + ", Channel ID: " + netEvent.ChannelID + ", Data length: " + netEvent.Packet.Length);
 			netEvent.Packet.Dispose();
 			break;
 	}
@@ -174,10 +174,6 @@ Contains a marshalled structure from the unmanaged side with host data and port 
 
 `Address.SetHost(string hostName)` set host name or an IP address (IPv4/IPv6). Returns 0 on success or < 0 on failure.
 
-`Address.GetIP()` returns an IP address in a printable form.
-
-`Address.GetName()` returns a name after attempts to do a reverse lookup of the host.
-
 #### Event
 Contains a marshalled structure from the unmanaged side with the event type, managed pointer to the peer, channel ID, user-supplied data, and managed pointer to the packet.
 
@@ -210,6 +206,8 @@ Contains a managed pointer to the peer.
 `Peer.IsSet` returns a state of the managed pointer.
 
 `Peer.ID` returns a peer ID.
+
+`Peer.IP` returns an IP address of a peer in a printable form.
 
 `Peer.Address` returns an address associated with the peer.
 

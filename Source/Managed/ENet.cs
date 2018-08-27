@@ -120,24 +120,6 @@ namespace ENet {
 
 			return Native.enet_address_set_host(ref nativeAddress, Encoding.ASCII.GetBytes(hostName)) == 0;
 		}
-
-		public string GetIP() {
-			byte[] data = new byte[16];
-
-			if (Native.enet_address_get_host_ip(ref nativeAddress, data, (IntPtr)16) == 0)
-				return Encoding.ASCII.GetString(data);
-			else
-				return String.Empty;
-		}
-
-		public string GetName() {
-			byte[] data = new byte[256];
-
-			if (Native.enet_address_get_host(ref nativeAddress, data, (IntPtr)256) == 0)
-				return Encoding.ASCII.GetString(data);
-			else
-				return String.Empty;
-		}
 	}
 
 	public struct Event {
@@ -528,11 +510,20 @@ namespace ENet {
 			}
 		}
 
-		public Address Address {
+		public string IP {
 			get {
 				CheckCreated();
 
-				return Native.enet_peer_get_address(nativePeer);
+				byte[] ip = new byte[16];
+
+				if (Native.enet_peer_get_ip(nativePeer, ip, (IntPtr)ip.Length) == 0) {
+					if (Encoding.ASCII.GetString(ip).Remove(7) == "::ffff:")
+						return Encoding.ASCII.GetString(ip).Substring(7);
+
+					return Encoding.ASCII.GetString(ip);
+				} else {
+					return String.Empty;
+				}
 			}
 		}
 
@@ -667,7 +658,7 @@ namespace ENet {
 		public const int throttleAcceleration = 2;
 		public const int throttleDeceleration = 2;
 		public const int throttleInterval = 5000;
-		public const uint version = (2 << 16) | (0 << 8) | (4);
+		public const uint version = (2 << 16) | (0 << 8) | (5);
 
 		public static int Initialize() {
 			return Native.enet_initialize();
@@ -701,13 +692,7 @@ namespace ENet {
 		internal static extern int enet_initialize_with_callbacks(uint version, ref ENetCallbacks inits);
 
 		[DllImport(nativeLibrary, CallingConvention = CallingConvention.Cdecl)]
-		internal static extern int enet_address_get_host(ref ENetAddress address, byte[] hostName, IntPtr nameLength);
-
-		[DllImport(nativeLibrary, CallingConvention = CallingConvention.Cdecl)]
 		internal static extern int enet_address_set_host(ref ENetAddress address, byte[] hostName);
-
-		[DllImport(nativeLibrary, CallingConvention = CallingConvention.Cdecl)]
-		internal static extern int enet_address_get_host_ip(ref ENetAddress address, byte[] hostIP, IntPtr ipLength);
 
 		[DllImport(nativeLibrary, CallingConvention = CallingConvention.Cdecl)]
 		internal static extern IntPtr enet_packet_create(byte[] data, IntPtr dataLength, PacketFlags flags);
@@ -776,7 +761,7 @@ namespace ENet {
 		internal static extern uint enet_peer_get_id(IntPtr peer);
 
 		[DllImport(nativeLibrary, CallingConvention = CallingConvention.Cdecl)]
-		internal static extern Address enet_peer_get_address(IntPtr peer);
+		internal static extern int enet_peer_get_ip(IntPtr peer, byte[] ip, IntPtr ipLength);
 
 		[DllImport(nativeLibrary, CallingConvention = CallingConvention.Cdecl)]
 		internal static extern PeerState enet_peer_get_state(IntPtr peer);

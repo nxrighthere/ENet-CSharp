@@ -32,7 +32,7 @@
 
 #define ENET_VERSION_MAJOR 2
 #define ENET_VERSION_MINOR 0
-#define ENET_VERSION_PATCH 4
+#define ENET_VERSION_PATCH 5
 #define ENET_VERSION_CREATE(major, minor, patch) (((major)<<16) | ((minor)<<8) | (patch))
 #define ENET_VERSION_GET_MAJOR(version) (((version)>>16)&0xFF)
 #define ENET_VERSION_GET_MINOR(version) (((version)>>8)&0xFF)
@@ -892,7 +892,7 @@ extern "C" {
     ENET_API enet_uint32         enet_host_get_bytes_received (ENetHost *);
 
     ENET_API enet_uint32         enet_peer_get_id (ENetPeer *);
-    ENET_API ENetAddress         enet_peer_get_address (ENetPeer *);
+    ENET_API int                 enet_peer_get_ip (ENetPeer *, char * ip, size_t ipLength);
     ENET_API ENetPeerState       enet_peer_get_state (ENetPeer *);
     ENET_API enet_uint32         enet_peer_get_rtt (ENetPeer *);
     ENET_API enet_uint64         enet_peer_get_packets_sent (ENetPeer *);
@@ -3315,8 +3315,8 @@ extern "C" {
         return peer->connectID;
     }
 
-    ENetAddress enet_peer_get_address(ENetPeer *peer) {
-        return peer->address;
+    int enet_peer_get_ip(ENetPeer *peer, char *ip, size_t ipLength) {
+        return enet_address_get_host_ip(&peer->address, ip, ipLength);
     }
 
     ENetPeerState enet_peer_get_state(ENetPeer *peer) {

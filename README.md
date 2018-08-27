@@ -43,19 +43,19 @@ while (!Console.KeyAvailable) {
 			break;
 
 		case EventType.Connect:
-			Console.WriteLine("Client connected (ID: " + netEvent.Peer.ID + ", IP: " + netEvent.Peer.Address.GetIP() + ")");
+			Console.WriteLine("Client connected - ID: " + netEvent.Peer.ID + ", IP: " + netEvent.Peer.Address.GetIP());
 			break;
 
 		case EventType.Disconnect:
-			Console.WriteLine("Client disconnected (ID: " + netEvent.Peer.ID + ", IP: " + netEvent.Peer.Address.GetIP() + ")");
+			Console.WriteLine("Client disconnected - ID: " + netEvent.Peer.ID + ", IP: " + netEvent.Peer.Address.GetIP());
 			break;
 
 		case EventType.Timeout:
-			Console.WriteLine("Client timeout (ID: " + netEvent.Peer.ID + ", IP: " + netEvent.Peer.Address.GetIP() + ")");
+			Console.WriteLine("Client timeout - ID: " + netEvent.Peer.ID + ", IP: " + netEvent.Peer.Address.GetIP());
 			break;
 
 		case EventType.Receive:
-			Console.WriteLine("Packet received from (ID: " + netEvent.Peer.ID + ", IP: " + netEvent.Peer.Address.GetIP() + ", Channel ID: " + netEvent.ChannelID + ", Data length: " + netEvent.Packet.Length + ")");
+			Console.WriteLine("Packet received from - ID: " + netEvent.Peer.ID + ", IP: " + netEvent.Peer.Address.GetIP() + ", Channel ID: " + netEvent.ChannelID + ", Data length: " + netEvent.Packet.Length);
 			netEvent.Packet.Dispose();
 			break;
 	}
@@ -84,7 +84,7 @@ while (!Console.KeyAvailable) {
 			break;
 
 		case EventType.Connect:
-			Console.WriteLine("Client connected to server (ID: " + peer.ID + ")");
+			Console.WriteLine("Client connected to server - ID: " + peer.ID);
 			break;
 
 		case EventType.Disconnect:
@@ -96,7 +96,7 @@ while (!Console.KeyAvailable) {
 			break;
 
 		case EventType.Receive:
-			Console.WriteLine("Packet received from server (Channel ID: " + netEvent.ChannelID + ", Data length: " + netEvent.Packet.Length + ")");
+			Console.WriteLine("Packet received from server - Channel ID: " + netEvent.ChannelID + ", Data length: " + netEvent.Packet.Length);
 			netEvent.Packet.Dispose();
 			break;
 	}

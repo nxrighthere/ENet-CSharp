@@ -324,30 +324,40 @@ namespace ENet {
 
 		public uint PeersCount {
 			get {
+				CheckCreated();
+
 				return Native.enet_host_get_peers_count(nativeHost);
 			}
 		}
 
 		public uint PacketsSent {
 			get {
+				CheckCreated();
+
 				return Native.enet_host_get_packets_sent(nativeHost);
 			}
 		}
 
 		public uint PacketsReceived {
 			get {
+				CheckCreated();
+
 				return Native.enet_host_get_packets_received(nativeHost);
 			}
 		}
 
 		public uint BytesSent {
 			get {
+				CheckCreated();
+
 				return Native.enet_host_get_bytes_sent(nativeHost);
 			}
 		}
 
 		public uint BytesReceived {
 			get {
+				CheckCreated();
+
 				return Native.enet_host_get_bytes_received(nativeHost);
 			}
 		}
@@ -512,12 +522,16 @@ namespace ENet {
 
 		public uint ID {
 			get {
+				CheckCreated();
+
 				return Native.enet_peer_get_id(nativePeer);
 			}
 		}
 
 		public Address Address {
 			get {
+				CheckCreated();
+
 				return Native.enet_peer_get_address(nativePeer);
 			}
 		}
@@ -530,40 +544,54 @@ namespace ENet {
 
 		public uint RoundTripTime {
 			get {
+				CheckCreated();
+
 				return Native.enet_peer_get_rtt(nativePeer);
 			}
 		}
 
 		public ulong PacketsSent {
 			get {
+				CheckCreated();
+
 				return Native.enet_peer_get_packets_sent(nativePeer);
 			}
 		}
 
 		public uint PacketsLost {
 			get {
+				CheckCreated();
+
 				return Native.enet_peer_get_packets_lost(nativePeer);
 			}
 		}
 
 		public ulong BytesSent {
 			get {
+				CheckCreated();
+
 				return Native.enet_peer_get_bytes_sent(nativePeer);
 			}
 		}
 
 		public ulong BytesReceived {
 			get {
+				CheckCreated();
+
 				return Native.enet_peer_get_bytes_received(nativePeer);
 			}
 		}
 
 		public IntPtr Data {
 			get {
+				CheckCreated();
+
 				return Native.enet_peer_get_data(nativePeer);
 			}
 
 			set {
+				CheckCreated();
+
 				Native.enet_peer_set_data(nativePeer, value);
 			}
 		}

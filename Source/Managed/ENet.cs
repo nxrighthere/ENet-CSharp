@@ -527,6 +527,14 @@ namespace ENet {
 			}
 		}
 
+		public ushort Port {
+			get {
+				CheckCreated();
+
+				return Native.enet_peer_get_port(nativePeer);
+			}
+		}
+
 		public PeerState State {
 			get {
 				return nativePeer == IntPtr.Zero ? PeerState.Uninitialized : Native.enet_peer_get_state(nativePeer);
@@ -762,6 +770,9 @@ namespace ENet {
 
 		[DllImport(nativeLibrary, CallingConvention = CallingConvention.Cdecl)]
 		internal static extern int enet_peer_get_ip(IntPtr peer, byte[] ip, IntPtr ipLength);
+
+		[DllImport(nativeLibrary, CallingConvention = CallingConvention.Cdecl)]
+		internal static extern ushort enet_peer_get_port(IntPtr peer);
 
 		[DllImport(nativeLibrary, CallingConvention = CallingConvention.Cdecl)]
 		internal static extern PeerState enet_peer_get_state(IntPtr peer);

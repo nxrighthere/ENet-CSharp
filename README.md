@@ -66,7 +66,6 @@ while (!Console.KeyAvailable) {
 }
 
 server.Flush();
-server.Dispose();
 ```
 
 Create a new client:
@@ -107,7 +106,6 @@ while (!Console.KeyAvailable) {
 }
 
 client.Flush();
-client.Dispose();
 ```
 
 Create and send a new packet:

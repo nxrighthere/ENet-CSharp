@@ -122,9 +122,9 @@ namespace ENet {
 		}
 
 		public string GetIP() {
-			byte[] data = new byte[256];
+			byte[] data = new byte[16];
 
-			if (Native.enet_address_get_host_ip(ref nativeAddress, data, (IntPtr)256) == 0)
+			if (Native.enet_address_get_host_ip(ref nativeAddress, data, (IntPtr)16) == 0)
 				return Encoding.ASCII.GetString(data);
 			else
 				return String.Empty;

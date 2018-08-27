@@ -8,7 +8,11 @@ This project is based on collaborative work with [@inlife](https://github.com/in
 
 Building
 --------
-To build a native library, you will need [CMake](https://cmake.org/download/) with GNU Make or Visual Studio.
+The appropriate software is required to build a native library:
+
+For desktop platforms [CMake](https://cmake.org/download/) with GNU Make or Visual Studio.
+
+For mobile platforms [Android NDK](https://developer.android.com/ndk/downloads/).
 
 Compiled libraries
 --------

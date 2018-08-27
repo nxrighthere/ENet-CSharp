@@ -207,7 +207,9 @@ Contains a managed pointer to the peer.
 
 `Peer.ID` returns a peer ID.
 
-`Peer.IP` returns an IP address of a peer in a printable form.
+`Peer.IP` returns an IP address in a printable form.
+
+`Peer.Port` returns a port number.
 
 `Peer.State` returns a peer state described in the `PeerState` enumeration.
 

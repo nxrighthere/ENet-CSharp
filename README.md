@@ -209,8 +209,6 @@ Contains a managed pointer to the peer.
 
 `Peer.IP` returns an IP address of a peer in a printable form.
 
-`Peer.Address` returns an address associated with the peer.
-
 `Peer.State` returns a peer state described in the `PeerState` enumeration.
 
 `Peer.RoundTripTime` returns a round trip time in milliseconds.

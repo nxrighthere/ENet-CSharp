@@ -198,7 +198,7 @@ Contains a managed pointer to the packet.
 
 `Packet.Create(byte[] data, int length, PacketFlags flags)` creates a packet that may be sent to a peer. The length and flags parameters are optional. Multiple flags can be specified at once.
 
-`Packet.CopyTo(byte[] array, int offset, int length)` copies payload from the packet to the destination array. The offset and length parameters are optional.
+`Packet.CopyTo(byte[] destination)` copies payload from the packet to the destination array.
 
 #### Peer
 Contains a managed pointer to the peer.

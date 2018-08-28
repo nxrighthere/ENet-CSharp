@@ -192,6 +192,8 @@ Contains a managed pointer to the packet.
 
 `Packet.IsSet` returns a state of the managed pointer.
 
+`Packet.Data` returns a managed pointer to the packet data.
+
 `Packet.Length` returns a length of payload in the packet.
 
 `Packet.Create(byte[] data, int length, PacketFlags flags)` creates a packet that may be sent to a peer. The length and flags parameters are optional. Multiple flags can be specified at once.

@@ -242,27 +242,13 @@ namespace ENet {
 			nativePacket = Native.enet_packet_create(data, (IntPtr)length, flags);
 		}
 
-		public void CopyTo(byte[] array) {
-			if (array == null)
-				throw new ArgumentNullException("array");
-
-			CopyTo(array, 0, array.Length);
-		}
-
-		public void CopyTo(byte[] array, int offset, int length) {
-			if (array == null)
-				throw new ArgumentNullException("array");
-
-			if (offset < 0 || length < 0 || length > array.Length - offset)
-				throw new ArgumentOutOfRangeException();
+		public void CopyTo(byte[] destination) {
+			if (destination == null)
+				throw new ArgumentNullException("destination");
 
 			CheckCreated();
 
-			if (length > Length - offset)
-				throw new ArgumentOutOfRangeException();
-
-			if (length > 0)
-				Marshal.Copy((IntPtr)((Int64)Data + offset), array, offset, length);	
+			Marshal.Copy(Data, destination, 0, Length);
 		}
 	}
 

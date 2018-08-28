@@ -32,7 +32,7 @@
 
 #define ENET_VERSION_MAJOR 2
 #define ENET_VERSION_MINOR 0
-#define ENET_VERSION_PATCH 5
+#define ENET_VERSION_PATCH 6
 #define ENET_VERSION_CREATE(major, minor, patch) (((major)<<16) | ((minor)<<8) | (patch))
 #define ENET_VERSION_GET_MAJOR(version) (((version)>>16)&0xFF)
 #define ENET_VERSION_GET_MINOR(version) (((version)>>8)&0xFF)
@@ -256,7 +256,6 @@ extern "C" {
     #define enet_list_front(list) ((void *)(list)->sentinel.next)
     #define enet_list_back(list) ((void *)(list)->sentinel.previous)
 
-
 // =======================================================================//
 // !
 // ! Protocol
@@ -290,17 +289,14 @@ extern "C" {
         ENET_PROTOCOL_COMMAND_THROTTLE_CONFIGURE       = 11,
         ENET_PROTOCOL_COMMAND_SEND_UNRELIABLE_FRAGMENT = 12,
         ENET_PROTOCOL_COMMAND_COUNT                    = 13,
-
         ENET_PROTOCOL_COMMAND_MASK                     = 0x0F
     } ENetProtocolCommand;
 
     typedef enum _ENetProtocolFlag {
         ENET_PROTOCOL_COMMAND_FLAG_ACKNOWLEDGE = (1 << 7),
         ENET_PROTOCOL_COMMAND_FLAG_UNSEQUENCED = (1 << 6),
-
         ENET_PROTOCOL_HEADER_FLAG_SENT_TIME    = (1 << 14),
         ENET_PROTOCOL_HEADER_FLAG_MASK         = ENET_PROTOCOL_HEADER_FLAG_SENT_TIME,
-
         ENET_PROTOCOL_HEADER_SESSION_MASK      = (3 << 12),
         ENET_PROTOCOL_HEADER_SESSION_SHIFT     = 12
     } ENetProtocolFlag;
@@ -582,7 +578,6 @@ extern "C" {
         ENET_HOST_DEFAULT_MTU                  = 1400,
         ENET_HOST_DEFAULT_MAXIMUM_PACKET_SIZE  = 32 * 1024 * 1024,
         ENET_HOST_DEFAULT_MAXIMUM_WAITING_DATA = 32 * 1024 * 1024,
-
         ENET_PEER_DEFAULT_ROUND_TRIP_TIME      = 500,
         ENET_PEER_DEFAULT_PACKET_THROTTLE      = 32,
         ENET_PEER_PACKET_THROTTLE_SCALE        = 32,
@@ -885,31 +880,10 @@ extern "C" {
     */
     ENET_API int enet_address_get_host (const ENetAddress * address, char * hostName, size_t nameLength);
 
-    ENET_API enet_uint32         enet_host_get_peers_count (ENetHost *);
-    ENET_API enet_uint32         enet_host_get_packets_sent (ENetHost *);
-    ENET_API enet_uint32         enet_host_get_packets_received (ENetHost *);
-    ENET_API enet_uint32         enet_host_get_bytes_sent (ENetHost *);
-    ENET_API enet_uint32         enet_host_get_bytes_received (ENetHost *);
-
-    ENET_API enet_uint32         enet_peer_get_id (ENetPeer *);
-    ENET_API int                 enet_peer_get_ip (ENetPeer *, char * ip, size_t ipLength);
-    ENET_API enet_uint16         enet_peer_get_port (ENetPeer *);
-    ENET_API ENetPeerState       enet_peer_get_state (ENetPeer *);
-    ENET_API enet_uint32         enet_peer_get_rtt (ENetPeer *);
-    ENET_API enet_uint64         enet_peer_get_packets_sent (ENetPeer *);
-    ENET_API enet_uint32         enet_peer_get_packets_lost (ENetPeer *);
-    ENET_API enet_uint64         enet_peer_get_bytes_sent (ENetPeer *);
-    ENET_API enet_uint64         enet_peer_get_bytes_received (ENetPeer *);
-
-    ENET_API void *              enet_peer_get_data (ENetPeer *);
-    ENET_API void                enet_peer_set_data (ENetPeer *, const void *);
-
-    ENET_API void *              enet_packet_get_data (ENetPacket *);
-    ENET_API int                 enet_packet_get_length (ENetPacket *);
-
     ENET_API ENetPacket *        enet_packet_create (const void *, size_t, enet_uint32);
     ENET_API ENetPacket *        enet_packet_create_offset (const void *, size_t, size_t, enet_uint32);
     ENET_API void                enet_packet_destroy (ENetPacket *);
+
     ENET_API enet_uint32         enet_crc32 (const ENetBuffer *, size_t);
 
     ENET_API ENetHost *          enet_host_create (const ENetAddress *, size_t, size_t, enet_uint32, enet_uint32);
@@ -945,7 +919,29 @@ extern "C" {
     extern void                  enet_peer_on_connect (ENetPeer *);
     extern void                  enet_peer_on_disconnect (ENetPeer *);
 
-    extern size_t enet_protocol_command_size (enet_uint8);
+    extern size_t                enet_protocol_command_size (enet_uint8);
+
+    /* Extended API for easier binding in other programming languages */
+    ENET_API void *              enet_packet_get_data (ENetPacket *);
+    ENET_API int                 enet_packet_get_length (ENetPacket *);
+
+    ENET_API enet_uint32         enet_host_get_peers_count (ENetHost *);
+    ENET_API enet_uint32         enet_host_get_packets_sent (ENetHost *);
+    ENET_API enet_uint32         enet_host_get_packets_received (ENetHost *);
+    ENET_API enet_uint32         enet_host_get_bytes_sent (ENetHost *);
+    ENET_API enet_uint32         enet_host_get_bytes_received (ENetHost *);
+
+    ENET_API enet_uint32         enet_peer_get_id (ENetPeer *);
+    ENET_API int                 enet_peer_get_ip (ENetPeer *, char * ip, size_t ipLength);
+    ENET_API enet_uint16         enet_peer_get_port (ENetPeer *);
+    ENET_API ENetPeerState       enet_peer_get_state (ENetPeer *);
+    ENET_API enet_uint32         enet_peer_get_rtt (ENetPeer *);
+    ENET_API enet_uint64         enet_peer_get_packets_sent (ENetPeer *);
+    ENET_API enet_uint32         enet_peer_get_packets_lost (ENetPeer *);
+    ENET_API enet_uint64         enet_peer_get_bytes_sent (ENetPeer *);
+    ENET_API enet_uint64         enet_peer_get_bytes_received (ENetPeer *);
+    ENET_API void *              enet_peer_get_data (ENetPeer *);
+    ENET_API void                enet_peer_set_data (ENetPeer *, const void *);
 
 #ifdef __cplusplus
 }
@@ -1070,16 +1066,16 @@ extern "C" {
     }
 
     #define ENET_ATOMIC_READ(variable) enet_at_atomic_read((char *)(variable), ENET_ATOMIC_SIZEOF(variable))
-    #define ENET_ATOMIC_WRITE(variable, new_val)                                                            \
+    #define ENET_ATOMIC_WRITE(variable, new_val)                                                                 \
         enet_at_atomic_write((char *)(variable), (int64_t)(new_val), ENET_ATOMIC_SIZEOF(variable))
-    #define ENET_ATOMIC_CAS(variable, old_value, new_val)                                                   \
-        enet_at_atomic_cas((char *)(variable), (int64_t)(new_val), (int64_t)(old_value),                    \
+    #define ENET_ATOMIC_CAS(variable, old_value, new_val)                                                        \
+        enet_at_atomic_cas((char *)(variable), (int64_t)(new_val), (int64_t)(old_value),                         \
                       ENET_ATOMIC_SIZEOF(variable))
     #define ENET_ATOMIC_INC(variable) enet_at_atomic_inc((char *)(variable), 1, ENET_ATOMIC_SIZEOF(variable))
     #define ENET_ATOMIC_DEC(variable) enet_at_atomic_inc((char *)(variable), -1, ENET_ATOMIC_SIZEOF(variable))
-    #define ENET_ATOMIC_INC_BY(variable, delta)                                                             \
+    #define ENET_ATOMIC_INC_BY(variable, delta)                                                                  \
         enet_at_atomic_inc((char *)(variable), (delta), ENET_ATOMIC_SIZEOF(variable))
-    #define ENET_ATOMIC_DEC_BY(variable, delta)                                                             \
+    #define ENET_ATOMIC_DEC_BY(variable, delta)                                                                  \
         enet_at_atomic_inc((char *)(variable), -(delta), ENET_ATOMIC_SIZEOF(variable))
 
 #elif defined(__GNUC__) || defined(__clang__)
@@ -1110,11 +1106,11 @@ extern "C" {
         #ifdef __clang_analyzer__
 
         #define ENET_ATOMIC_CAS(ptr, old_value, new_value)                                                      \
-            ({                                                                                             \
+            ({                                                                                                  \
                 typeof(*(ptr)) ENET_ATOMIC_CAS_old_actual_ = (*(ptr));                                          \
-                if (ATOMIC_CAS_old_actual_ == (old_value)) {                                               \
-                    *(ptr) = new_value;                                                                    \
-                }                                                                                          \
+                if (ATOMIC_CAS_old_actual_ == (old_value)) {                                                    \
+                    *(ptr) = new_value;                                                                         \
+                }                                                                                               \
                 ENET_ATOMIC_CAS_old_actual_;                                                                    \
             })
 
@@ -1127,10 +1123,10 @@ extern "C" {
            TODO We should return bool here instead of the old value to avoid the ABA
            problem. */
         #define ENET_ATOMIC_CAS(ptr, old_value, new_value)                                                      \
-            ({                                                                                             \
+            ({                                                                                                  \
                 typeof(*(ptr)) ENET_ATOMIC_CAS_expected_ = (old_value);                                         \
                 __atomic_compare_exchange_n((ptr), &ENET_ATOMIC_CAS_expected_, (new_value), false,              \
-                                            __ATOMIC_ACQ_REL, __ATOMIC_ACQUIRE);                           \
+                                            __ATOMIC_ACQ_REL, __ATOMIC_ACQUIRE);                                \
                 ENET_ATOMIC_CAS_expected_;                                                                      \
             })
 
@@ -1158,7 +1154,6 @@ extern "C" {
     #undef AT_HAVE_ATOMICS
 
 #endif /* defined(_MSC_VER) */
-
 
 // =======================================================================//
 // !
@@ -1279,6 +1274,7 @@ extern "C" {
      */
     ENetPacket *enet_packet_create(const void *data, size_t dataLength, enet_uint32 flags) {
         ENetPacket *packet;
+
         if (flags & ENET_PACKET_FLAG_NO_ALLOCATE) {
             packet = (ENetPacket *)enet_malloc(sizeof (ENetPacket));
             if (packet == NULL) {
@@ -1311,6 +1307,7 @@ extern "C" {
 
     ENetPacket *enet_packet_create_offset(const void *data, size_t dataLength, size_t dataOffset, enet_uint32 flags) {
         ENetPacket *packet;
+
         if (flags & ENET_PACKET_FLAG_NO_ALLOCATE) {
             packet = (ENetPacket *)enet_malloc(sizeof (ENetPacket));
             if (packet == NULL) {
@@ -1705,6 +1702,7 @@ extern "C" {
             channelCount = host->channelLimit;
         }
         peer->channels = (ENetChannel *) enet_malloc(channelCount * sizeof(ENetChannel));
+
         if (peer->channels == NULL) {
             return NULL;
         }
@@ -1722,6 +1720,7 @@ extern "C" {
 
         incomingSessionID = command->connect.incomingSessionID == 0xFF ? peer->outgoingSessionID : command->connect.incomingSessionID;
         incomingSessionID = (incomingSessionID + 1) & (ENET_PROTOCOL_HEADER_SESSION_MASK >> ENET_PROTOCOL_HEADER_SESSION_SHIFT);
+
         if (incomingSessionID == peer->outgoingSessionID) {
             incomingSessionID = (incomingSessionID + 1)
               & (ENET_PROTOCOL_HEADER_SESSION_MASK >> ENET_PROTOCOL_HEADER_SESSION_SHIFT);
@@ -1730,6 +1729,7 @@ extern "C" {
 
         outgoingSessionID = command->connect.outgoingSessionID == 0xFF ? peer->incomingSessionID : command->connect.outgoingSessionID;
         outgoingSessionID = (outgoingSessionID + 1) & (ENET_PROTOCOL_HEADER_SESSION_MASK >> ENET_PROTOCOL_HEADER_SESSION_SHIFT);
+
         if (outgoingSessionID == peer->incomingSessionID) {
             outgoingSessionID = (outgoingSessionID + 1)
               & (ENET_PROTOCOL_HEADER_SESSION_MASK >> ENET_PROTOCOL_HEADER_SESSION_SHIFT);
@@ -1839,6 +1839,7 @@ extern "C" {
 
         dataLength    = ENET_NET_TO_HOST_16(command->sendUnsequenced.dataLength);
         *currentData += dataLength;
+
         if (dataLength > host->maximumPacketSize || *currentData < host->receivedData || *currentData > &host->receivedData[host->receivedDataLength]) {
             return -1;
         }
@@ -1884,6 +1885,7 @@ extern "C" {
 
         dataLength    = ENET_NET_TO_HOST_16(command->sendUnreliable.dataLength);
         *currentData += dataLength;
+
         if (dataLength > host->maximumPacketSize || *currentData < host->receivedData || *currentData > &host->receivedData[host->receivedDataLength]) {
             return -1;
         }
@@ -1908,6 +1910,7 @@ extern "C" {
 
         fragmentLength = ENET_NET_TO_HOST_16(command->sendFragment.dataLength);
         *currentData  += fragmentLength;
+
         if (fragmentLength > host->maximumPacketSize || *currentData < host->receivedData || *currentData > &host->receivedData[host->receivedDataLength]) {
             return -1;
         }
@@ -2011,6 +2014,7 @@ extern "C" {
 
         fragmentLength = ENET_NET_TO_HOST_16(command->sendFragment.dataLength);
         *currentData  += fragmentLength;
+
         if (fragmentLength > host->maximumPacketSize || *currentData < host->receivedData || *currentData > &host->receivedData[host->receivedDataLength]) {
             return -1;
         }
@@ -2209,6 +2213,7 @@ extern "C" {
 
         receivedSentTime  = ENET_NET_TO_HOST_16(command->acknowledge.receivedSentTime);
         receivedSentTime |= host->serviceTime & 0xFFFF0000;
+
         if ((receivedSentTime & 0x8000) > (host->serviceTime & 0x8000)) {
             receivedSentTime -= 0x10000;
         }
@@ -2330,6 +2335,7 @@ extern "C" {
         }
 
         windowSize = ENET_NET_TO_HOST_32(command->verifyConnect.windowSize);
+
         if (windowSize < ENET_PROTOCOL_MINIMUM_WINDOW_SIZE) {
             windowSize = ENET_PROTOCOL_MINIMUM_WINDOW_SIZE;
         }
@@ -2370,6 +2376,7 @@ extern "C" {
         peerID   &= ~(ENET_PROTOCOL_HEADER_FLAG_MASK | ENET_PROTOCOL_HEADER_SESSION_MASK);
 
         headerSize = (flags & ENET_PROTOCOL_HEADER_FLAG_SENT_TIME ? sizeof(ENetProtocolHeader) : (size_t) &((ENetProtocolHeader *) 0)->sentTime);
+
         if (host->checksum != NULL) {
             headerSize += sizeof(enet_uint32);
         }
@@ -3212,7 +3219,6 @@ extern "C" {
         return 0;
     } /* enet_host_service */
 
-
 // =======================================================================//
 // !
 // ! Peer
@@ -3291,79 +3297,6 @@ extern "C" {
         return 0;
     }
 
-    /* Extended functionality for easier binding in other programming languages */
-    enet_uint32 enet_host_get_peers_count(ENetHost *host) {
-        return host->connectedPeers;
-    }
-
-    enet_uint32 enet_host_get_packets_sent(ENetHost *host) {
-        return host->totalSentPackets;
-    }
-
-    enet_uint32 enet_host_get_packets_received(ENetHost *host) {
-        return host->totalReceivedPackets;
-    }
-
-    enet_uint32 enet_host_get_bytes_sent(ENetHost *host) {
-        return host->totalSentData;
-    }
-
-    enet_uint32 enet_host_get_bytes_received(ENetHost *host) {
-        return host->totalReceivedData;
-    }
-
-    enet_uint32 enet_peer_get_id(ENetPeer *peer) {
-        return peer->connectID;
-    }
-
-    int enet_peer_get_ip(ENetPeer *peer, char *ip, size_t ipLength) {
-        return enet_address_get_host_ip(&peer->address, ip, ipLength);
-    }
-
-    enet_uint16 enet_peer_get_port(ENetPeer *peer) {
-        return peer->address.port;
-    }
-
-    ENetPeerState enet_peer_get_state(ENetPeer *peer) {
-        return peer->state;
-    }
-
-    enet_uint32 enet_peer_get_rtt(ENetPeer *peer) {
-        return peer->roundTripTime;
-    }
-
-    enet_uint64 enet_peer_get_packets_sent(ENetPeer *peer) {
-        return peer->totalPacketsSent;
-    }
-
-    enet_uint32 enet_peer_get_packets_lost(ENetPeer *peer) {
-        return peer->totalPacketsLost;
-    }
-
-    enet_uint64 enet_peer_get_bytes_sent(ENetPeer *peer) {
-        return peer->totalDataSent;
-    }
-
-    enet_uint64 enet_peer_get_bytes_received(ENetPeer *peer) {
-        return peer->totalDataReceived;
-    }
- 
-    void * enet_peer_get_data(ENetPeer *peer) {
-        return (void *) peer->data;
-    }
-
-    void enet_peer_set_data(ENetPeer *peer, const void *data) {
-        peer->data = (enet_uint32 *) data;
-    }
-
-    void * enet_packet_get_data(ENetPacket *packet) {
-        return (void *) packet->data;
-    }
-
-    int enet_packet_get_length(ENetPacket *packet) {
-        return packet->dataLength;
-    }
-
     /** Queues a packet to be sent.
      *  @param peer destination for the packet
      *  @param channelID channel on which to send
@@ -3381,6 +3314,7 @@ extern "C" {
         }
 
         fragmentLength = peer->mtu - sizeof(ENetProtocolHeader) - sizeof(ENetProtocolSendFragment);
+
         if (peer->host->checksum != NULL) {
             fragmentLength -= sizeof(enet_uint32);
         }
@@ -3828,6 +3762,7 @@ extern "C" {
         }
 
         acknowledgement = (ENetAcknowledgement *) enet_malloc(sizeof(ENetAcknowledgement));
+
         if (acknowledgement == NULL) {
             return NULL;
         }
@@ -3910,6 +3845,7 @@ extern "C" {
         outgoingCommand->fragmentOffset = offset;
         outgoingCommand->fragmentLength = length;
         outgoingCommand->packet         = packet;
+
         if (packet != NULL) {
             ++packet->referenceCount;
         }
@@ -4143,11 +4079,13 @@ extern "C" {
         }
 
         packet = enet_packet_create(data, dataLength, flags);
+
         if (packet == NULL) {
             goto notifyError;
         }
 
         incomingCommand = (ENetIncomingCommand *) enet_malloc(sizeof(ENetIncomingCommand));
+
         if (incomingCommand == NULL) {
             goto notifyError;
         }
@@ -4243,10 +4181,12 @@ extern "C" {
         }
 
         host = (ENetHost *) enet_malloc(sizeof(ENetHost));
+
         if (host == NULL) { return NULL; }
         memset(host, 0, sizeof(ENetHost));
 
         host->peers = (ENetPeer *) enet_malloc(peerCount * sizeof(ENetPeer));
+
         if (host->peers == NULL) {
             enet_free(host);
             return NULL;
@@ -4255,6 +4195,7 @@ extern "C" {
         memset(host->peers, 0, peerCount * sizeof(ENetPeer));
 
         host->socket = enet_socket_create(ENET_SOCKET_TYPE_DATAGRAM);
+
         if (host->socket != ENET_SOCKET_NULL) {
             enet_socket_set_option (host->socket, ENET_SOCKOPT_IPV6_V6ONLY, 0);
         }
@@ -4386,6 +4327,7 @@ extern "C" {
         }
 
         currentPeer->channels = (ENetChannel *) enet_malloc(channelCount * sizeof(ENetChannel));
+
         if (currentPeer->channels == NULL) {
             return NULL;
         }
@@ -4768,6 +4710,7 @@ extern "C" {
         // implies a memory barrier. So we know that whatever thread calls this,
         // it correctly sees the start_time_ns as 0 initially.
         uint64_t offset_ns = ENET_ATOMIC_READ(&start_time_ns);
+
         if (offset_ns == 0) {
             // We still need to CAS, since two different threads can get here
             // at the same time.
@@ -4783,6 +4726,84 @@ extern "C" {
 
         uint64_t result_in_ns = current_time_ns - offset_ns;
         return (enet_uint32)(result_in_ns / ns_in_ms);
+    }
+
+// =======================================================================//
+// !
+// ! Extended functionality
+// !
+// =======================================================================//
+
+    void * enet_packet_get_data(ENetPacket *packet) {
+        return (void *) packet->data;
+    }
+
+    int enet_packet_get_length(ENetPacket *packet) {
+        return packet->dataLength;
+    }
+
+    enet_uint32 enet_host_get_peers_count(ENetHost *host) {
+        return host->connectedPeers;
+    }
+
+    enet_uint32 enet_host_get_packets_sent(ENetHost *host) {
+        return host->totalSentPackets;
+    }
+
+    enet_uint32 enet_host_get_packets_received(ENetHost *host) {
+        return host->totalReceivedPackets;
+    }
+
+    enet_uint32 enet_host_get_bytes_sent(ENetHost *host) {
+        return host->totalSentData;
+    }
+
+    enet_uint32 enet_host_get_bytes_received(ENetHost *host) {
+        return host->totalReceivedData;
+    }
+
+    enet_uint32 enet_peer_get_id(ENetPeer *peer) {
+        return peer->connectID;
+    }
+
+    int enet_peer_get_ip(ENetPeer *peer, char *ip, size_t ipLength) {
+        return enet_address_get_host_ip(&peer->address, ip, ipLength);
+    }
+
+    enet_uint16 enet_peer_get_port(ENetPeer *peer) {
+        return peer->address.port;
+    }
+
+    ENetPeerState enet_peer_get_state(ENetPeer *peer) {
+        return peer->state;
+    }
+
+    enet_uint32 enet_peer_get_rtt(ENetPeer *peer) {
+        return peer->roundTripTime;
+    }
+
+    enet_uint64 enet_peer_get_packets_sent(ENetPeer *peer) {
+        return peer->totalPacketsSent;
+    }
+
+    enet_uint32 enet_peer_get_packets_lost(ENetPeer *peer) {
+        return peer->totalPacketsLost;
+    }
+
+    enet_uint64 enet_peer_get_bytes_sent(ENetPeer *peer) {
+        return peer->totalDataSent;
+    }
+
+    enet_uint64 enet_peer_get_bytes_received(ENetPeer *peer) {
+        return peer->totalDataReceived;
+    }
+ 
+    void * enet_peer_get_data(ENetPeer *peer) {
+        return (void *) peer->data;
+    }
+
+    void enet_peer_set_data(ENetPeer *peer, const void *data) {
+        peer->data = (enet_uint32 *) data;
     }
 
 // =======================================================================//
@@ -4848,7 +4869,6 @@ extern "C" {
             }
         }
 
-
         if (resultList != NULL) {
             freeaddrinfo(resultList);
         }
@@ -4876,6 +4896,7 @@ extern "C" {
         sin.sin6_scope_id = address->sin6_scope_id;
 
         err = getnameinfo((struct sockaddr *) &sin, sizeof(sin), name, nameLength, NULL, 0, NI_NAMEREQD);
+
         if (!err) {
             if (name != NULL && nameLength > 0 && !memchr(name, '\0', nameLength)) {
                 return -1;
@@ -5012,6 +5033,7 @@ extern "C" {
         sin.sin6_scope_id   = address->sin6_scope_id;
 
         result = connect(socket, (struct sockaddr *)&sin, sizeof(struct sockaddr_in6));
+
         if (result == -1 && errno == EINPROGRESS) {
             return 0;
         }
@@ -5176,7 +5198,6 @@ extern "C" {
     } /* enet_socket_wait */
 
     #endif // !_WIN32
-
 
 // =======================================================================//
 // !
@@ -5353,7 +5374,6 @@ extern "C" {
 
             return 1;
         }
-
 
         int inet_pton(int af, const char *src, struct in6_addr *dst) {
             switch (af)
@@ -5582,6 +5602,7 @@ extern "C" {
         sin.sin6_scope_id   = address->sin6_scope_id;
 
         result = connect(socket, (struct sockaddr *) &sin, sizeof(struct sockaddr_in6));
+
         if (result == SOCKET_ERROR && WSAGetLastError() != WSAEWOULDBLOCK) {
             return -1;
         }
@@ -5737,7 +5758,6 @@ extern "C" {
     } /* enet_socket_wait */
 
     #endif // _WIN32
-
 
 #ifdef __cplusplus
 }

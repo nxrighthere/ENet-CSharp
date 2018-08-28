@@ -8,7 +8,7 @@ This project is based on collaborative work with [@inlife](https://github.com/in
 
 Building
 --------
-The appropriate software is required to build a native library:
+To build a native library appropriate software is required:
 
 For desktop platforms [CMake](https://cmake.org/download/) with GNU Make or Visual Studio.
 

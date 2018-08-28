@@ -246,8 +246,6 @@ namespace ENet {
 			if (destination == null)
 				throw new ArgumentNullException("destination");
 
-			CheckCreated();
-
 			Marshal.Copy(Data, destination, 0, Length);
 		}
 	}

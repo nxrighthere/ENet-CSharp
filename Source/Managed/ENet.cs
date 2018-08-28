@@ -624,6 +624,12 @@ namespace ENet {
 			Native.enet_peer_ping_interval(nativePeer, interval);
 		}
 
+		public void Timeout(uint timeoutLimit, uint timeoutMinimum, uint timeoutMaximum) {
+			CheckCreated();
+
+			Native.enet_peer_timeout(nativePeer, timeoutLimit, timeoutMinimum, timeoutMaximum);
+		}
+
 		public void Disconnect(uint data) {
 			CheckCreated();
 
@@ -660,13 +666,16 @@ namespace ENet {
 	}
 
 	public static class Library {
-		public const int maxChannelCount = 0xFF;
-		public const int maxPeers = 0xFFF;
-		public const int throttleScale = 32;
-		public const int throttleAcceleration = 2;
-		public const int throttleDeceleration = 2;
-		public const int throttleInterval = 5000;
-		public const uint version = (2 << 16) | (0 << 8) | (5);
+		public const uint maxChannelCount = 0xFF;
+		public const uint maxPeers = 0xFFF;
+		public const uint throttleScale = 32;
+		public const uint throttleAcceleration = 2;
+		public const uint throttleDeceleration = 2;
+		public const uint throttleInterval = 5000;
+		public const uint timeoutLimit = 32;
+		public const uint timeoutMinimum = 5000;
+		public const uint timeoutMaximum = 30000;
+		public const uint version = (2 << 16) | (0 << 8) | (6);
 
 		public static int Initialize() {
 			return Native.enet_initialize();
@@ -806,7 +815,10 @@ namespace ENet {
 
 		[DllImport(nativeLibrary, CallingConvention = CallingConvention.Cdecl)]
 		internal static extern void enet_peer_ping_interval(IntPtr peer, uint pingInterval);
-	
+
+		[DllImport(nativeLibrary, CallingConvention = CallingConvention.Cdecl)]
+		internal static extern void enet_peer_timeout(IntPtr peer, uint timeoutLimit, uint timeoutMinimum, uint timeoutMaximum);
+
 		[DllImport(nativeLibrary, CallingConvention = CallingConvention.Cdecl)]
 		internal static extern void enet_peer_disconnect(IntPtr peer, uint data);
 

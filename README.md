@@ -110,7 +110,7 @@ client.Flush();
 
 Create and send a new packet:
 ```csharp
-Packet packet = new Packet();
+Packet packet = default(Packet);
 byte[] data = new byte[64];
 
 packet.Create(data);

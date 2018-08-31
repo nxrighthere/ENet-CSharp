@@ -69,7 +69,7 @@ using (Host server = new Host()) {
 }
 ```
 
-Create a new client:
+Start a new client:
 ```c#
 using (Host client = new Host()) {
 	Address address = new Address();

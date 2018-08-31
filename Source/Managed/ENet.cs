@@ -87,6 +87,18 @@ namespace ENet {
 		public IntPtr malloc, free, no_memory;
 	}
 
+	internal static class ArrayPool {
+		[ThreadStatic]
+		static byte[] buffer = null;
+
+		public static byte[] GetBuffer() {
+			if (buffer == null)
+				buffer = new byte[16];
+
+			return buffer;
+		}
+	}
+
 	public struct Address {
 		private ENetAddress nativeAddress;
 
@@ -499,7 +511,7 @@ namespace ENet {
 			get {
 				CheckCreated();
 
-				byte[] ip = new byte[16];
+				byte[] ip = ArrayPool.GetBuffer();
 
 				if (Native.enet_peer_get_ip(nativePeer, ip, (IntPtr)ip.Length) == 0) {
 					if (Encoding.ASCII.GetString(ip).Remove(7) == "::ffff:")

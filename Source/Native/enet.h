@@ -61,38 +61,37 @@
     #endif
 
     #ifndef ENET_NO_PRAGMA_LINK
-    #pragma comment(lib, "ws2_32.lib")
-    #pragma comment(lib, "winmm.lib")
+        #pragma comment(lib, "ws2_32.lib")
+        #pragma comment(lib, "winmm.lib")
     #endif
 
     #if _MSC_VER >= 1910
-    /* It looks like there were changes as of Visual Studio 2017 and there are no 32/64 bit
-       versions of _InterlockedExchange[operation], only InterlockedExchange[operation]
-       (without leading underscore), so we have to distinguish between compiler versions */
-    #define NOT_UNDERSCORED_INTERLOCKED_EXCHANGE
+        /* It looks like there were changes as of Visual Studio 2017 and there are no 32/64 bit
+           versions of _InterlockedExchange[operation], only InterlockedExchange[operation]
+           (without leading underscore), so we have to distinguish between compiler versions */
+        #define NOT_UNDERSCORED_INTERLOCKED_EXCHANGE
     #endif
 
     #ifdef __GNUC__
-    #if (_WIN32_WINNT < 0x0501)
-    #undef _WIN32_WINNT
-    #define _WIN32_WINNT 0x0501
-    #endif
+        #if (_WIN32_WINNT < 0x0501)
+            #undef _WIN32_WINNT
+            #define _WIN32_WINNT 0x0501
+        #endif
     #endif
 
     #include <winsock2.h>
     #include <ws2tcpip.h>
     #include <mmsystem.h>
-
     #include <intrin.h>
 
     #if defined(_WIN32) && defined(_MSC_VER)
-    #if _MSC_VER < 1900
-    typedef struct timespec {
-        long tv_sec;
-        long tv_nsec;
-    };
-    #endif
-    #define CLOCK_MONOTONIC 0
+        #if _MSC_VER < 1900
+            typedef struct timespec {
+                long tv_sec;
+                long tv_nsec;
+            };
+        #endif
+        #define CLOCK_MONOTONIC 0
     #endif
 
     typedef SOCKET ENetSocket;
@@ -112,13 +111,13 @@
     #define ENET_CALLBACK __cdecl
 
     #ifdef ENET_DLL
-    #ifdef ENET_IMPLEMENTATION
-    #define ENET_API __declspec( dllexport )
+        #ifdef ENET_IMPLEMENTATION
+            #define ENET_API __declspec(dllexport)
+        #else
+            #define ENET_API __declspec(dllimport)
+        #endif // ENET_IMPLEMENTATION
     #else
-    #define ENET_API __declspec( dllimport )
-    #endif // ENET_IMPLEMENTATION
-    #else
-    #define ENET_API extern
+        #define ENET_API extern
     #endif // ENET_DLL
 
     typedef fd_set ENetSocketSet;
@@ -143,17 +142,17 @@
     #include <fcntl.h>
 
     #ifdef __APPLE__
-    #include <mach/clock.h>
-    #include <mach/mach.h>
-    #include <Availability.h>
+        #include <mach/clock.h>
+        #include <mach/mach.h>
+        #include <Availability.h>
     #endif
 
     #ifndef MSG_NOSIGNAL
-    #define MSG_NOSIGNAL 0
+        #define MSG_NOSIGNAL 0
     #endif
 
     #ifdef MSG_MAXIOVLEN
-    #define ENET_BUFFER_MAXIMUM MSG_MAXIOVLEN
+        #define ENET_BUFFER_MAXIMUM MSG_MAXIOVLEN
     #endif
 
     typedef int ENetSocket;
@@ -183,12 +182,11 @@
 #endif
 
 #ifndef ENET_BUFFER_MAXIMUM
-#define ENET_BUFFER_MAXIMUM (1 + 2 * ENET_PROTOCOL_MAXIMUM_PACKET_COMMANDS)
+    #define ENET_BUFFER_MAXIMUM (1 + 2 * ENET_PROTOCOL_MAXIMUM_PACKET_COMMANDS)
 #endif
 
 #define ENET_MAX(x, y) ((x) > (y) ? (x) : (y))
 #define ENET_MIN(x, y) ((x) < (y) ? (x) : (y))
-
 #define ENET_IPV6           1
 #define ENET_HOST_ANY       in6addr_any
 #define ENET_HOST_BROADCAST 0xFFFFFFFFU
@@ -242,17 +240,13 @@ extern "C" {
 
     extern void *enet_list_remove(ENetListIterator);
     extern void enet_list_clear(ENetList *);
-
     extern size_t enet_list_size(ENetList *);
 
     #define enet_list_begin(list) ((list)->sentinel.next)
     #define enet_list_end(list) (&(list)->sentinel)
-
     #define enet_list_empty(list) (enet_list_begin(list) == enet_list_end(list))
-
     #define enet_list_next(iterator) ((iterator)->next)
     #define enet_list_previous(iterator) ((iterator)->previous)
-
     #define enet_list_front(list) ((void *)(list)->sentinel.next)
     #define enet_list_back(list) ((void *)(list)->sentinel.previous)
 
@@ -302,12 +296,12 @@ extern "C" {
     } ENetProtocolFlag;
 
     #ifdef _MSC_VER
-    #pragma pack(push, 1)
-    #define ENET_PACKED
+        #pragma pack(push, 1)
+        #define ENET_PACKED
     #elif defined(__GNUC__) || defined(__clang__)
-    #define ENET_PACKED __attribute__ ((packed))
+        #define ENET_PACKED __attribute__ ((packed))
     #else
-    #define ENET_PACKED
+        #define ENET_PACKED
     #endif
 
     typedef struct _ENetProtocolHeader {
@@ -425,7 +419,7 @@ extern "C" {
     } ENET_PACKED ENetProtocol;
 
     #ifdef _MSC_VER
-    #pragma pack(pop)
+        #pragma pack(pop)
     #endif
 
 // =======================================================================//
@@ -949,7 +943,6 @@ extern "C" {
 
 #if defined(ENET_IMPLEMENTATION) && !defined(ENET_IMPLEMENTATION_DONE)
 #define ENET_IMPLEMENTATION_DONE 1
-
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -961,107 +954,115 @@ extern "C" {
 // =======================================================================//
 
 #if defined(_MSC_VER)
-
     #define ENET_AT_CASSERT_PRED(predicate) sizeof(char[2 * !!(predicate)-1])
     #define ENET_IS_SUPPORTED_ATOMIC(size) ENET_AT_CASSERT_PRED(size == 1 || size == 2 || size == 4 || size == 8)
     #define ENET_ATOMIC_SIZEOF(variable) (ENET_IS_SUPPORTED_ATOMIC(sizeof(*(variable))), sizeof(*(variable)))
 
-    __inline int64_t enet_at_atomic_read(char *ptr, size_t size)
-    {
+    __inline int64_t enet_at_atomic_read(char *ptr, size_t size) {
         switch (size) {
             case 1:
                 return _InterlockedExchangeAdd8((volatile char *)ptr, 0);
+
             case 2:
                 return _InterlockedExchangeAdd16((volatile SHORT *)ptr, 0);
+
             case 4:
-    #ifdef NOT_UNDERSCORED_INTERLOCKED_EXCHANGE
-                return InterlockedExchangeAdd((volatile LONG *)ptr, 0);
-    #else
-                return _InterlockedExchangeAdd((volatile LONG *)ptr, 0);
-    #endif
+                #ifdef NOT_UNDERSCORED_INTERLOCKED_EXCHANGE
+                    return InterlockedExchangeAdd((volatile LONG *)ptr, 0);
+                #else
+                    return _InterlockedExchangeAdd((volatile LONG *)ptr, 0);
+                #endif
+
             case 8:
-    #ifdef NOT_UNDERSCORED_INTERLOCKED_EXCHANGE
-                return InterlockedExchangeAdd64((volatile LONGLONG *)ptr, 0);
-    #else
-                return _InterlockedExchangeAdd64((volatile LONGLONG *)ptr, 0);
-    #endif
+                #ifdef NOT_UNDERSCORED_INTERLOCKED_EXCHANGE
+                    return InterlockedExchangeAdd64((volatile LONGLONG *)ptr, 0);
+                #else
+                    return _InterlockedExchangeAdd64((volatile LONGLONG *)ptr, 0);
+                #endif
+
             default:
-                return 0xbad13bad; /* never reached */
+                return 0x0; /* never reached */
         }
     }
 
-    __inline int64_t enet_at_atomic_write(char *ptr, int64_t value, size_t size)
-    {
+    __inline int64_t enet_at_atomic_write(char *ptr, int64_t value, size_t size) {
         switch (size) {
             case 1:
                 return _InterlockedExchange8((volatile char *)ptr, (char)value);
+
             case 2:
                 return _InterlockedExchange16((volatile SHORT *)ptr, (SHORT)value);
+
             case 4:
-    #ifdef NOT_UNDERSCORED_INTERLOCKED_EXCHANGE
-                return InterlockedExchange((volatile LONG *)ptr, (LONG)value);
-    #else
-                return _InterlockedExchange((volatile LONG *)ptr, (LONG)value);
-    #endif
+                #ifdef NOT_UNDERSCORED_INTERLOCKED_EXCHANGE
+                    return InterlockedExchange((volatile LONG *)ptr, (LONG)value);
+                #else
+                    return _InterlockedExchange((volatile LONG *)ptr, (LONG)value);
+                #endif
+
             case 8:
-    #ifdef NOT_UNDERSCORED_INTERLOCKED_EXCHANGE
-                return InterlockedExchange64((volatile LONGLONG *)ptr, (LONGLONG)value);
-    #else
-                return _InterlockedExchange64((volatile LONGLONG *)ptr, (LONGLONG)value);
-    #endif
+                #ifdef NOT_UNDERSCORED_INTERLOCKED_EXCHANGE
+                    return InterlockedExchange64((volatile LONGLONG *)ptr, (LONGLONG)value);
+                #else
+                    return _InterlockedExchange64((volatile LONGLONG *)ptr, (LONGLONG)value);
+                #endif
+
             default:
-                return 0xbad13bad; /* never reached */
+                return 0x0; /* never reached */
         }
     }
 
-    __inline int64_t enet_at_atomic_cas(char *ptr, int64_t new_val, int64_t old_val, size_t size)
-    {
+    __inline int64_t enet_at_atomic_cas(char *ptr, int64_t new_val, int64_t old_val, size_t size) {
         switch (size) {
             case 1:
                 return _InterlockedCompareExchange8((volatile char *)ptr, (char)new_val, (char)old_val);
+
             case 2:
                 return _InterlockedCompareExchange16((volatile SHORT *)ptr, (SHORT)new_val,
                                                      (SHORT)old_val);
             case 4:
-    #ifdef NOT_UNDERSCORED_INTERLOCKED_EXCHANGE
-                return InterlockedCompareExchange((volatile LONG *)ptr, (LONG)new_val, (LONG)old_val);
-    #else
-                return _InterlockedCompareExchange((volatile LONG *)ptr, (LONG)new_val, (LONG)old_val);
-    #endif
+                #ifdef NOT_UNDERSCORED_INTERLOCKED_EXCHANGE
+                    return InterlockedCompareExchange((volatile LONG *)ptr, (LONG)new_val, (LONG)old_val);
+                #else
+                    return _InterlockedCompareExchange((volatile LONG *)ptr, (LONG)new_val, (LONG)old_val);
+                #endif
+
             case 8:
-    #ifdef NOT_UNDERSCORED_INTERLOCKED_EXCHANGE
-                return InterlockedCompareExchange64((volatile LONGLONG *)ptr, (LONGLONG)new_val,
-                                                    (LONGLONG)old_val);
-    #else
-                return _InterlockedCompareExchange64((volatile LONGLONG *)ptr, (LONGLONG)new_val,
-                                                     (LONGLONG)old_val);
-    #endif
+                #ifdef NOT_UNDERSCORED_INTERLOCKED_EXCHANGE
+                    return InterlockedCompareExchange64((volatile LONGLONG *)ptr, (LONGLONG)new_val, (LONGLONG)old_val);
+                #else
+                    return _InterlockedCompareExchange64((volatile LONGLONG *)ptr, (LONGLONG)new_val, (LONGLONG)old_val);
+                #endif
+
             default:
-                return 0xbad13bad; /* never reached */
+                return 0x0; /* never reached */
         }
     }
 
-    __inline int64_t enet_at_atomic_inc(char *ptr, int64_t delta, size_t data_size)
-    {
+    __inline int64_t enet_at_atomic_inc(char *ptr, int64_t delta, size_t data_size) {
         switch (data_size) {
             case 1:
                 return _InterlockedExchangeAdd8((volatile char *)ptr, (char)delta);
+
             case 2:
                 return _InterlockedExchangeAdd16((volatile SHORT *)ptr, (SHORT)delta);
+
             case 4:
-    #ifdef NOT_UNDERSCORED_INTERLOCKED_EXCHANGE
-                return InterlockedExchangeAdd((volatile LONG *)ptr, (LONG)delta);
-    #else
-                return _InterlockedExchangeAdd((volatile LONG *)ptr, (LONG)delta);
-    #endif
+                #ifdef NOT_UNDERSCORED_INTERLOCKED_EXCHANGE
+                    return InterlockedExchangeAdd((volatile LONG *)ptr, (LONG)delta);
+                #else
+                    return _InterlockedExchangeAdd((volatile LONG *)ptr, (LONG)delta);
+                #endif
+
             case 8:
-    #ifdef NOT_UNDERSCORED_INTERLOCKED_EXCHANGE
-                return InterlockedExchangeAdd64((volatile LONGLONG *)ptr, (LONGLONG)delta);
-    #else
-                return _InterlockedExchangeAdd64((volatile LONGLONG *)ptr, (LONGLONG)delta);
-    #endif
+                #ifdef NOT_UNDERSCORED_INTERLOCKED_EXCHANGE
+                    return InterlockedExchangeAdd64((volatile LONGLONG *)ptr, (LONGLONG)delta);
+                #else
+                    return _InterlockedExchangeAdd64((volatile LONGLONG *)ptr, (LONGLONG)delta);
+                #endif
+
             default:
-                return 0xbad13bad; /* never reached */
+                return 0x0; /* never reached */
         }
     }
 
@@ -1077,11 +1078,9 @@ extern "C" {
         enet_at_atomic_inc((char *)(variable), (delta), ENET_ATOMIC_SIZEOF(variable))
     #define ENET_ATOMIC_DEC_BY(variable, delta)                                                                  \
         enet_at_atomic_inc((char *)(variable), -(delta), ENET_ATOMIC_SIZEOF(variable))
-
 #elif defined(__GNUC__) || defined(__clang__)
-
     #if defined(__clang__) || (__GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 7))
-    #define AT_HAVE_ATOMICS
+        #define AT_HAVE_ATOMICS
     #endif
 
     /* We want to use __atomic built-ins if possible because the __sync primitives are
@@ -1098,61 +1097,52 @@ extern "C" {
         #define ENET_ATOMIC_WRITE(ptr, value) __atomic_store_n((ptr), (value), __ATOMIC_RELEASE)
 
         #ifndef typeof
-        #define typeof __typeof__
+            #define typeof __typeof__
         #endif
 
         /* clang_analyzer doesn't know that CAS writes to memory so it complains about
            potentially lost data. Replace the code with the equivalent non-sync code. */
         #ifdef __clang_analyzer__
+            #define ENET_ATOMIC_CAS(ptr, old_value, new_value)                                                      \
+                ({                                                                                                  \
+                    typeof(*(ptr)) ENET_ATOMIC_CAS_old_actual_ = (*(ptr));                                          \
+                    if (ATOMIC_CAS_old_actual_ == (old_value)) {                                                    \
+                        *(ptr) = new_value;                                                                         \
+                    }                                                                                               \
+                    ENET_ATOMIC_CAS_old_actual_;                                                                    \
+                })
+            #else
+            /* Could use __auto_type instead of typeof but that shouldn't work in C++.
+               The ({ }) syntax is a GCC extension called statement expression. It lets
+               us return a value out of the macro.
 
-        #define ENET_ATOMIC_CAS(ptr, old_value, new_value)                                                      \
-            ({                                                                                                  \
-                typeof(*(ptr)) ENET_ATOMIC_CAS_old_actual_ = (*(ptr));                                          \
-                if (ATOMIC_CAS_old_actual_ == (old_value)) {                                                    \
-                    *(ptr) = new_value;                                                                         \
-                }                                                                                               \
-                ENET_ATOMIC_CAS_old_actual_;                                                                    \
-            })
+               TODO We should return bool here instead of the old value to avoid the ABA
+               problem. */
+            #define ENET_ATOMIC_CAS(ptr, old_value, new_value)                                                      \
+                ({                                                                                                  \
+                    typeof(*(ptr)) ENET_ATOMIC_CAS_expected_ = (old_value);                                         \
+                    __atomic_compare_exchange_n((ptr), &ENET_ATOMIC_CAS_expected_, (new_value), false,              \
+                                                __ATOMIC_ACQ_REL, __ATOMIC_ACQUIRE);                                \
+                    ENET_ATOMIC_CAS_expected_;                                                                      \
+                })
+            #endif /* __clang_analyzer__ */
 
+            #define ENET_ATOMIC_INC(ptr) __atomic_fetch_add((ptr), 1, __ATOMIC_ACQ_REL)
+            #define ENET_ATOMIC_DEC(ptr) __atomic_fetch_sub((ptr), 1, __ATOMIC_ACQ_REL)
+            #define ENET_ATOMIC_INC_BY(ptr, delta) __atomic_fetch_add((ptr), (delta), __ATOMIC_ACQ_REL)
+            #define ENET_ATOMIC_DEC_BY(ptr, delta) __atomic_fetch_sub((ptr), (delta), __ATOMIC_ACQ_REL)
         #else
-
-        /* Could use __auto_type instead of typeof but that shouldn't work in C++.
-           The ({ }) syntax is a GCC extension called statement expression. It lets
-           us return a value out of the macro.
-
-           TODO We should return bool here instead of the old value to avoid the ABA
-           problem. */
-        #define ENET_ATOMIC_CAS(ptr, old_value, new_value)                                                      \
-            ({                                                                                                  \
-                typeof(*(ptr)) ENET_ATOMIC_CAS_expected_ = (old_value);                                         \
-                __atomic_compare_exchange_n((ptr), &ENET_ATOMIC_CAS_expected_, (new_value), false,              \
-                                            __ATOMIC_ACQ_REL, __ATOMIC_ACQUIRE);                                \
-                ENET_ATOMIC_CAS_expected_;                                                                      \
-            })
-
-        #endif /* __clang_analyzer__ */
-
-        #define ENET_ATOMIC_INC(ptr) __atomic_fetch_add((ptr), 1, __ATOMIC_ACQ_REL)
-        #define ENET_ATOMIC_DEC(ptr) __atomic_fetch_sub((ptr), 1, __ATOMIC_ACQ_REL)
-        #define ENET_ATOMIC_INC_BY(ptr, delta) __atomic_fetch_add((ptr), (delta), __ATOMIC_ACQ_REL)
-        #define ENET_ATOMIC_DEC_BY(ptr, delta) __atomic_fetch_sub((ptr), (delta), __ATOMIC_ACQ_REL)
-
-        #else
-
-        #define ENET_ATOMIC_READ(variable) __sync_fetch_and_add(variable, 0)
-        #define ENET_ATOMIC_WRITE(variable, new_val)                                                            \
-            (void) __sync_val_compare_and_swap((variable), *(variable), (new_val))
-        #define ENET_ATOMIC_CAS(variable, old_value, new_val)                                                   \
-            __sync_val_compare_and_swap((variable), (old_value), (new_val))
-        #define ENET_ATOMIC_INC(variable) __sync_fetch_and_add((variable), 1)
-        #define ENET_ATOMIC_DEC(variable) __sync_fetch_and_sub((variable), 1)
-        #define ENET_ATOMIC_INC_BY(variable, delta) __sync_fetch_and_add((variable), (delta), 1)
-        #define ENET_ATOMIC_DEC_BY(variable, delta) __sync_fetch_and_sub((variable), (delta), 1)
-
+            #define ENET_ATOMIC_READ(variable) __sync_fetch_and_add(variable, 0)
+            #define ENET_ATOMIC_WRITE(variable, new_val)                                                            \
+                (void) __sync_val_compare_and_swap((variable), *(variable), (new_val))
+            #define ENET_ATOMIC_CAS(variable, old_value, new_val)                                                   \
+                __sync_val_compare_and_swap((variable), (old_value), (new_val))
+            #define ENET_ATOMIC_INC(variable) __sync_fetch_and_add((variable), 1)
+            #define ENET_ATOMIC_DEC(variable) __sync_fetch_and_sub((variable), 1)
+            #define ENET_ATOMIC_INC_BY(variable, delta) __sync_fetch_and_add((variable), (delta), 1)
+            #define ENET_ATOMIC_DEC_BY(variable, delta) __sync_fetch_and_sub((variable), (delta), 1)
     #endif /* AT_HAVE_ATOMICS */
-
     #undef AT_HAVE_ATOMICS
-
 #endif /* defined(_MSC_VER) */
 
 // =======================================================================//
@@ -1282,8 +1272,7 @@ extern "C" {
             }
 
             packet->data = (enet_uint8 *)data;
-        }
-        else {
+        } else {
             packet = (ENetPacket *)enet_malloc(sizeof (ENetPacket) + dataLength);
             if (packet == NULL) {
                 return NULL;
@@ -1315,8 +1304,7 @@ extern "C" {
             }
 
             packet->data = (enet_uint8 *)data;
-        }
-        else {
+        } else {
             packet = (ENetPacket *)enet_malloc(sizeof (ENetPacket) + dataLength + dataOffset);
             if (packet == NULL) {
                 return NULL;
@@ -1559,8 +1547,7 @@ extern "C" {
             event->data = 0;
 
             enet_peer_reset(peer);
-        }
-        else {
+        } else {
             peer->eventData = 0;
             enet_protocol_dispatch_state(host, peer, ENET_PEER_STATE_ZOMBIE);
         }
@@ -1590,6 +1577,7 @@ extern "C" {
         ENetOutgoingCommand *outgoingCommand = NULL;
         ENetListIterator currentCommand;
         ENetProtocolCommand commandNumber;
+
         int wasSent = 1;
 
         for (currentCommand = enet_list_begin(&peer->sentReliableCommands);
@@ -1610,7 +1598,10 @@ extern "C" {
             ) {
                 outgoingCommand = (ENetOutgoingCommand *) currentCommand;
 
-                if (outgoingCommand->sendAttempts < 1) { return ENET_PROTOCOL_COMMAND_NONE; }
+                if (outgoingCommand->sendAttempts < 1) {
+                    return ENET_PROTOCOL_COMMAND_NONE;
+                }
+
                 if (outgoingCommand->reliableSequenceNumber == reliableSequenceNumber && outgoingCommand->command.header.channelID == channelID) {
                     break;
                 }
@@ -1639,6 +1630,7 @@ extern "C" {
         }
 
         commandNumber = (ENetProtocolCommand) (outgoingCommand->command.header.command & ENET_PROTOCOL_COMMAND_MASK);
+
         enet_list_remove(&outgoingCommand->outgoingCommandList);
 
         if (outgoingCommand->packet != NULL) {
@@ -1670,7 +1662,9 @@ extern "C" {
         enet_uint8 incomingSessionID, outgoingSessionID;
         enet_uint32 mtu, windowSize;
         ENetChannel *channel;
+
         size_t channelCount, duplicatePeers = 0;
+
         ENetPeer *currentPeer, *peer = NULL;
         ENetProtocol verifyCommand;
 
@@ -1701,11 +1695,13 @@ extern "C" {
         if (channelCount > host->channelLimit) {
             channelCount = host->channelLimit;
         }
+
         peer->channels = (ENetChannel *) enet_malloc(channelCount * sizeof(ENetChannel));
 
         if (peer->channels == NULL) {
             return NULL;
         }
+
         peer->channelCount               = channelCount;
         peer->state                      = ENET_PEER_STATE_ACKNOWLEDGING_CONNECT;
         peer->connectID                  = command->connect.connectID;
@@ -1725,6 +1721,7 @@ extern "C" {
             incomingSessionID = (incomingSessionID + 1)
               & (ENET_PROTOCOL_HEADER_SESSION_MASK >> ENET_PROTOCOL_HEADER_SESSION_SHIFT);
         }
+
         peer->outgoingSessionID = incomingSessionID;
 
         outgoingSessionID = command->connect.outgoingSessionID == 0xFF ? peer->incomingSessionID : command->connect.outgoingSessionID;
@@ -1734,6 +1731,7 @@ extern "C" {
             outgoingSessionID = (outgoingSessionID + 1)
               & (ENET_PROTOCOL_HEADER_SESSION_MASK >> ENET_PROTOCOL_HEADER_SESSION_SHIFT);
         }
+
         peer->incomingSessionID = outgoingSessionID;
 
         for (channel = peer->channels; channel < &peer->channels[channelCount]; ++channel) {
@@ -1805,6 +1803,7 @@ extern "C" {
         verifyCommand.verifyConnect.connectID                   = peer->connectID;
 
         enet_peer_queue_outgoing_command(peer, &verifyCommand, NULL, 0, 0);
+
         return peer;
     } /* enet_protocol_handle_connect */
 
@@ -1831,6 +1830,7 @@ extern "C" {
 
     static int enet_protocol_handle_send_unsequenced(ENetHost *host, ENetPeer *peer, const ENetProtocol *command, enet_uint8 **currentData) {
         enet_uint32 unsequencedGroup, index;
+
         size_t dataLength;
 
         if (command->header.channelID >= peer->channelCount || (peer->state != ENET_PEER_STATE_CONNECTED && peer->state != ENET_PEER_STATE_DISCONNECT_LATER)) {
@@ -1873,13 +1873,10 @@ extern "C" {
         return 0;
     } /* enet_protocol_handle_send_unsequenced */
 
-    static int enet_protocol_handle_send_unreliable(ENetHost *host, ENetPeer *peer, const ENetProtocol *command,
-      enet_uint8 **currentData) {
+    static int enet_protocol_handle_send_unreliable(ENetHost *host, ENetPeer *peer, const ENetProtocol *command, enet_uint8 **currentData) {
         size_t dataLength;
 
-        if (command->header.channelID >= peer->channelCount ||
-          (peer->state != ENET_PEER_STATE_CONNECTED && peer->state != ENET_PEER_STATE_DISCONNECT_LATER))
-        {
+        if (command->header.channelID >= peer->channelCount || (peer->state != ENET_PEER_STATE_CONNECTED && peer->state != ENET_PEER_STATE_DISCONNECT_LATER)) {
             return -1;
         }
 
@@ -1970,6 +1967,7 @@ extern "C" {
                 }
 
                 startCommand = incomingCommand;
+
                 break;
             }
         }
@@ -1978,6 +1976,7 @@ extern "C" {
             ENetProtocol hostCommand = *command;
             hostCommand.header.reliableSequenceNumber = startSequenceNumber;
             startCommand = enet_peer_queue_incoming_command(peer, &hostCommand, NULL, totalLength, ENET_PACKET_FLAG_RELIABLE, fragmentCount);
+
             if (startCommand == NULL) {
                 return -1;
             }
@@ -2088,6 +2087,7 @@ extern "C" {
                 }
 
                 startCommand = incomingCommand;
+
                 break;
             }
         }
@@ -2184,15 +2184,12 @@ extern "C" {
 
         if (peer->state == ENET_PEER_STATE_CONNECTION_SUCCEEDED || peer->state == ENET_PEER_STATE_DISCONNECTING || peer->state == ENET_PEER_STATE_CONNECTING) {
             enet_protocol_dispatch_state(host, peer, ENET_PEER_STATE_ZOMBIE);
-        }
-        else if (peer->state != ENET_PEER_STATE_CONNECTED && peer->state != ENET_PEER_STATE_DISCONNECT_LATER) {
+        } else if (peer->state != ENET_PEER_STATE_CONNECTED && peer->state != ENET_PEER_STATE_DISCONNECT_LATER) {
             if (peer->state == ENET_PEER_STATE_CONNECTION_PENDING) { host->recalculateBandwidthLimits = 1; }
             enet_peer_reset(peer);
-        }
-        else if (command->header.command & ENET_PROTOCOL_COMMAND_FLAG_ACKNOWLEDGE) {
+        } else if (command->header.command & ENET_PROTOCOL_COMMAND_FLAG_ACKNOWLEDGE) {
             enet_protocol_change_state(host, peer, ENET_PEER_STATE_ACKNOWLEDGING_DISCONNECT);
-        }
-        else {
+        } else {
             enet_protocol_dispatch_state(host, peer, ENET_PEER_STATE_ZOMBIE);
         }
 
@@ -2308,7 +2305,9 @@ extern "C" {
             command->verifyConnect.connectID != peer->connectID
         ) {
             peer->eventData = 0;
+
             enet_protocol_dispatch_state(host, peer, ENET_PEER_STATE_ZOMBIE);
+
             return -1;
         }
 
@@ -2352,6 +2351,7 @@ extern "C" {
         peer->outgoingBandwidth = ENET_NET_TO_HOST_32(command->verifyConnect.outgoingBandwidth);
 
         enet_protocol_notify_connect(host, peer, event);
+
         return 0;
     } /* enet_protocol_handle_verify_connect */
 
@@ -2997,16 +2997,16 @@ extern "C" {
                     enet_uint32 packetLoss = currentPeer->packetsLost * ENET_PEER_PACKET_LOSS_SCALE / currentPeer->packetsSent;
 
                     #ifdef ENET_DEBUG
-                    printf(
-                        "peer %u: %f%%+-%f%% packet loss, %u+-%u ms round trip time, %f%% throttle, %u/%u outgoing, %u/%u incoming\n", currentPeer->incomingPeerID,
-                        currentPeer->packetLoss / (float) ENET_PEER_PACKET_LOSS_SCALE,
-                        currentPeer->packetLossVariance / (float) ENET_PEER_PACKET_LOSS_SCALE, currentPeer->roundTripTime, currentPeer->roundTripTimeVariance,
-                        currentPeer->packetThrottle / (float) ENET_PEER_PACKET_THROTTLE_SCALE,
-                        enet_list_size(&currentPeer->outgoingReliableCommands),
-                        enet_list_size(&currentPeer->outgoingUnreliableCommands),
-                        currentPeer->channels != NULL ? enet_list_size( &currentPeer->channels->incomingReliableCommands) : 0,
-                        currentPeer->channels != NULL ? enet_list_size(&currentPeer->channels->incomingUnreliableCommands) : 0
-                    );
+                        printf(
+                            "peer %u: %f%%+-%f%% packet loss, %u+-%u ms round trip time, %f%% throttle, %u/%u outgoing, %u/%u incoming\n", currentPeer->incomingPeerID,
+                            currentPeer->packetLoss / (float) ENET_PEER_PACKET_LOSS_SCALE,
+                            currentPeer->packetLossVariance / (float) ENET_PEER_PACKET_LOSS_SCALE, currentPeer->roundTripTime, currentPeer->roundTripTimeVariance,
+                            currentPeer->packetThrottle / (float) ENET_PEER_PACKET_THROTTLE_SCALE,
+                            enet_list_size(&currentPeer->outgoingReliableCommands),
+                            enet_list_size(&currentPeer->outgoingUnreliableCommands),
+                            currentPeer->channels != NULL ? enet_list_size( &currentPeer->channels->incomingReliableCommands) : 0,
+                            currentPeer->channels != NULL ? enet_list_size(&currentPeer->channels->incomingUnreliableCommands) : 0
+                        );
                     #endif
 
                     currentPeer->packetLossVariance -= currentPeer->packetLossVariance / 4;
@@ -3035,7 +3035,9 @@ extern "C" {
                 if (currentPeer->outgoingPeerID < ENET_PROTOCOL_MAXIMUM_PEER_ID) {
                     host->headerFlags |= currentPeer->outgoingSessionID << ENET_PROTOCOL_HEADER_SESSION_SHIFT;
                 }
+
                 header->peerID = ENET_HOST_TO_NET_16(currentPeer->outgoingPeerID | host->headerFlags);
+
                 if (host->checksum != NULL) {
                     enet_uint32 *checksum = (enet_uint32 *) &headerData[host->buffers->dataLength];
                     *checksum = currentPeer->outgoingPeerID < ENET_PROTOCOL_MAXIMUM_PEER_ID ? currentPeer->connectID : 0;
@@ -3080,7 +3082,9 @@ extern "C" {
      *  @ingroup host
      */
     int enet_host_check_events(ENetHost *host, ENetEvent *event) {
-        if (event == NULL) { return -1; }
+        if (event == NULL) {
+            return -1;
+        }
 
         event->type   = ENET_EVENT_TYPE_NONE;
         event->peer   = NULL;
@@ -3116,7 +3120,7 @@ extern "C" {
 
                 case -1:
                     #ifdef ENET_DEBUG
-                    perror("Error dispatching incoming packets");
+                        perror("Error dispatching incoming packets");
                     #endif
 
                     return -1;
@@ -3140,7 +3144,7 @@ extern "C" {
 
                 case -1:
                     #ifdef ENET_DEBUG
-                    perror("Error sending outgoing packets");
+                        perror("Error sending outgoing packets");
                     #endif
 
                     return -1;
@@ -3155,7 +3159,7 @@ extern "C" {
 
                 case -1:
                     #ifdef ENET_DEBUG
-                    perror("Error receiving incoming packets");
+                        perror("Error receiving incoming packets");
                     #endif
 
                     return -1;
@@ -3170,7 +3174,7 @@ extern "C" {
 
                 case -1:
                     #ifdef ENET_DEBUG
-                    perror("Error sending outgoing packets");
+                        perror("Error sending outgoing packets");
                     #endif
 
                     return -1;
@@ -3186,7 +3190,7 @@ extern "C" {
 
                     case -1:
                         #ifdef ENET_DEBUG
-                        perror("Error dispatching incoming packets");
+                            perror("Error dispatching incoming packets");
                         #endif
 
                         return -1;
@@ -3208,6 +3212,7 @@ extern "C" {
                 }
 
                 waitCondition = ENET_SOCKET_WAIT_RECEIVE | ENET_SOCKET_WAIT_INTERRUPT;
+
                 if (enet_socket_wait(host->socket, &waitCondition, ENET_TIME_DIFFERENCE(timeout, host->serviceTime)) != 0) {
                     return -1;
                 }
@@ -3274,8 +3279,7 @@ extern "C" {
     int enet_peer_throttle(ENetPeer *peer, enet_uint32 rtt) {
         if (peer->lastRoundTripTime <= peer->lastRoundTripTimeVariance) {
             peer->packetThrottle = peer->packetThrottleLimit;
-        }
-        else if (rtt < peer->lastRoundTripTime) {
+        } else if (rtt < peer->lastRoundTripTime) {
             peer->packetThrottle += peer->packetThrottleAcceleration;
 
             if (peer->packetThrottle > peer->packetThrottleLimit) {
@@ -3283,8 +3287,7 @@ extern "C" {
             }
 
             return 1;
-        }
-        else if (rtt > peer->lastRoundTripTime + 2 * peer->lastRoundTripTimeVariance) {
+        } else if (rtt > peer->lastRoundTripTime + 2 * peer->lastRoundTripTimeVariance) {
             if (peer->packetThrottle > peer->packetThrottleDeceleration) {
                 peer->packetThrottle -= peer->packetThrottleDeceleration;
             } else {
@@ -3392,12 +3395,10 @@ extern "C" {
         if ((packet->flags & (ENET_PACKET_FLAG_RELIABLE | ENET_PACKET_FLAG_UNSEQUENCED)) == ENET_PACKET_FLAG_UNSEQUENCED) {
             command.header.command = ENET_PROTOCOL_COMMAND_SEND_UNSEQUENCED | ENET_PROTOCOL_COMMAND_FLAG_UNSEQUENCED;
             command.sendUnsequenced.dataLength = ENET_HOST_TO_NET_16(packet->dataLength);
-        }
-        else if (packet->flags & ENET_PACKET_FLAG_RELIABLE || channel->outgoingUnreliableSequenceNumber >= 0xFFFF) {
+        } else if (packet->flags & ENET_PACKET_FLAG_RELIABLE || channel->outgoingUnreliableSequenceNumber >= 0xFFFF) {
             command.header.command = ENET_PROTOCOL_COMMAND_SEND_RELIABLE | ENET_PROTOCOL_COMMAND_FLAG_ACKNOWLEDGE;
             command.sendReliable.dataLength = ENET_HOST_TO_NET_16(packet->dataLength);
-        }
-        else {
+        } else {
             command.header.command = ENET_PROTOCOL_COMMAND_SEND_UNRELIABLE;
             command.sendUnreliable.dataLength = ENET_HOST_TO_NET_16(packet->dataLength);
         }
@@ -3785,21 +3786,18 @@ extern "C" {
 
             outgoingCommand->reliableSequenceNumber   = peer->outgoingReliableSequenceNumber;
             outgoingCommand->unreliableSequenceNumber = 0;
-        }
-        else if (outgoingCommand->command.header.command & ENET_PROTOCOL_COMMAND_FLAG_ACKNOWLEDGE) {
+        } else if (outgoingCommand->command.header.command & ENET_PROTOCOL_COMMAND_FLAG_ACKNOWLEDGE) {
             ++channel->outgoingReliableSequenceNumber;
             channel->outgoingUnreliableSequenceNumber = 0;
 
             outgoingCommand->reliableSequenceNumber   = channel->outgoingReliableSequenceNumber;
             outgoingCommand->unreliableSequenceNumber = 0;
-        }
-        else if (outgoingCommand->command.header.command & ENET_PROTOCOL_COMMAND_FLAG_UNSEQUENCED) {
+        } else if (outgoingCommand->command.header.command & ENET_PROTOCOL_COMMAND_FLAG_UNSEQUENCED) {
             ++peer->outgoingUnsequencedGroup;
 
             outgoingCommand->reliableSequenceNumber   = 0;
             outgoingCommand->unreliableSequenceNumber = 0;
-        }
-        else {
+        } else {
             if (outgoingCommand->fragmentOffset == 0) {
                 ++channel->outgoingUnreliableSequenceNumber;
             }
@@ -4182,7 +4180,10 @@ extern "C" {
 
         host = (ENetHost *) enet_malloc(sizeof(ENetHost));
 
-        if (host == NULL) { return NULL; }
+        if (host == NULL) {
+            return NULL;
+        }
+
         memset(host, 0, sizeof(ENetHost));
 
         host->peers = (ENetPeer *) enet_malloc(peerCount * sizeof(ENetPeer));
@@ -4813,272 +4814,218 @@ extern "C" {
 // =======================================================================//
 
     #ifndef _WIN32
-
-    int enet_initialize(void) {
-        return 0;
-    }
-
-    void enet_deinitialize(void) {}
-
-    enet_uint64 enet_host_random_seed(void) {
-        return (enet_uint64) time(NULL);
-    }
-
-    int enet_address_set_host_ip(ENetAddress *address, const char *name) {
-        if (!inet_pton(AF_INET6, name, &address->host)) {
-            return -1;
+        int enet_initialize(void) {
+            return 0;
         }
 
-        return 0;
-    }
+        void enet_deinitialize(void) {}
 
-    int enet_address_set_host(ENetAddress *address, const char *name) {
-        struct addrinfo hints, *resultList = NULL, *result = NULL;
-
-        memset(&hints, 0, sizeof(hints));
-        hints.ai_family = AF_UNSPEC;
-
-        if (getaddrinfo(name, NULL, &hints, &resultList) != 0) {
-            return -1;
+        enet_uint64 enet_host_random_seed(void) {
+            return (enet_uint64) time(NULL);
         }
 
-        for (result = resultList; result != NULL; result = result->ai_next) {
-            if (result->ai_addr != NULL && result->ai_addrlen >= sizeof(struct sockaddr_in)) {
-                if (result->ai_family == AF_INET) {
-                    struct sockaddr_in * sin = (struct sockaddr_in *) result->ai_addr;
-
-                    ((uint32_t *)&address->host.s6_addr)[0] = 0;
-                    ((uint32_t *)&address->host.s6_addr)[1] = 0;
-                    ((uint32_t *)&address->host.s6_addr)[2] = htonl(0xffff);
-                    ((uint32_t *)&address->host.s6_addr)[3] = sin->sin_addr.s_addr;
-
-                    freeaddrinfo(resultList);
-
-                    return 0;
-                }
-                else if(result->ai_family == AF_INET6) {
-                    struct sockaddr_in6 * sin = (struct sockaddr_in6 *)result->ai_addr;
-
-                    address->host = sin->sin6_addr;
-                    address->sin6_scope_id = sin->sin6_scope_id;
-
-                    freeaddrinfo(resultList);
-
-                    return 0;
-                }
-            }
-        }
-
-        if (resultList != NULL) {
-            freeaddrinfo(resultList);
-        }
-
-        return enet_address_set_host_ip(address, name);
-    } /* enet_address_set_host */
-
-    int enet_address_get_host_ip(const ENetAddress *address, char *name, size_t nameLength) {
-        if (inet_ntop(AF_INET6, &address->host, name, nameLength) == NULL) {
-            return -1;
-        }
-
-        return 0;
-    }
-
-    int enet_address_get_host(const ENetAddress *address, char *name, size_t nameLength) {
-        struct sockaddr_in6 sin;
-        int err;
-
-        memset(&sin, 0, sizeof(struct sockaddr_in6));
-
-        sin.sin6_family = AF_INET6;
-        sin.sin6_port = ENET_HOST_TO_NET_16 (address->port);
-        sin.sin6_addr = address->host;
-        sin.sin6_scope_id = address->sin6_scope_id;
-
-        err = getnameinfo((struct sockaddr *) &sin, sizeof(sin), name, nameLength, NULL, 0, NI_NAMEREQD);
-
-        if (!err) {
-            if (name != NULL && nameLength > 0 && !memchr(name, '\0', nameLength)) {
+        int enet_address_set_host_ip(ENetAddress *address, const char *name) {
+            if (!inet_pton(AF_INET6, name, &address->host)) {
                 return -1;
             }
-            return 0;
-        }
-        if (err != EAI_NONAME) {
-            return -1;
-        }
 
-        return enet_address_get_host_ip(address, name, nameLength);
-    } /* enet_address_get_host */
-
-    int enet_socket_bind(ENetSocket socket, const ENetAddress *address) {
-        struct sockaddr_in6 sin;
-        memset(&sin, 0, sizeof(struct sockaddr_in6));
-        sin.sin6_family = AF_INET6;
-
-        if (address != NULL) {
-            sin.sin6_port       = ENET_HOST_TO_NET_16(address->port);
-            sin.sin6_addr       = address->host;
-            sin.sin6_scope_id   = address->sin6_scope_id;
-        } else {
-            sin.sin6_port       = 0;
-            sin.sin6_addr       = ENET_HOST_ANY;
-            sin.sin6_scope_id   = 0;
-        }
-
-        return bind(socket, (struct sockaddr *)&sin, sizeof(struct sockaddr_in6));
-    }
-
-    int enet_socket_get_address(ENetSocket socket, ENetAddress *address) {
-        struct sockaddr_in6 sin;
-        socklen_t sinLength = sizeof(struct sockaddr_in6);
-
-        if (getsockname(socket, (struct sockaddr *) &sin, &sinLength) == -1) {
-            return -1;
-        }
-
-        address->host           = sin.sin6_addr;
-        address->port           = ENET_NET_TO_HOST_16(sin.sin6_port);
-        address->sin6_scope_id  = sin.sin6_scope_id;
-
-        return 0;
-    }
-
-    int enet_socket_listen(ENetSocket socket, int backlog) {
-        return listen(socket, backlog < 0 ? SOMAXCONN : backlog);
-    }
-
-    ENetSocket enet_socket_create(ENetSocketType type) {
-        return socket(PF_INET6, type == ENET_SOCKET_TYPE_DATAGRAM ? SOCK_DGRAM : SOCK_STREAM, 0);
-    }
-
-    int enet_socket_set_option(ENetSocket socket, ENetSocketOption option, int value) {
-        int result = -1;
-
-        switch (option) {
-            case ENET_SOCKOPT_NONBLOCK:
-                result = fcntl(socket, F_SETFL, (value ? O_NONBLOCK : 0) | (fcntl(socket, F_GETFL) & ~O_NONBLOCK));
-                break;
-
-            case ENET_SOCKOPT_BROADCAST:
-                result = setsockopt(socket, SOL_SOCKET, SO_BROADCAST, (char *)&value, sizeof(int));
-                break;
-
-            case ENET_SOCKOPT_REUSEADDR:
-                result = setsockopt(socket, SOL_SOCKET, SO_REUSEADDR, (char *)&value, sizeof(int));
-                break;
-
-            case ENET_SOCKOPT_RCVBUF:
-                result = setsockopt(socket, SOL_SOCKET, SO_RCVBUF, (char *)&value, sizeof(int));
-                break;
-
-            case ENET_SOCKOPT_SNDBUF:
-                result = setsockopt(socket, SOL_SOCKET, SO_SNDBUF, (char *)&value, sizeof(int));
-                break;
-
-            case ENET_SOCKOPT_RCVTIMEO: {
-                struct timeval timeVal;
-                timeVal.tv_sec  = value / 1000;
-                timeVal.tv_usec = (value % 1000) * 1000;
-                result = setsockopt(socket, SOL_SOCKET, SO_RCVTIMEO, (char *)&timeVal, sizeof(struct timeval));
-                break;
-            }
-
-            case ENET_SOCKOPT_SNDTIMEO: {
-                struct timeval timeVal;
-                timeVal.tv_sec  = value / 1000;
-                timeVal.tv_usec = (value % 1000) * 1000;
-                result = setsockopt(socket, SOL_SOCKET, SO_SNDTIMEO, (char *)&timeVal, sizeof(struct timeval));
-                break;
-            }
-
-            case ENET_SOCKOPT_NODELAY:
-                result = setsockopt(socket, IPPROTO_TCP, TCP_NODELAY, (char *)&value, sizeof(int));
-                break;
-
-            case ENET_SOCKOPT_IPV6_V6ONLY:
-                result = setsockopt(socket, IPPROTO_IPV6, IPV6_V6ONLY, (char *)&value, sizeof(int));
-                break;
-
-            default:
-                break;
-        }
-        return result == -1 ? -1 : 0;
-    } /* enet_socket_set_option */
-
-    int enet_socket_get_option(ENetSocket socket, ENetSocketOption option, int *value) {
-        int result = -1;
-        socklen_t len;
-
-        switch (option) {
-            case ENET_SOCKOPT_ERROR:
-                len    = sizeof(int);
-                result = getsockopt(socket, SOL_SOCKET, SO_ERROR, value, &len);
-                break;
-
-            default:
-                break;
-        }
-        return result == -1 ? -1 : 0;
-    }
-
-    int enet_socket_connect(ENetSocket socket, const ENetAddress *address) {
-        struct sockaddr_in6 sin;
-        int result;
-
-        memset(&sin, 0, sizeof(struct sockaddr_in6));
-
-        sin.sin6_family     = AF_INET6;
-        sin.sin6_port       = ENET_HOST_TO_NET_16(address->port);
-        sin.sin6_addr       = address->host;
-        sin.sin6_scope_id   = address->sin6_scope_id;
-
-        result = connect(socket, (struct sockaddr *)&sin, sizeof(struct sockaddr_in6));
-
-        if (result == -1 && errno == EINPROGRESS) {
             return 0;
         }
 
-        return result;
-    }
+        int enet_address_set_host(ENetAddress *address, const char *name) {
+            struct addrinfo hints, *resultList = NULL, *result = NULL;
 
-    ENetSocket enet_socket_accept(ENetSocket socket, ENetAddress *address) {
-        int result;
-        struct sockaddr_in6 sin;
-        socklen_t sinLength = sizeof(struct sockaddr_in6);
+            memset(&hints, 0, sizeof(hints));
+            hints.ai_family = AF_UNSPEC;
 
-        result = accept(socket,address != NULL ? (struct sockaddr *) &sin : NULL, address != NULL ? &sinLength : NULL);
+            if (getaddrinfo(name, NULL, &hints, &resultList) != 0) {
+                return -1;
+            }
 
-        if (result == -1) {
-            return ENET_SOCKET_NULL;
+            for (result = resultList; result != NULL; result = result->ai_next) {
+                if (result->ai_addr != NULL && result->ai_addrlen >= sizeof(struct sockaddr_in)) {
+                    if (result->ai_family == AF_INET) {
+                        struct sockaddr_in * sin = (struct sockaddr_in *) result->ai_addr;
+
+                        ((uint32_t *)&address->host.s6_addr)[0] = 0;
+                        ((uint32_t *)&address->host.s6_addr)[1] = 0;
+                        ((uint32_t *)&address->host.s6_addr)[2] = htonl(0xffff);
+                        ((uint32_t *)&address->host.s6_addr)[3] = sin->sin_addr.s_addr;
+
+                        freeaddrinfo(resultList);
+
+                        return 0;
+                    } else if(result->ai_family == AF_INET6) {
+                        struct sockaddr_in6 * sin = (struct sockaddr_in6 *)result->ai_addr;
+
+                        address->host = sin->sin6_addr;
+                        address->sin6_scope_id = sin->sin6_scope_id;
+
+                        freeaddrinfo(resultList);
+
+                        return 0;
+                    }
+                }
+            }
+
+            if (resultList != NULL) {
+                freeaddrinfo(resultList);
+            }
+
+            return enet_address_set_host_ip(address, name);
+        } /* enet_address_set_host */
+
+        int enet_address_get_host_ip(const ENetAddress *address, char *name, size_t nameLength) {
+            if (inet_ntop(AF_INET6, &address->host, name, nameLength) == NULL) {
+                return -1;
+            }
+
+            return 0;
         }
 
-        if (address != NULL) {
-            address->host = sin.sin6_addr;
-            address->port = ENET_NET_TO_HOST_16 (sin.sin6_port);
-            address->sin6_scope_id = sin.sin6_scope_id;
+        int enet_address_get_host(const ENetAddress *address, char *name, size_t nameLength) {
+            struct sockaddr_in6 sin;
+            int err;
+
+            memset(&sin, 0, sizeof(struct sockaddr_in6));
+
+            sin.sin6_family = AF_INET6;
+            sin.sin6_port = ENET_HOST_TO_NET_16 (address->port);
+            sin.sin6_addr = address->host;
+            sin.sin6_scope_id = address->sin6_scope_id;
+
+            err = getnameinfo((struct sockaddr *) &sin, sizeof(sin), name, nameLength, NULL, 0, NI_NAMEREQD);
+
+            if (!err) {
+                if (name != NULL && nameLength > 0 && !memchr(name, '\0', nameLength)) {
+                    return -1;
+                }
+
+                return 0;
+            }
+
+            if (err != EAI_NONAME) {
+                return -1;
+            }
+
+            return enet_address_get_host_ip(address, name, nameLength);
+        } /* enet_address_get_host */
+
+        int enet_socket_bind(ENetSocket socket, const ENetAddress *address) {
+            struct sockaddr_in6 sin;
+            memset(&sin, 0, sizeof(struct sockaddr_in6));
+            sin.sin6_family = AF_INET6;
+
+            if (address != NULL) {
+                sin.sin6_port       = ENET_HOST_TO_NET_16(address->port);
+                sin.sin6_addr       = address->host;
+                sin.sin6_scope_id   = address->sin6_scope_id;
+            } else {
+                sin.sin6_port       = 0;
+                sin.sin6_addr       = ENET_HOST_ANY;
+                sin.sin6_scope_id   = 0;
+            }
+
+            return bind(socket, (struct sockaddr *)&sin, sizeof(struct sockaddr_in6));
         }
 
-        return result;
-    }
+        int enet_socket_get_address(ENetSocket socket, ENetAddress *address) {
+            struct sockaddr_in6 sin;
+            socklen_t sinLength = sizeof(struct sockaddr_in6);
 
-    int enet_socket_shutdown(ENetSocket socket, ENetSocketShutdown how) {
-        return shutdown(socket, (int) how);
-    }
+            if (getsockname(socket, (struct sockaddr *) &sin, &sinLength) == -1) {
+                return -1;
+            }
 
-    void enet_socket_destroy(ENetSocket socket) {
-        if (socket != -1) {
-            close(socket);
+            address->host           = sin.sin6_addr;
+            address->port           = ENET_NET_TO_HOST_16(sin.sin6_port);
+            address->sin6_scope_id  = sin.sin6_scope_id;
+
+            return 0;
         }
-    }
 
-    int enet_socket_send(ENetSocket socket, const ENetAddress *address, const ENetBuffer *buffers, size_t bufferCount) {
-        struct msghdr msgHdr;
-        struct sockaddr_in6 sin;
-        int sentLength;
+        int enet_socket_listen(ENetSocket socket, int backlog) {
+            return listen(socket, backlog < 0 ? SOMAXCONN : backlog);
+        }
 
-        memset(&msgHdr, 0, sizeof(struct msghdr));
+        ENetSocket enet_socket_create(ENetSocketType type) {
+            return socket(PF_INET6, type == ENET_SOCKET_TYPE_DATAGRAM ? SOCK_DGRAM : SOCK_STREAM, 0);
+        }
 
-        if (address != NULL) {
+        int enet_socket_set_option(ENetSocket socket, ENetSocketOption option, int value) {
+            int result = -1;
+
+            switch (option) {
+                case ENET_SOCKOPT_NONBLOCK:
+                    result = fcntl(socket, F_SETFL, (value ? O_NONBLOCK : 0) | (fcntl(socket, F_GETFL) & ~O_NONBLOCK));
+                    break;
+
+                case ENET_SOCKOPT_BROADCAST:
+                    result = setsockopt(socket, SOL_SOCKET, SO_BROADCAST, (char *)&value, sizeof(int));
+                    break;
+
+                case ENET_SOCKOPT_REUSEADDR:
+                    result = setsockopt(socket, SOL_SOCKET, SO_REUSEADDR, (char *)&value, sizeof(int));
+                    break;
+
+                case ENET_SOCKOPT_RCVBUF:
+                    result = setsockopt(socket, SOL_SOCKET, SO_RCVBUF, (char *)&value, sizeof(int));
+                    break;
+
+                case ENET_SOCKOPT_SNDBUF:
+                    result = setsockopt(socket, SOL_SOCKET, SO_SNDBUF, (char *)&value, sizeof(int));
+                    break;
+
+                case ENET_SOCKOPT_RCVTIMEO: {
+                    struct timeval timeVal;
+                    timeVal.tv_sec  = value / 1000;
+                    timeVal.tv_usec = (value % 1000) * 1000;
+                    result = setsockopt(socket, SOL_SOCKET, SO_RCVTIMEO, (char *)&timeVal, sizeof(struct timeval));
+                    break;
+                }
+
+                case ENET_SOCKOPT_SNDTIMEO: {
+                    struct timeval timeVal;
+                    timeVal.tv_sec  = value / 1000;
+                    timeVal.tv_usec = (value % 1000) * 1000;
+                    result = setsockopt(socket, SOL_SOCKET, SO_SNDTIMEO, (char *)&timeVal, sizeof(struct timeval));
+                    break;
+                }
+
+                case ENET_SOCKOPT_NODELAY:
+                    result = setsockopt(socket, IPPROTO_TCP, TCP_NODELAY, (char *)&value, sizeof(int));
+                    break;
+
+                case ENET_SOCKOPT_IPV6_V6ONLY:
+                    result = setsockopt(socket, IPPROTO_IPV6, IPV6_V6ONLY, (char *)&value, sizeof(int));
+                    break;
+
+                default:
+                    break;
+            }
+            return result == -1 ? -1 : 0;
+        } /* enet_socket_set_option */
+
+        int enet_socket_get_option(ENetSocket socket, ENetSocketOption option, int *value) {
+            int result = -1;
+            socklen_t len;
+
+            switch (option) {
+                case ENET_SOCKOPT_ERROR:
+                    len    = sizeof(int);
+                    result = getsockopt(socket, SOL_SOCKET, SO_ERROR, value, &len);
+                    break;
+
+                default:
+                    break;
+            }
+            return result == -1 ? -1 : 0;
+        }
+
+        int enet_socket_connect(ENetSocket socket, const ENetAddress *address) {
+            struct sockaddr_in6 sin;
+            int result;
+
             memset(&sin, 0, sizeof(struct sockaddr_in6));
 
             sin.sin6_family     = AF_INET6;
@@ -5086,117 +5033,170 @@ extern "C" {
             sin.sin6_addr       = address->host;
             sin.sin6_scope_id   = address->sin6_scope_id;
 
-            msgHdr.msg_name    = &sin;
-            msgHdr.msg_namelen = sizeof(struct sockaddr_in6);
-        }
+            result = connect(socket, (struct sockaddr *)&sin, sizeof(struct sockaddr_in6));
 
-        msgHdr.msg_iov    = (struct iovec *) buffers;
-        msgHdr.msg_iovlen = bufferCount;
-
-        sentLength = sendmsg(socket, &msgHdr, MSG_NOSIGNAL);
-
-        if (sentLength == -1) {
-            if (errno == EWOULDBLOCK) {
+            if (result == -1 && errno == EINPROGRESS) {
                 return 0;
             }
 
-            return -1;
+            return result;
         }
 
-        return sentLength;
-    } /* enet_socket_send */
+        ENetSocket enet_socket_accept(ENetSocket socket, ENetAddress *address) {
+            int result;
+            struct sockaddr_in6 sin;
+            socklen_t sinLength = sizeof(struct sockaddr_in6);
 
-    int enet_socket_receive(ENetSocket socket, ENetAddress *address, ENetBuffer *buffers, size_t bufferCount) {
-        struct msghdr msgHdr;
-        struct sockaddr_in6 sin;
-        int recvLength;
+            result = accept(socket,address != NULL ? (struct sockaddr *) &sin : NULL, address != NULL ? &sinLength : NULL);
 
-        memset(&msgHdr, 0, sizeof(struct msghdr));
+            if (result == -1) {
+                return ENET_SOCKET_NULL;
+            }
 
-        if (address != NULL) {
-            msgHdr.msg_name    = &sin;
-            msgHdr.msg_namelen = sizeof(struct sockaddr_in6);
+            if (address != NULL) {
+                address->host = sin.sin6_addr;
+                address->port = ENET_NET_TO_HOST_16 (sin.sin6_port);
+                address->sin6_scope_id = sin.sin6_scope_id;
+            }
+
+            return result;
         }
 
-        msgHdr.msg_iov    = (struct iovec *) buffers;
-        msgHdr.msg_iovlen = bufferCount;
+        int enet_socket_shutdown(ENetSocket socket, ENetSocketShutdown how) {
+            return shutdown(socket, (int) how);
+        }
 
-        recvLength = recvmsg(socket, &msgHdr, MSG_NOSIGNAL);
+        void enet_socket_destroy(ENetSocket socket) {
+            if (socket != -1) {
+                close(socket);
+            }
+        }
 
-        if (recvLength == -1) {
-            if (errno == EWOULDBLOCK) {
+        int enet_socket_send(ENetSocket socket, const ENetAddress *address, const ENetBuffer *buffers, size_t bufferCount) {
+            struct msghdr msgHdr;
+            struct sockaddr_in6 sin;
+            int sentLength;
+
+            memset(&msgHdr, 0, sizeof(struct msghdr));
+
+            if (address != NULL) {
+                memset(&sin, 0, sizeof(struct sockaddr_in6));
+
+                sin.sin6_family     = AF_INET6;
+                sin.sin6_port       = ENET_HOST_TO_NET_16(address->port);
+                sin.sin6_addr       = address->host;
+                sin.sin6_scope_id   = address->sin6_scope_id;
+
+                msgHdr.msg_name    = &sin;
+                msgHdr.msg_namelen = sizeof(struct sockaddr_in6);
+            }
+
+            msgHdr.msg_iov    = (struct iovec *) buffers;
+            msgHdr.msg_iovlen = bufferCount;
+
+            sentLength = sendmsg(socket, &msgHdr, MSG_NOSIGNAL);
+
+            if (sentLength == -1) {
+                if (errno == EWOULDBLOCK) {
+                    return 0;
+                }
+
+                return -1;
+            }
+
+            return sentLength;
+        } /* enet_socket_send */
+
+        int enet_socket_receive(ENetSocket socket, ENetAddress *address, ENetBuffer *buffers, size_t bufferCount) {
+            struct msghdr msgHdr;
+            struct sockaddr_in6 sin;
+            int recvLength;
+
+            memset(&msgHdr, 0, sizeof(struct msghdr));
+
+            if (address != NULL) {
+                msgHdr.msg_name    = &sin;
+                msgHdr.msg_namelen = sizeof(struct sockaddr_in6);
+            }
+
+            msgHdr.msg_iov    = (struct iovec *) buffers;
+            msgHdr.msg_iovlen = bufferCount;
+
+            recvLength = recvmsg(socket, &msgHdr, MSG_NOSIGNAL);
+
+            if (recvLength == -1) {
+                if (errno == EWOULDBLOCK) {
+                    return 0;
+                }
+
+                return -1;
+            }
+
+            if (msgHdr.msg_flags & MSG_TRUNC) {
+                return -1;
+            }
+
+            if (address != NULL) {
+                address->host           = sin.sin6_addr;
+                address->port           = ENET_NET_TO_HOST_16(sin.sin6_port);
+                address->sin6_scope_id  = sin.sin6_scope_id;
+            }
+
+            return recvLength;
+        } /* enet_socket_receive */
+
+        int enet_socketset_select(ENetSocket maxSocket, ENetSocketSet *readSet, ENetSocketSet *writeSet, enet_uint32 timeout) {
+            struct timeval timeVal;
+
+            timeVal.tv_sec  = timeout / 1000;
+            timeVal.tv_usec = (timeout % 1000) * 1000;
+
+            return select(maxSocket + 1, readSet, writeSet, NULL, &timeVal);
+        }
+
+        int enet_socket_wait(ENetSocket socket, enet_uint32 *condition, enet_uint64 timeout) {
+            struct pollfd pollSocket;
+            int pollCount;
+
+            pollSocket.fd     = socket;
+            pollSocket.events = 0;
+
+            if (*condition & ENET_SOCKET_WAIT_SEND) {
+                pollSocket.events |= POLLOUT;
+            }
+
+            if (*condition & ENET_SOCKET_WAIT_RECEIVE) {
+                pollSocket.events |= POLLIN;
+            }
+
+            pollCount = poll(&pollSocket, 1, timeout);
+
+            if (pollCount < 0) {
+                if (errno == EINTR && *condition & ENET_SOCKET_WAIT_INTERRUPT) {
+                    *condition = ENET_SOCKET_WAIT_INTERRUPT;
+
+                    return 0;
+                }
+
+                return -1;
+            }
+
+            *condition = ENET_SOCKET_WAIT_NONE;
+
+            if (pollCount == 0) {
                 return 0;
             }
 
-            return -1;
-        }
-
-        if (msgHdr.msg_flags & MSG_TRUNC) {
-            return -1;
-        }
-
-        if (address != NULL) {
-            address->host           = sin.sin6_addr;
-            address->port           = ENET_NET_TO_HOST_16(sin.sin6_port);
-            address->sin6_scope_id  = sin.sin6_scope_id;
-        }
-
-        return recvLength;
-    } /* enet_socket_receive */
-
-    int enet_socketset_select(ENetSocket maxSocket, ENetSocketSet *readSet, ENetSocketSet *writeSet, enet_uint32 timeout) {
-        struct timeval timeVal;
-
-        timeVal.tv_sec  = timeout / 1000;
-        timeVal.tv_usec = (timeout % 1000) * 1000;
-
-        return select(maxSocket + 1, readSet, writeSet, NULL, &timeVal);
-    }
-
-    int enet_socket_wait(ENetSocket socket, enet_uint32 *condition, enet_uint64 timeout) {
-        struct pollfd pollSocket;
-        int pollCount;
-
-        pollSocket.fd     = socket;
-        pollSocket.events = 0;
-
-        if (*condition & ENET_SOCKET_WAIT_SEND) {
-            pollSocket.events |= POLLOUT;
-        }
-
-        if (*condition & ENET_SOCKET_WAIT_RECEIVE) {
-            pollSocket.events |= POLLIN;
-        }
-
-        pollCount = poll(&pollSocket, 1, timeout);
-
-        if (pollCount < 0) {
-            if (errno == EINTR && *condition & ENET_SOCKET_WAIT_INTERRUPT) {
-                *condition = ENET_SOCKET_WAIT_INTERRUPT;
-
-                return 0;
+            if (pollSocket.revents & POLLOUT) {
+                *condition |= ENET_SOCKET_WAIT_SEND;
             }
 
-            return -1;
-        }
+            if (pollSocket.revents & POLLIN) {
+                *condition |= ENET_SOCKET_WAIT_RECEIVE;
+            }
 
-        *condition = ENET_SOCKET_WAIT_NONE;
-
-        if (pollCount == 0) {
             return 0;
-        }
-
-        if (pollSocket.revents & POLLOUT) {
-            *condition |= ENET_SOCKET_WAIT_SEND;
-        }
-
-        if (pollSocket.revents & POLLIN) {
-            *condition |= ENET_SOCKET_WAIT_RECEIVE;
-        }
-
-        return 0;
-    } /* enet_socket_wait */
-
+        } /* enet_socket_wait */
     #endif // !_WIN32
 
 // =======================================================================//
@@ -5206,557 +5206,558 @@ extern "C" {
 // =======================================================================//
 
     #ifdef _WIN32
+        #ifdef __MINGW32__
+            // inet_ntop/inet_pton for MinGW from http://mingw-users.1079350.n2.nabble.com/IPv6-getaddrinfo-amp-inet-ntop-td5891996.html
+            const char *inet_ntop(int af, const void *src, char *dst, socklen_t cnt) {
+                if (af == AF_INET) {
+                    struct sockaddr_in in;
+                    memset(&in, 0, sizeof(in));
+                    in.sin_family = AF_INET;
+                    memcpy(&in.sin_addr, src, sizeof(struct in_addr));
+                    getnameinfo((struct sockaddr *)&in, sizeof(struct sockaddr_in), dst, cnt, NULL, 0, NI_NUMERICHOST);
+                    return dst;
+                } else if (af == AF_INET6) {
+                    struct sockaddr_in6 in;
+                    memset(&in, 0, sizeof(in));
+                    in.sin6_family = AF_INET6;
+                    memcpy(&in.sin6_addr, src, sizeof(struct in_addr6));
+                    getnameinfo((struct sockaddr *)&in, sizeof(struct sockaddr_in6), dst, cnt, NULL, 0, NI_NUMERICHOST);
+                    return dst;
+                }
 
-    #ifdef __MINGW32__
-        // inet_ntop/inet_pton for MinGW from http://mingw-users.1079350.n2.nabble.com/IPv6-getaddrinfo-amp-inet-ntop-td5891996.html
-        const char *inet_ntop(int af, const void *src, char *dst, socklen_t cnt) {
-            if (af == AF_INET) {
-                struct sockaddr_in in;
-                memset(&in, 0, sizeof(in));
-                in.sin_family = AF_INET;
-                memcpy(&in.sin_addr, src, sizeof(struct in_addr));
-                getnameinfo((struct sockaddr *)&in, sizeof(struct sockaddr_in), dst, cnt, NULL, 0, NI_NUMERICHOST);
-                return dst;
+                return NULL;
             }
-            else if (af == AF_INET6) {
-                struct sockaddr_in6 in;
-                memset(&in, 0, sizeof(in));
-                in.sin6_family = AF_INET6;
-                memcpy(&in.sin6_addr, src, sizeof(struct in_addr6));
-                getnameinfo((struct sockaddr *)&in, sizeof(struct sockaddr_in6), dst, cnt, NULL, 0, NI_NUMERICHOST);
-                return dst;
-            }
 
-            return NULL;
-        }
+            #define NS_INADDRSZ  4
+            #define NS_IN6ADDRSZ 16
+            #define NS_INT16SZ   2
 
-        #define NS_INADDRSZ  4
-        #define NS_IN6ADDRSZ 16
-        #define NS_INT16SZ   2
+            int inet_pton4(const char *src, char *dst) {
+                uint8_t tmp[NS_INADDRSZ], *tp;
 
-        int inet_pton4(const char *src, char *dst) {
-            uint8_t tmp[NS_INADDRSZ], *tp;
+                int saw_digit = 0;
+                int octets = 0;
+                *(tp = tmp) = 0;
 
-            int saw_digit = 0;
-            int octets = 0;
-            *(tp = tmp) = 0;
-
-            int ch;
-            while ((ch = *src++) != '\0')
-            {
-                if (ch >= '0' && ch <= '9')
+                int ch;
+                while ((ch = *src++) != '\0')
                 {
-                    uint32_t n = *tp * 10 + (ch - '0');
-
-                    if (saw_digit && *tp == 0)
-                        return 0;
-
-                    if (n > 255)
-                        return 0;
-
-                    *tp = n;
-                    if (!saw_digit)
+                    if (ch >= '0' && ch <= '9')
                     {
-                        if (++octets > 4)
+                        uint32_t n = *tp * 10 + (ch - '0');
+
+                        if (saw_digit && *tp == 0)
                             return 0;
-                        saw_digit = 1;
+
+                        if (n > 255)
+                            return 0;
+
+                        *tp = n;
+                        if (!saw_digit)
+                        {
+                            if (++octets > 4)
+                                return 0;
+                            saw_digit = 1;
+                        }
                     }
-                }
-                else if (ch == '.' && saw_digit)
-                {
-                    if (octets == 4)
-                        return 0;
-                    *++tp = 0;
-                    saw_digit = 0;
-                }
-                else
-                    return 0;
-            }
-            if (octets < 4)
-                return 0;
-
-            memcpy(dst, tmp, NS_INADDRSZ);
-
-            return 1;
-        }
-
-        int inet_pton6(const char *src, char *dst) {
-            static const char xdigits[] = "0123456789abcdef";
-            uint8_t tmp[NS_IN6ADDRSZ];
-
-            uint8_t *tp = (uint8_t*) memset(tmp, '\0', NS_IN6ADDRSZ);
-            uint8_t *endp = tp + NS_IN6ADDRSZ;
-            uint8_t *colonp = NULL;
-
-            /* Leading :: requires some special handling. */
-            if (*src == ':')
-            {
-                if (*++src != ':')
-                    return 0;
-            }
-
-            const char *curtok = src;
-            int saw_xdigit = 0;
-            uint32_t val = 0;
-            int ch;
-            while ((ch = tolower(*src++)) != '\0')
-            {
-                const char *pch = strchr(xdigits, ch);
-                if (pch != NULL)
-                {
-                    val <<= 4;
-                    val |= (pch - xdigits);
-                    if (val > 0xffff)
-                        return 0;
-                    saw_xdigit = 1;
-                    continue;
-                }
-                if (ch == ':')
-                {
-                    curtok = src;
-                    if (!saw_xdigit)
+                    else if (ch == '.' && saw_digit)
                     {
-                        if (colonp)
+                        if (octets == 4)
                             return 0;
-                        colonp = tp;
+                        *++tp = 0;
+                        saw_digit = 0;
+                    }
+                    else
+                        return 0;
+                }
+                if (octets < 4)
+                    return 0;
+
+                memcpy(dst, tmp, NS_INADDRSZ);
+
+                return 1;
+            }
+
+            int inet_pton6(const char *src, char *dst) {
+                static const char xdigits[] = "0123456789abcdef";
+                uint8_t tmp[NS_IN6ADDRSZ];
+
+                uint8_t *tp = (uint8_t*) memset(tmp, '\0', NS_IN6ADDRSZ);
+                uint8_t *endp = tp + NS_IN6ADDRSZ;
+                uint8_t *colonp = NULL;
+
+                /* Leading :: requires some special handling. */
+                if (*src == ':')
+                {
+                    if (*++src != ':')
+                        return 0;
+                }
+
+                const char *curtok = src;
+                int saw_xdigit = 0;
+                uint32_t val = 0;
+                int ch;
+                while ((ch = tolower(*src++)) != '\0')
+                {
+                    const char *pch = strchr(xdigits, ch);
+                    if (pch != NULL)
+                    {
+                        val <<= 4;
+                        val |= (pch - xdigits);
+                        if (val > 0xffff)
+                            return 0;
+                        saw_xdigit = 1;
                         continue;
                     }
-                    else if (*src == '\0')
+                    if (ch == ':')
                     {
-                        return 0;
+                        curtok = src;
+                        if (!saw_xdigit)
+                        {
+                            if (colonp)
+                                return 0;
+                            colonp = tp;
+                            continue;
+                        }
+                        else if (*src == '\0')
+                        {
+                            return 0;
+                        }
+                        if (tp + NS_INT16SZ > endp)
+                            return 0;
+                        *tp++ = (uint8_t) (val >> 8) & 0xff;
+                        *tp++ = (uint8_t) val & 0xff;
+                        saw_xdigit = 0;
+                        val = 0;
+                        continue;
                     }
+                    if (ch == '.' && ((tp + NS_INADDRSZ) <= endp) &&
+                            inet_pton4(curtok, (char*) tp) > 0)
+                    {
+                        tp += NS_INADDRSZ;
+                        saw_xdigit = 0;
+                        break; /* '\0' was seen by inet_pton4(). */
+                    }
+                    return 0;
+                }
+                if (saw_xdigit)
+                {
                     if (tp + NS_INT16SZ > endp)
                         return 0;
                     *tp++ = (uint8_t) (val >> 8) & 0xff;
                     *tp++ = (uint8_t) val & 0xff;
-                    saw_xdigit = 0;
-                    val = 0;
-                    continue;
                 }
-                if (ch == '.' && ((tp + NS_INADDRSZ) <= endp) &&
-                        inet_pton4(curtok, (char*) tp) > 0)
+                if (colonp != NULL)
                 {
-                    tp += NS_INADDRSZ;
-                    saw_xdigit = 0;
-                    break; /* '\0' was seen by inet_pton4(). */
-                }
-                return 0;
-            }
-            if (saw_xdigit)
-            {
-                if (tp + NS_INT16SZ > endp)
-                    return 0;
-                *tp++ = (uint8_t) (val >> 8) & 0xff;
-                *tp++ = (uint8_t) val & 0xff;
-            }
-            if (colonp != NULL)
-            {
-                /*
-                 * Since some memmove()'s erroneously fail to handle
-                 * overlapping regions, we'll do the shift by hand.
-                 */
-                const int n = tp - colonp;
+                    /*
+                     * Since some memmove()'s erroneously fail to handle
+                     * overlapping regions, we'll do the shift by hand.
+                     */
+                    const int n = tp - colonp;
 
-                if (tp == endp)
+                    if (tp == endp)
+                        return 0;
+
+                    for (int i = 1; i <= n; i++)
+                    {
+                        endp[-i] = colonp[n - i];
+                        colonp[n - i] = 0;
+                    }
+                    tp = endp;
+                }
+                if (tp != endp)
                     return 0;
 
-                for (int i = 1; i <= n; i++)
-                {
-                    endp[-i] = colonp[n - i];
-                    colonp[n - i] = 0;
-                }
-                tp = endp;
+                memcpy(dst, tmp, NS_IN6ADDRSZ);
+
+                return 1;
             }
-            if (tp != endp)
-                return 0;
 
-            memcpy(dst, tmp, NS_IN6ADDRSZ);
+            int inet_pton(int af, const char *src, struct in6_addr *dst) {
+                switch (af) {
+                    case AF_INET:
+                        return inet_pton4(src, (char *)dst);
 
-            return 1;
-        }
+                    case AF_INET6:
+                        return inet_pton6(src, (char *)dst);
 
-        int inet_pton(int af, const char *src, struct in6_addr *dst) {
-            switch (af)
-            {
-            case AF_INET:
-                return inet_pton4(src, (char *)dst);
-            case AF_INET6:
-                return inet_pton6(src, (char *)dst);
-            default:
+                    default:
+                        return -1;
+                }
+            }
+        #endif // __MINGW__
+
+        int enet_initialize(void) {
+            WORD versionRequested = MAKEWORD(1, 1);
+            WSADATA wsaData;
+
+            if (WSAStartup(versionRequested, &wsaData)) {
                 return -1;
             }
+
+            if (LOBYTE(wsaData.wVersion) != 1 || HIBYTE(wsaData.wVersion) != 1) {
+                WSACleanup();
+                return -1;
+            }
+
+            timeBeginPeriod(1);
+            return 0;
         }
-    #endif // __MINGW__
 
-    int enet_initialize(void) {
-        WORD versionRequested = MAKEWORD(1, 1);
-        WSADATA wsaData;
-
-        if (WSAStartup(versionRequested, &wsaData)) {
-            return -1;
-        }
-
-        if (LOBYTE(wsaData.wVersion) != 1 || HIBYTE(wsaData.wVersion) != 1) {
+        void enet_deinitialize(void) {
+            timeEndPeriod(1);
             WSACleanup();
-            return -1;
         }
 
-        timeBeginPeriod(1);
-        return 0;
-    }
+        enet_uint64 enet_host_random_seed(void) {
+            return (enet_uint64) timeGetTime();
+        }
 
-    void enet_deinitialize(void) {
-        timeEndPeriod(1);
-        WSACleanup();
-    }
+        int enet_address_set_host_ip(ENetAddress *address, const char *name) {
+            enet_uint8 vals[4] = { 0, 0, 0, 0 };
+            int i;
 
-    enet_uint64 enet_host_random_seed(void) {
-        return (enet_uint64) timeGetTime();
-    }
+            for (i = 0; i < 4; ++i) {
+                const char *next = name + 1;
+                if (*name != '0') {
+                    long val = strtol(name, (char **) &next, 10);
 
-    int enet_address_set_host_ip(ENetAddress *address, const char *name) {
-        enet_uint8 vals[4] = { 0, 0, 0, 0 };
-        int i;
+                    if (val < 0 || val > 255 || next == name || next - name > 3) {
+                        return -1;
+                    }
 
-        for (i = 0; i < 4; ++i) {
-            const char *next = name + 1;
-            if (*name != '0') {
-                long val = strtol(name, (char **) &next, 10);
-                if (val < 0 || val > 255 || next == name || next - name > 3) {
+                    vals[i] = (enet_uint8) val;
+                }
+
+                if (*next != (i < 3 ? '.' : '\0')) {
                     return -1;
                 }
-                vals[i] = (enet_uint8) val;
+
+                name = next + 1;
             }
 
-            if (*next != (i < 3 ? '.' : '\0')) {
-                return -1;
-            }
-            name = next + 1;
+            memcpy(&address->host, vals, sizeof(enet_uint32));
+            return 0;
         }
 
-        memcpy(&address->host, vals, sizeof(enet_uint32));
-        return 0;
-    }
+        int enet_address_set_host(ENetAddress *address, const char *name) {
+            struct hostent *hostEntry = NULL;
+            hostEntry = gethostbyname(name);
 
-    int enet_address_set_host(ENetAddress *address, const char *name) {
-        struct hostent *hostEntry = NULL;
-        hostEntry = gethostbyname(name);
+            if (hostEntry == NULL || hostEntry->h_addrtype != AF_INET) {
+                if (!inet_pton(AF_INET6, name, &address->host)) {
+                    return -1;
+                }
 
-        if (hostEntry == NULL || hostEntry->h_addrtype != AF_INET) {
-            if (!inet_pton(AF_INET6, name, &address->host)) {
+                return 0;
+            }
+
+            ((enet_uint32 *)&address->host.s6_addr)[0] = 0;
+            ((enet_uint32 *)&address->host.s6_addr)[1] = 0;
+            ((enet_uint32 *)&address->host.s6_addr)[2] = htonl(0xffff);
+            ((enet_uint32 *)&address->host.s6_addr)[3] = *(enet_uint32 *)hostEntry->h_addr_list[0];
+
+            return 0;
+        }
+
+        int enet_address_get_host_ip(const ENetAddress *address, char *name, size_t nameLength) {
+            if (inet_ntop(AF_INET6, &address->host, name, nameLength) == NULL) {
                 return -1;
             }
 
             return 0;
         }
 
-        ((enet_uint32 *)&address->host.s6_addr)[0] = 0;
-        ((enet_uint32 *)&address->host.s6_addr)[1] = 0;
-        ((enet_uint32 *)&address->host.s6_addr)[2] = htonl(0xffff);
-        ((enet_uint32 *)&address->host.s6_addr)[3] = *(enet_uint32 *)hostEntry->h_addr_list[0];
+        int enet_address_get_host(const ENetAddress *address, char *name, size_t nameLength) {
+            struct in6_addr in;
+            struct hostent *hostEntry = NULL;
 
-        return 0;
-    }
+            in = address->host;
+            hostEntry = gethostbyaddr((char *)&in, sizeof(struct in6_addr), AF_INET6);
 
-    int enet_address_get_host_ip(const ENetAddress *address, char *name, size_t nameLength) {
-        if (inet_ntop(AF_INET6, &address->host, name, nameLength) == NULL) {
-            return -1;
+            if (hostEntry == NULL) {
+                return enet_address_get_host_ip(address, name, nameLength);
+            } else {
+                size_t hostLen = strlen(hostEntry->h_name);
+                if (hostLen >= nameLength) {
+                    return -1;
+                }
+                memcpy(name, hostEntry->h_name, hostLen + 1);
+            }
+
+            return 0;
         }
 
-        return 0;
-    }
+        int enet_socket_bind(ENetSocket socket, const ENetAddress *address) {
+            struct sockaddr_in6 sin;
+            memset(&sin, 0, sizeof(struct sockaddr_in6));
+            sin.sin6_family = AF_INET6;
 
-    int enet_address_get_host(const ENetAddress *address, char *name, size_t nameLength) {
-        struct in6_addr in;
-        struct hostent *hostEntry = NULL;
+            if (address != NULL) {
+                sin.sin6_port       = ENET_HOST_TO_NET_16 (address->port);
+                sin.sin6_addr       = address->host;
+                sin.sin6_scope_id   = address->sin6_scope_id;
+            } else {
+                sin.sin6_port       = 0;
+                sin.sin6_addr       = in6addr_any;
+                sin.sin6_scope_id   = 0;
+            }
 
-        in = address->host;
-        hostEntry = gethostbyaddr((char *)&in, sizeof(struct in6_addr), AF_INET6);
+            return bind(socket, (struct sockaddr *) &sin, sizeof(struct sockaddr_in6)) == SOCKET_ERROR ? -1 : 0;
+        }
 
-        if (hostEntry == NULL) {
-            return enet_address_get_host_ip(address, name, nameLength);
-        } else {
-            size_t hostLen = strlen(hostEntry->h_name);
-            if (hostLen >= nameLength) {
+        int enet_socket_get_address(ENetSocket socket, ENetAddress *address) {
+            struct sockaddr_in6 sin;
+            int sinLength = sizeof(struct sockaddr_in6);
+
+            if (getsockname(socket, (struct sockaddr *) &sin, &sinLength) == -1) {
                 return -1;
             }
-            memcpy(name, hostEntry->h_name, hostLen + 1);
-        }
 
-        return 0;
-    }
-
-    int enet_socket_bind(ENetSocket socket, const ENetAddress *address) {
-        struct sockaddr_in6 sin;
-        memset(&sin, 0, sizeof(struct sockaddr_in6));
-        sin.sin6_family = AF_INET6;
-
-        if (address != NULL) {
-            sin.sin6_port       = ENET_HOST_TO_NET_16 (address->port);
-            sin.sin6_addr       = address->host;
-            sin.sin6_scope_id   = address->sin6_scope_id;
-        } else   {
-            sin.sin6_port       = 0;
-            sin.sin6_addr       = in6addr_any;
-            sin.sin6_scope_id   = 0;
-        }
-
-        return bind(socket, (struct sockaddr *) &sin, sizeof(struct sockaddr_in6)) == SOCKET_ERROR ? -1 : 0;
-    }
-
-    int enet_socket_get_address(ENetSocket socket, ENetAddress *address) {
-        struct sockaddr_in6 sin;
-        int sinLength = sizeof(struct sockaddr_in6);
-
-        if (getsockname(socket, (struct sockaddr *) &sin, &sinLength) == -1) {
-            return -1;
-        }
-
-        address->host           = sin.sin6_addr;
-        address->port           = ENET_NET_TO_HOST_16(sin.sin6_port);
-        address->sin6_scope_id  = sin.sin6_scope_id;
-
-        return 0;
-    }
-
-    int enet_socket_listen(ENetSocket socket, int backlog) {
-        return listen(socket, backlog < 0 ? SOMAXCONN : backlog) == SOCKET_ERROR ? -1 : 0;
-    }
-
-    ENetSocket enet_socket_create(ENetSocketType type) {
-        return socket(PF_INET6, type == ENET_SOCKET_TYPE_DATAGRAM ? SOCK_DGRAM : SOCK_STREAM, 0);
-    }
-
-    int enet_socket_set_option(ENetSocket socket, ENetSocketOption option, int value) {
-        int result = SOCKET_ERROR;
-
-        switch (option) {
-            case ENET_SOCKOPT_NONBLOCK: {
-                u_long nonBlocking = (u_long) value;
-                result = ioctlsocket(socket, FIONBIO, &nonBlocking);
-                break;
-            }
-
-            case ENET_SOCKOPT_BROADCAST:
-                result = setsockopt(socket, SOL_SOCKET, SO_BROADCAST, (char *)&value, sizeof(int));
-                break;
-
-            case ENET_SOCKOPT_REUSEADDR:
-                result = setsockopt(socket, SOL_SOCKET, SO_REUSEADDR, (char *)&value, sizeof(int));
-                break;
-
-            case ENET_SOCKOPT_RCVBUF:
-                result = setsockopt(socket, SOL_SOCKET, SO_RCVBUF, (char *)&value, sizeof(int));
-                break;
-
-            case ENET_SOCKOPT_SNDBUF:
-                result = setsockopt(socket, SOL_SOCKET, SO_SNDBUF, (char *)&value, sizeof(int));
-                break;
-
-            case ENET_SOCKOPT_RCVTIMEO:
-                result = setsockopt(socket, SOL_SOCKET, SO_RCVTIMEO, (char *)&value, sizeof(int));
-                break;
-
-            case ENET_SOCKOPT_SNDTIMEO:
-                result = setsockopt(socket, SOL_SOCKET, SO_SNDTIMEO, (char *)&value, sizeof(int));
-                break;
-
-            case ENET_SOCKOPT_NODELAY:
-                result = setsockopt(socket, IPPROTO_TCP, TCP_NODELAY, (char *)&value, sizeof(int));
-                break;
-
-            case ENET_SOCKOPT_IPV6_V6ONLY:
-                result = setsockopt(socket, IPPROTO_IPV6, IPV6_V6ONLY, (char *)&value, sizeof(int));
-                break;
-
-            default:
-                break;
-        }
-        return result == SOCKET_ERROR ? -1 : 0;
-    } /* enet_socket_set_option */
-
-    int enet_socket_get_option(ENetSocket socket, ENetSocketOption option, int *value) {
-        int result = SOCKET_ERROR, len;
-
-        switch (option) {
-            case ENET_SOCKOPT_ERROR:
-                len    = sizeof(int);
-                result = getsockopt(socket, SOL_SOCKET, SO_ERROR, (char *)value, &len);
-                break;
-
-            default:
-                break;
-        }
-        return result == SOCKET_ERROR ? -1 : 0;
-    }
-
-    int enet_socket_connect(ENetSocket socket, const ENetAddress *address) {
-        struct sockaddr_in6 sin;
-        int result;
-
-        memset(&sin, 0, sizeof(struct sockaddr_in6));
-
-        sin.sin6_family     = AF_INET6;
-        sin.sin6_port       = ENET_HOST_TO_NET_16(address->port);
-        sin.sin6_addr       = address->host;
-        sin.sin6_scope_id   = address->sin6_scope_id;
-
-        result = connect(socket, (struct sockaddr *) &sin, sizeof(struct sockaddr_in6));
-
-        if (result == SOCKET_ERROR && WSAGetLastError() != WSAEWOULDBLOCK) {
-            return -1;
-        }
-
-        return 0;
-    }
-
-    ENetSocket enet_socket_accept(ENetSocket socket, ENetAddress *address) {
-        SOCKET result;
-        struct sockaddr_in6 sin;
-        int sinLength = sizeof(struct sockaddr_in6);
-
-        result = accept(socket, address != NULL ? (struct sockaddr *)&sin : NULL, address != NULL ? &sinLength : NULL);
-
-        if (result == INVALID_SOCKET) {
-            return ENET_SOCKET_NULL;
-        }
-
-        if (address != NULL) {
             address->host           = sin.sin6_addr;
             address->port           = ENET_NET_TO_HOST_16(sin.sin6_port);
             address->sin6_scope_id  = sin.sin6_scope_id;
+
+            return 0;
         }
 
-        return result;
-    }
-
-    int enet_socket_shutdown(ENetSocket socket, ENetSocketShutdown how) {
-        return shutdown(socket, (int) how) == SOCKET_ERROR ? -1 : 0;
-    }
-
-    void enet_socket_destroy(ENetSocket socket) {
-        if (socket != INVALID_SOCKET) {
-            closesocket(socket);
+        int enet_socket_listen(ENetSocket socket, int backlog) {
+            return listen(socket, backlog < 0 ? SOMAXCONN : backlog) == SOCKET_ERROR ? -1 : 0;
         }
-    }
 
-    int enet_socket_send(ENetSocket socket, const ENetAddress *address, const ENetBuffer *buffers, size_t bufferCount) {
-        struct sockaddr_in6 sin;
-        DWORD sentLength;
+        ENetSocket enet_socket_create(ENetSocketType type) {
+            return socket(PF_INET6, type == ENET_SOCKET_TYPE_DATAGRAM ? SOCK_DGRAM : SOCK_STREAM, 0);
+        }
 
-        if (address != NULL) {
+        int enet_socket_set_option(ENetSocket socket, ENetSocketOption option, int value) {
+            int result = SOCKET_ERROR;
+
+            switch (option) {
+                case ENET_SOCKOPT_NONBLOCK: {
+                    u_long nonBlocking = (u_long) value;
+                    result = ioctlsocket(socket, FIONBIO, &nonBlocking);
+                    break;
+                }
+
+                case ENET_SOCKOPT_BROADCAST:
+                    result = setsockopt(socket, SOL_SOCKET, SO_BROADCAST, (char *)&value, sizeof(int));
+                    break;
+
+                case ENET_SOCKOPT_REUSEADDR:
+                    result = setsockopt(socket, SOL_SOCKET, SO_REUSEADDR, (char *)&value, sizeof(int));
+                    break;
+
+                case ENET_SOCKOPT_RCVBUF:
+                    result = setsockopt(socket, SOL_SOCKET, SO_RCVBUF, (char *)&value, sizeof(int));
+                    break;
+
+                case ENET_SOCKOPT_SNDBUF:
+                    result = setsockopt(socket, SOL_SOCKET, SO_SNDBUF, (char *)&value, sizeof(int));
+                    break;
+
+                case ENET_SOCKOPT_RCVTIMEO:
+                    result = setsockopt(socket, SOL_SOCKET, SO_RCVTIMEO, (char *)&value, sizeof(int));
+                    break;
+
+                case ENET_SOCKOPT_SNDTIMEO:
+                    result = setsockopt(socket, SOL_SOCKET, SO_SNDTIMEO, (char *)&value, sizeof(int));
+                    break;
+
+                case ENET_SOCKOPT_NODELAY:
+                    result = setsockopt(socket, IPPROTO_TCP, TCP_NODELAY, (char *)&value, sizeof(int));
+                    break;
+
+                case ENET_SOCKOPT_IPV6_V6ONLY:
+                    result = setsockopt(socket, IPPROTO_IPV6, IPV6_V6ONLY, (char *)&value, sizeof(int));
+                    break;
+
+                default:
+                    break;
+            }
+            return result == SOCKET_ERROR ? -1 : 0;
+        } /* enet_socket_set_option */
+
+        int enet_socket_get_option(ENetSocket socket, ENetSocketOption option, int *value) {
+            int result = SOCKET_ERROR, len;
+
+            switch (option) {
+                case ENET_SOCKOPT_ERROR:
+                    len    = sizeof(int);
+                    result = getsockopt(socket, SOL_SOCKET, SO_ERROR, (char *)value, &len);
+                    break;
+
+                default:
+                    break;
+            }
+            return result == SOCKET_ERROR ? -1 : 0;
+        }
+
+        int enet_socket_connect(ENetSocket socket, const ENetAddress *address) {
+            struct sockaddr_in6 sin;
+            int result;
+
             memset(&sin, 0, sizeof(struct sockaddr_in6));
 
             sin.sin6_family     = AF_INET6;
             sin.sin6_port       = ENET_HOST_TO_NET_16(address->port);
             sin.sin6_addr       = address->host;
             sin.sin6_scope_id   = address->sin6_scope_id;
-        }
 
-        if (WSASendTo(socket,
-            (LPWSABUF) buffers,
-            (DWORD) bufferCount,
-            &sentLength,
-            0,
-            address != NULL ? (struct sockaddr *) &sin : NULL,
-            address != NULL ? sizeof(struct sockaddr_in6) : 0,
-            NULL,
-            NULL) == SOCKET_ERROR
-        ) {
-            return (WSAGetLastError() == WSAEWOULDBLOCK) ? 0 : 1;
-        }
+            result = connect(socket, (struct sockaddr *) &sin, sizeof(struct sockaddr_in6));
 
-        return (int) sentLength;
-    }
-
-    int enet_socket_receive(ENetSocket socket, ENetAddress *address, ENetBuffer *buffers, size_t bufferCount) {
-        INT sinLength = sizeof(struct sockaddr_in6);
-        DWORD flags   = 0, recvLength;
-        struct sockaddr_in6 sin;
-
-        if (WSARecvFrom(socket,
-            (LPWSABUF) buffers,
-            (DWORD) bufferCount,
-            &recvLength,
-            &flags,
-            address != NULL ? (struct sockaddr *) &sin : NULL,
-            address != NULL ? &sinLength : NULL,
-            NULL,
-            NULL) == SOCKET_ERROR
-        ) {
-            switch (WSAGetLastError()) {
-                case WSAEWOULDBLOCK:
-                case WSAECONNRESET:
-                    return 0;
+            if (result == SOCKET_ERROR && WSAGetLastError() != WSAEWOULDBLOCK) {
+                return -1;
             }
 
-            return -1;
-        }
-
-        if (flags & MSG_PARTIAL) {
-            return -1;
-        }
-
-        if (address != NULL) {
-            address->host           = sin.sin6_addr;
-            address->port           = ENET_NET_TO_HOST_16(sin.sin6_port);
-            address->sin6_scope_id  = sin.sin6_scope_id;
-        }
-
-        return (int) recvLength;
-    } /* enet_socket_receive */
-
-    int enet_socketset_select(ENetSocket maxSocket, ENetSocketSet *readSet, ENetSocketSet *writeSet, enet_uint32 timeout) {
-        struct timeval timeVal;
-
-        timeVal.tv_sec  = timeout / 1000;
-        timeVal.tv_usec = (timeout % 1000) * 1000;
-
-        return select(maxSocket + 1, readSet, writeSet, NULL, &timeVal);
-    }
-
-    int enet_socket_wait(ENetSocket socket, enet_uint32 *condition, enet_uint64 timeout) {
-        fd_set readSet, writeSet;
-        struct timeval timeVal;
-        int selectCount;
-
-        timeVal.tv_sec  = timeout / 1000;
-        timeVal.tv_usec = (timeout % 1000) * 1000;
-
-        FD_ZERO(&readSet);
-        FD_ZERO(&writeSet);
-
-        if (*condition & ENET_SOCKET_WAIT_SEND) {
-            FD_SET(socket, &writeSet);
-        }
-
-        if (*condition & ENET_SOCKET_WAIT_RECEIVE) {
-            FD_SET(socket, &readSet);
-        }
-
-        selectCount = select(socket + 1, &readSet, &writeSet, NULL, &timeVal);
-
-        if (selectCount < 0) {
-            return -1;
-        }
-
-        *condition = ENET_SOCKET_WAIT_NONE;
-
-        if (selectCount == 0) {
             return 0;
         }
 
-        if (FD_ISSET(socket, &writeSet)) {
-            *condition |= ENET_SOCKET_WAIT_SEND;
+        ENetSocket enet_socket_accept(ENetSocket socket, ENetAddress *address) {
+            SOCKET result;
+            struct sockaddr_in6 sin;
+            int sinLength = sizeof(struct sockaddr_in6);
+
+            result = accept(socket, address != NULL ? (struct sockaddr *)&sin : NULL, address != NULL ? &sinLength : NULL);
+
+            if (result == INVALID_SOCKET) {
+                return ENET_SOCKET_NULL;
+            }
+
+            if (address != NULL) {
+                address->host           = sin.sin6_addr;
+                address->port           = ENET_NET_TO_HOST_16(sin.sin6_port);
+                address->sin6_scope_id  = sin.sin6_scope_id;
+            }
+
+            return result;
         }
 
-        if (FD_ISSET(socket, &readSet)) {
-            *condition |= ENET_SOCKET_WAIT_RECEIVE;
+        int enet_socket_shutdown(ENetSocket socket, ENetSocketShutdown how) {
+            return shutdown(socket, (int) how) == SOCKET_ERROR ? -1 : 0;
         }
 
-        return 0;
-    } /* enet_socket_wait */
+        void enet_socket_destroy(ENetSocket socket) {
+            if (socket != INVALID_SOCKET) {
+                closesocket(socket);
+            }
+        }
 
+        int enet_socket_send(ENetSocket socket, const ENetAddress *address, const ENetBuffer *buffers, size_t bufferCount) {
+            struct sockaddr_in6 sin;
+            DWORD sentLength;
+
+            if (address != NULL) {
+                memset(&sin, 0, sizeof(struct sockaddr_in6));
+
+                sin.sin6_family     = AF_INET6;
+                sin.sin6_port       = ENET_HOST_TO_NET_16(address->port);
+                sin.sin6_addr       = address->host;
+                sin.sin6_scope_id   = address->sin6_scope_id;
+            }
+
+            if (WSASendTo(socket,
+                (LPWSABUF) buffers,
+                (DWORD) bufferCount,
+                &sentLength,
+                0,
+                address != NULL ? (struct sockaddr *) &sin : NULL,
+                address != NULL ? sizeof(struct sockaddr_in6) : 0,
+                NULL,
+                NULL) == SOCKET_ERROR
+            ) {
+                return (WSAGetLastError() == WSAEWOULDBLOCK) ? 0 : 1;
+            }
+
+            return (int) sentLength;
+        }
+
+        int enet_socket_receive(ENetSocket socket, ENetAddress *address, ENetBuffer *buffers, size_t bufferCount) {
+            INT sinLength = sizeof(struct sockaddr_in6);
+            DWORD flags   = 0, recvLength;
+            struct sockaddr_in6 sin;
+
+            if (WSARecvFrom(socket,
+                (LPWSABUF) buffers,
+                (DWORD) bufferCount,
+                &recvLength,
+                &flags,
+                address != NULL ? (struct sockaddr *) &sin : NULL,
+                address != NULL ? &sinLength : NULL,
+                NULL,
+                NULL) == SOCKET_ERROR
+            ) {
+                switch (WSAGetLastError()) {
+                    case WSAEWOULDBLOCK:
+                    case WSAECONNRESET:
+                        return 0;
+                }
+
+                return -1;
+            }
+
+            if (flags & MSG_PARTIAL) {
+                return -1;
+            }
+
+            if (address != NULL) {
+                address->host           = sin.sin6_addr;
+                address->port           = ENET_NET_TO_HOST_16(sin.sin6_port);
+                address->sin6_scope_id  = sin.sin6_scope_id;
+            }
+
+            return (int) recvLength;
+        } /* enet_socket_receive */
+
+        int enet_socketset_select(ENetSocket maxSocket, ENetSocketSet *readSet, ENetSocketSet *writeSet, enet_uint32 timeout) {
+            struct timeval timeVal;
+
+            timeVal.tv_sec  = timeout / 1000;
+            timeVal.tv_usec = (timeout % 1000) * 1000;
+
+            return select(maxSocket + 1, readSet, writeSet, NULL, &timeVal);
+        }
+
+        int enet_socket_wait(ENetSocket socket, enet_uint32 *condition, enet_uint64 timeout) {
+            fd_set readSet, writeSet;
+            struct timeval timeVal;
+            int selectCount;
+
+            timeVal.tv_sec  = timeout / 1000;
+            timeVal.tv_usec = (timeout % 1000) * 1000;
+
+            FD_ZERO(&readSet);
+            FD_ZERO(&writeSet);
+
+            if (*condition & ENET_SOCKET_WAIT_SEND) {
+                FD_SET(socket, &writeSet);
+            }
+
+            if (*condition & ENET_SOCKET_WAIT_RECEIVE) {
+                FD_SET(socket, &readSet);
+            }
+
+            selectCount = select(socket + 1, &readSet, &writeSet, NULL, &timeVal);
+
+            if (selectCount < 0) {
+                return -1;
+            }
+
+            *condition = ENET_SOCKET_WAIT_NONE;
+
+            if (selectCount == 0) {
+                return 0;
+            }
+
+            if (FD_ISSET(socket, &writeSet)) {
+                *condition |= ENET_SOCKET_WAIT_SEND;
+            }
+
+            if (FD_ISSET(socket, &readSet)) {
+                *condition |= ENET_SOCKET_WAIT_RECEIVE;
+            }
+
+            return 0;
+        } /* enet_socket_wait */
     #endif // _WIN32
 
 #ifdef __cplusplus

@@ -33,79 +33,81 @@ When the work is done, deinitialize the library using `ENet.Library.Deinitialize
 ### .NET environment
 Start a new server:
 ```c#
-Host server = new Host();
-Address address = new Address();
+using (Host server = new Host()) {
+	Address address = new Address();
 
-address.Port = port;
-server.Create(address, maxClients);
+	address.Port = port;
+	server.Create(address, maxClients);
 
-while (!Console.KeyAvailable) {
-	server.Service(15, out Event netEvent);
+	while (!Console.KeyAvailable) {
+		server.Service(15, out Event netEvent);
 
-	switch (netEvent.Type) {
-		case EventType.None:
-			break;
+		switch (netEvent.Type) {
+			case EventType.None:
+				break;
 
-		case EventType.Connect:
-			Console.WriteLine("Client connected - ID: " + netEvent.Peer.ID + ", IP: " + netEvent.Peer.IP);
-			break;
+			case EventType.Connect:
+				Console.WriteLine("Client connected - ID: " + netEvent.Peer.ID + ", IP: " + netEvent.Peer.IP);
+				break;
 
-		case EventType.Disconnect:
-			Console.WriteLine("Client disconnected - ID: " + netEvent.Peer.ID + ", IP: " + netEvent.Peer.IP);
-			break;
+			case EventType.Disconnect:
+				Console.WriteLine("Client disconnected - ID: " + netEvent.Peer.ID + ", IP: " + netEvent.Peer.IP);
+				break;
 
-		case EventType.Timeout:
-			Console.WriteLine("Client timeout - ID: " + netEvent.Peer.ID + ", IP: " + netEvent.Peer.IP);
-			break;
+			case EventType.Timeout:
+				Console.WriteLine("Client timeout - ID: " + netEvent.Peer.ID + ", IP: " + netEvent.Peer.IP);
+				break;
 
-		case EventType.Receive:
-			Console.WriteLine("Packet received from - ID: " + netEvent.Peer.ID + ", IP: " + netEvent.Peer.IP + ", Channel ID: " + netEvent.ChannelID + ", Data length: " + netEvent.Packet.Length);
-			netEvent.Packet.Dispose();
-			break;
+			case EventType.Receive:
+				Console.WriteLine("Packet received from - ID: " + netEvent.Peer.ID + ", IP: " + netEvent.Peer.IP + ", Channel ID: " + netEvent.ChannelID + ", Data length: " + netEvent.Packet.Length);
+				netEvent.Packet.Dispose();
+				break;
+		}
 	}
-}
 
-server.Flush();
+	server.Flush();
+}
 ```
 
 Create a new client:
 ```c#
-Host client = new Host();
-Address address = new Address();
+using (Host client = new Host()) {
+	Address address = new Address();
 
-address.SetHost(ip);
-address.Port = port;
-client.Create();
+	address.SetHost(ip);
+	address.Port = port;
+	client.Create();
 
-Peer peer = client.Connect(address);
+	Peer peer = client.Connect(address);
 
-while (!Console.KeyAvailable) {
-	client.Service(15, out Event netEvent);
+	while (!Console.KeyAvailable) {
+		client.Service(15, out Event netEvent);
 
-	switch (netEvent.Type) {
-		case EventType.None:
-			break;
+		switch (netEvent.Type) {
+			case EventType.None:
+				break;
 
-		case EventType.Connect:
-			Console.WriteLine("Client connected to server - ID: " + peer.ID);
-			break;
+			case EventType.Connect:
+				Console.WriteLine("Client connected to server - ID: " + peer.ID);
+				break;
 
-		case EventType.Disconnect:
-			Console.WriteLine("Client disconnected from server");
-			break;
+			case EventType.Disconnect:
+				Console.WriteLine("Client disconnected from server");
+				break;
 
-		case EventType.Timeout:
-			Console.WriteLine("Client connection timeout");
-			break;
+			case EventType.Timeout:
+				Console.WriteLine("Client connection timeout");
+				break;
 
-		case EventType.Receive:
-			Console.WriteLine("Packet received from server - Channel ID: " + netEvent.ChannelID + ", Data length: " + netEvent.Packet.Length);
-			netEvent.Packet.Dispose();
-			break;
+			case EventType.Receive:
+				Console.WriteLine("Packet received from server - Channel ID: " + netEvent.ChannelID + ", Data length: " + netEvent.Packet.Length);
+				netEvent.Packet.Dispose();
+				break;
+		}
 	}
-}
 
-client.Flush();
+	client.Flush();
+}
 ```
 
 Create and send a new packet:

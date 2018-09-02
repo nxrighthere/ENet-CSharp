@@ -89,7 +89,7 @@ namespace ENet {
 
 	internal static class ArrayPool {
 		[ThreadStatic]
-		static byte[] buffer = null;
+		private static byte[] buffer = null;
 
 		public static byte[] GetBuffer() {
 			if (buffer == null)
@@ -220,7 +220,7 @@ namespace ENet {
 			}
 		}
 
-		public int Length {
+		public uint Length {
 			get {
 				CheckCreated();
 
@@ -715,7 +715,7 @@ namespace ENet {
 		internal static extern IntPtr enet_packet_get_data(IntPtr packet);
 
 		[DllImport(nativeLibrary, CallingConvention = CallingConvention.Cdecl)]
-		internal static extern int enet_packet_get_length(IntPtr packet);
+		internal static extern uint enet_packet_get_length(IntPtr packet);
 
 		[DllImport(nativeLibrary, CallingConvention = CallingConvention.Cdecl)]
 		internal static extern void enet_packet_destroy(IntPtr packet);

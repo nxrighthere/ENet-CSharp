@@ -917,7 +917,7 @@ extern "C" {
 
     /* Extended API for easier binding in other programming languages */
     ENET_API void *              enet_packet_get_data (ENetPacket *);
-    ENET_API int                 enet_packet_get_length (ENetPacket *);
+    ENET_API enet_uint32         enet_packet_get_length (ENetPacket *);
 
     ENET_API enet_uint32         enet_host_get_peers_count (ENetHost *);
     ENET_API enet_uint32         enet_host_get_packets_sent (ENetHost *);
@@ -4739,7 +4739,7 @@ extern "C" {
         return (void *) packet->data;
     }
 
-    int enet_packet_get_length(ENetPacket *packet) {
+    enet_uint32 enet_packet_get_length(ENetPacket *packet) {
         return packet->dataLength;
     }
 

@@ -143,13 +143,13 @@ Definitions of event types for `Event.Type` property:
 
 `EventType.None` no event occurred within the specified time limit.
 
-`EventType.Connect` a connection request initiated by `Peer.Connect` has completed. `Event.Peer` returns a peer which successfully connected. `Event.Data` returns user-supplied data describing the connection, or 0, if none is available.
+`EventType.Connect` a connection request initiated by `Peer.Connect` has completed. `Event.Peer` returns a peer which successfully connected. `Event.Data` returns user-supplied data describing the connection or 0 if none is available.
 
-`EventType.Disconnect` a peer has disconnected. This event is generated on a successful completion of a disconnect initiated by `Peer.Disconnect`. `Event.Peer` returns a peer which disconnected. `Event.Data` returns user-supplied data describing the disconnection, or 0, if none is available.
+`EventType.Disconnect` a peer has disconnected. This event is generated on a successful completion of a disconnect initiated by `Peer.Disconnect`. `Event.Peer` returns a peer which disconnected. `Event.Data` returns user-supplied data describing the disconnection or 0 if none is available.
 
 `EventType.Receive` a packet has been received from a peer. `Event.Peer` returns a peer which sent the packet. `Event.ChannelID` specifies the channel number upon which the packet was received. `Event.Packet` returns a packet that was received. This packet must be destroyed using `Event.Packet.Dispose()` function after use.
 
-`EventType.Timeout` a peer has timed out. This event occurs if a peer has timed out, or if a connection request initialized by `Peer.Connect` has timed out. `Event.Peer` returns a peer which timed out.
+`EventType.Timeout` a peer has timed out. This event occurs if a peer has timed out or if a connection request initialized by `Peer.Connect` has timed out. `Event.Peer` returns a peer which timed out.
 
 #### PeerState
 Definitions of peer states for `Peer.State` property:

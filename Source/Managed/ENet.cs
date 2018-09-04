@@ -78,14 +78,14 @@ namespace ENet {
 
 	[StructLayout(LayoutKind.Sequential)]
 	public struct ENetCallbacks {
-		[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-		public delegate IntPtr malloc_cb(IntPtr size);
-		[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-		public delegate void free_cb(IntPtr memory);
-		[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-		public delegate void no_memory_cb();
-		public IntPtr malloc, free, no_memory;
+		public IntPtr malloc;
+		public IntPtr free;
+		public IntPtr no_memory;
 	}
+
+	public delegate IntPtr AllocCallback(IntPtr size);
+	public delegate void FreeCallback(IntPtr memory);
+	public delegate void OutOfMemoryCallback();
 
 	internal static class ArrayPool {
 		[ThreadStatic]
@@ -182,6 +182,26 @@ namespace ENet {
 		}
 	}
 
+	public class Callbacks {
+		private ENetCallbacks nativeCallbacks;
+
+		internal ENetCallbacks NativeData {
+			get {
+				return nativeCallbacks;
+			}
+
+			set {
+				nativeCallbacks = value;
+			}
+		}
+
+		public Callbacks(AllocCallback allocCallback, FreeCallback freeCallback, OutOfMemoryCallback outOfMemoryCallback) {
+			nativeCallbacks.malloc = Marshal.GetFunctionPointerForDelegate(allocCallback);
+			nativeCallbacks.free = Marshal.GetFunctionPointerForDelegate(freeCallback);
+			nativeCallbacks.no_memory = Marshal.GetFunctionPointerForDelegate(outOfMemoryCallback);
+		}
+	}
+
 	public struct Packet : IDisposable {
 		private IntPtr nativePacket;
 
@@ -220,7 +240,7 @@ namespace ENet {
 			}
 		}
 
-		public uint Length {
+		public int Length {
 			get {
 				CheckCreated();
 
@@ -672,10 +692,16 @@ namespace ENet {
 		public const uint timeoutLimit = 32;
 		public const uint timeoutMinimum = 5000;
 		public const uint timeoutMaximum = 30000;
-		public const uint version = (2 << 16) | (0 << 8) | (6);
+		public const uint version = (2 << 16) | (0 << 8) | (7);
 
 		public static int Initialize() {
 			return Native.enet_initialize();
+		}
+
+		public static int Initialize(ref Callbacks inits) {
+			var nativeCallbacks = inits.NativeData;
+
+			return Native.enet_initialize_with_callbacks(version, ref nativeCallbacks);
 		}
 
 		public static void Deinitialize() {
@@ -697,13 +723,13 @@ namespace ENet {
 		internal static extern int enet_initialize();
 
 		[DllImport(nativeLibrary, CallingConvention = CallingConvention.Cdecl)]
+		internal static extern int enet_initialize_with_callbacks(uint version, ref ENetCallbacks inits);
+
+		[DllImport(nativeLibrary, CallingConvention = CallingConvention.Cdecl)]
 		internal static extern void enet_deinitialize();
 
 		[DllImport(nativeLibrary, CallingConvention = CallingConvention.Cdecl)]
 		internal static extern uint enet_time_get();
-
-		[DllImport(nativeLibrary, CallingConvention = CallingConvention.Cdecl)]
-		internal static extern int enet_initialize_with_callbacks(uint version, ref ENetCallbacks inits);
 
 		[DllImport(nativeLibrary, CallingConvention = CallingConvention.Cdecl)]
 		internal static extern int enet_address_set_host(ref ENetAddress address, byte[] hostName);
@@ -715,25 +741,22 @@ namespace ENet {
 		internal static extern IntPtr enet_packet_get_data(IntPtr packet);
 
 		[DllImport(nativeLibrary, CallingConvention = CallingConvention.Cdecl)]
-		internal static extern uint enet_packet_get_length(IntPtr packet);
+		internal static extern int enet_packet_get_length(IntPtr packet);
 
 		[DllImport(nativeLibrary, CallingConvention = CallingConvention.Cdecl)]
 		internal static extern void enet_packet_destroy(IntPtr packet);
 
 		[DllImport(nativeLibrary, CallingConvention = CallingConvention.Cdecl)]
-		internal static extern IntPtr enet_host_create(IntPtr address, IntPtr peerLimit, IntPtr channelLimit, uint incomingBandwidth, uint outgoingBandwidth);
+		internal static extern IntPtr enet_host_create(ref ENetAddress address, IntPtr peerLimit, IntPtr channelLimit, uint incomingBandwidth, uint outgoingBandwidth);
 
 		[DllImport(nativeLibrary, CallingConvention = CallingConvention.Cdecl)]
-		internal static extern IntPtr enet_host_create(ref ENetAddress address, IntPtr peerLimit, IntPtr channelLimit, uint incomingBandwidth, uint outgoingBandwidth);
+		internal static extern IntPtr enet_host_create(IntPtr address, IntPtr peerLimit, IntPtr channelLimit, uint incomingBandwidth, uint outgoingBandwidth);
 
 		[DllImport(nativeLibrary, CallingConvention = CallingConvention.Cdecl)]
 		internal static extern IntPtr enet_host_connect(IntPtr host, ref ENetAddress address, IntPtr channelCount, uint data);
 
 		[DllImport(nativeLibrary, CallingConvention = CallingConvention.Cdecl)]
 		internal static extern void enet_host_broadcast(IntPtr host, byte channelID, IntPtr packet);
-
-		[DllImport(nativeLibrary, CallingConvention = CallingConvention.Cdecl)]
-		internal static extern int enet_host_service(IntPtr host, IntPtr @event, uint timeout);
 
 		[DllImport(nativeLibrary, CallingConvention = CallingConvention.Cdecl)]
 		internal static extern int enet_host_service(IntPtr host, out ENetEvent @event, uint timeout);

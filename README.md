@@ -119,6 +119,26 @@ packet.Create(data);
 peer.Send(channelID, ref packet);
 ```
 
+Integrate with a custom memory allocator:
+```csharp
+AllocCallback OnMemoryAllocate = (size) => {
+	return Marshal.AllocHGlobal(size);
+};
+
+FreeCallback OnMemoryFree = (memory) => {
+	Marshal.FreeHGlobal(memory);
+};
+
+OutOfMemoryCallback OnOutOfMemory = () => {
+	throw new OutOfMemoryException("Out of memory");
+};
+
+callbacks = new Callbacks(OnMemoryAllocate, OnMemoryFree, OnOutOfMemory);
+
+if (ENet.Library.Initialize(ref callbacks) > 0)
+	Console.WriteLine("ENet successfully initialized using a custom memory allocator");
+```
+
 ### Unity
 Usage is almost the same as in the .NET environment, except that the console functions must be replaced with functions provided by Unity. If the `Host.Service()` will be called in a game loop, then make sure that the timeout parameter set to 0 which means non-blocking. Also, keep Unity run in background by enabling the appropriate option in the player settings.
 
@@ -288,7 +308,7 @@ Contains constant fields.
 
 `Library.version` the current version of the native library.
 
-`Library.Initialize()` initializes the native library. Should be called before starting the work.
+`Library.Initialize()` initializes the native library. Should be called before starting the work. Returns 0 on success or < 0 on failure.
 
 `Library.Deinitialize()` deinitializes the native library. Should be called after the work is done.
 

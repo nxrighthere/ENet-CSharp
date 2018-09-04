@@ -130,7 +130,7 @@ FreeCallback OnMemoryFree = (memory) => {
 };
 
 OutOfMemoryCallback OnOutOfMemory = () => {
-	throw new OutOfMemoryException("Out of memory");
+	throw new OutOfMemoryException();
 };
 
 callbacks = new Callbacks(OnMemoryAllocate, OnMemoryFree, OnOutOfMemory);

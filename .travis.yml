@@ -8,14 +8,14 @@ compiler:
 
 script:
   - cmake ./Source/Native/ -DCMAKE_BUILD_TYPE=Release -DENET_SHARED=1
-  - cmake --build ./Source/Native/
+  - cmake --build .
+
+env:
+  global:
+    - SURGE_LOGIN=nxrighthere@gmail.com
+    - SURGE_TOKEN=01c1e6bab42730872fcc023560ad6029
 
 deploy:
-  provider: heroku
-  api_key: 
-    secure: "fa7PPik5vfdpDnh6qfrLV7I4qIr07jwwcV2uHsaLFzhkHSaMa7GzRnKsPaZ731DallBeoR6thX4XrnS04z6A1f2X+e6ukW1idLa4inRAtXaj0rs+Zm1DWN/Lqxmr8/GbKD60GtahESMG/Zah5Q/45HFxadL2WGQ4i8iabxUsoU3Ye74EMkgG91Sm63BnPzIWwJHye1t12slMuo8PmKEgjgOfhI11fDKyFBZQzlT5na5RJSxOnapa5CfzDDgJhzUEzl0nXbnmNNyvxSTU8XXgKVhDg4UtGGIsyDwxrGCNPZy8kxqQhWwAoR+dohoLRsFgys4og24DvfWpNzEr4nwLk6vr4abAl67yCGTUKTjukSZtEozcLBJ2zdV/DqwD5VUzsvld97nCrFd1hlHOgZTxhuPC+faDyJut1wqujZSNzVJKodjQAaA1T/vm81mwdzMAuSlV2qagKcNPkTHfXrCcLwCDo3SLVwS8J1gVjwVse7Kqz21w2JPwgH0zm3fXV7LmRTBmOVbXDSnO1Pj/R1v+0xk4tsUAddqAteYMAqvyYLoviRPGmzyI6kwUQxg5Bd8lTty7/SmjThViYmbjkzCzCZeOblyOqBXj9NnstfedsoFfx5ucJc1420gWZyte78Rtath3FVQk8f0AiO3U3VaFJy3i2B6W84vMyrAVdqtAi1w="
-  strategy: git
-  app: enet-csharp
+  provider: surge
+  domain: enet.surge.sh
   skip_cleanup: true
-  on:
-    repo: nxrighthere/ENet-CSharp

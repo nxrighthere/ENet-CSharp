@@ -301,14 +301,10 @@ namespace ENet {
 		}
 
 		protected virtual void Dispose(bool disposing) {
-			try {
-				if (nativeHost != IntPtr.Zero) {
-					Native.enet_host_destroy(nativeHost);
-					nativeHost = IntPtr.Zero;
-				}
+			if (nativeHost != IntPtr.Zero) {
+				Native.enet_host_destroy(nativeHost);
+				nativeHost = IntPtr.Zero;
 			}
-
-			catch { }
 		}
 
 		~Host() {

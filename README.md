@@ -14,6 +14,8 @@ For desktop platforms [CMake](https://cmake.org/download/) with GNU Make or Visu
 
 For mobile platforms [Android NDK](https://developer.android.com/ndk/downloads/).
 
+A managed assembly can be built using any available compiling platform that supports C# 3.0 or higher.
+
 Compiled libraries
 --------
 You can grab compiled libraries from the [release](https://github.com/nxrighthere/ENet-CSharp/releases) section:

@@ -31,7 +31,7 @@ Before starting to work, the library should be initialized using `ENet.Library.I
 When the work is done, deinitialize the library using `ENet.Library.Deinitialize();` function.
 
 ### .NET environment
-Start a new server:
+##### Start a new server:
 ```c#
 using (Host server = new Host()) {
 	Address address = new Address();
@@ -69,7 +69,7 @@ using (Host server = new Host()) {
 }
 ```
 
-Start a new client:
+##### Start a new client:
 ```c#
 using (Host client = new Host()) {
 	Address address = new Address();
@@ -110,7 +110,7 @@ using (Host client = new Host()) {
 }
 ```
 
-Create and send a new packet:
+##### Create and send a new packet:
 ```csharp
 Packet packet = default(Packet);
 byte[] data = new byte[64];
@@ -119,7 +119,7 @@ packet.Create(data);
 peer.Send(channelID, ref packet);
 ```
 
-Integrate with a custom memory allocator:
+##### Integrate with a custom memory allocator:
 ```csharp
 AllocCallback OnMemoryAllocate = (size) => {
 	return Marshal.AllocHGlobal(size);

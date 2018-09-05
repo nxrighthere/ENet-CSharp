@@ -702,13 +702,9 @@ extern "C" {
 // =======================================================================//
 
     ENET_API int                 enet_initialize (void);
-
     ENET_API int                 enet_initialize_with_callbacks (ENetVersion version, const ENetCallbacks * inits);
-
     ENET_API void                enet_deinitialize (void);
-
     ENET_API ENetVersion         enet_linked_version (void);
-
     ENET_API enet_uint32         enet_time_get (void);
 
     ENET_API ENetSocket          enet_socket_create(ENetSocketType);
@@ -727,11 +723,8 @@ extern "C" {
     ENET_API int                 enet_socketset_select(ENetSocket, ENetSocketSet *, ENetSocketSet *, enet_uint32);
 
     ENET_API int                 enet_address_set_host_ip (ENetAddress * address, const char * hostName);
-
     ENET_API int                 enet_address_set_host (ENetAddress * address, const char * hostName);
-
     ENET_API int                 enet_address_get_host_ip (const ENetAddress * address, char * hostName, size_t nameLength);
-
     ENET_API int                 enet_address_get_host (const ENetAddress * address, char * hostName, size_t nameLength);
 
     ENET_API ENetPacket *        enet_packet_create (const void *, size_t, enet_uint32);
@@ -1120,6 +1113,7 @@ extern "C" {
 
         if (flags & ENET_PACKET_FLAG_NO_ALLOCATE) {
             packet = (ENetPacket *)enet_malloc(sizeof (ENetPacket));
+
             if (packet == NULL) {
                 return NULL;
             }
@@ -1127,6 +1121,7 @@ extern "C" {
             packet->data = (enet_uint8 *)data;
         } else {
             packet = (ENetPacket *)enet_malloc(sizeof (ENetPacket) + dataLength);
+
             if (packet == NULL) {
                 return NULL;
             }
@@ -1152,6 +1147,7 @@ extern "C" {
 
         if (flags & ENET_PACKET_FLAG_NO_ALLOCATE) {
             packet = (ENetPacket *)enet_malloc(sizeof (ENetPacket));
+
             if (packet == NULL) {
                 return NULL;
             }
@@ -1159,6 +1155,7 @@ extern "C" {
             packet->data = (enet_uint8 *)data;
         } else {
             packet = (ENetPacket *)enet_malloc(sizeof (ENetPacket) + dataLength + dataOffset);
+
             if (packet == NULL) {
                 return NULL;
             }
@@ -2284,11 +2281,13 @@ extern "C" {
             }
 
             commandNumber = command->header.command & ENET_PROTOCOL_COMMAND_MASK;
+
             if (commandNumber >= ENET_PROTOCOL_COMMAND_COUNT) {
                 break;
             }
 
             commandSize = commandSizes[commandNumber];
+
             if (commandSize == 0 || currentData + commandSize > &host->receivedData[host->receivedDataLength]) {
                 break;
             }
@@ -2688,6 +2687,7 @@ extern "C" {
 
             channel = outgoingCommand->command.header.channelID < peer->channelCount ? &peer->channels[outgoingCommand->command.header.channelID] : NULL;
             reliableWindow = outgoingCommand->reliableSequenceNumber / ENET_PEER_RELIABLE_WINDOW_SIZE;
+
             if (channel != NULL) {
                 if (!windowWrap &&
                     outgoingCommand->sendAttempts < 1 &&
@@ -2724,6 +2724,7 @@ extern "C" {
             canPing = 0;
 
             commandSize = commandSizes[outgoingCommand->command.header.command & ENET_PROTOCOL_COMMAND_MASK];
+
             if (command >= &host->commands[sizeof(host->commands) / sizeof(ENetProtocol)] ||
                 buffer + 1 >= &host->buffers[sizeof(host->buffers) / sizeof(ENetBuffer)] ||
                 peer->mtu - host->packetSize < commandSize ||
@@ -2871,6 +2872,7 @@ extern "C" {
                 }
 
                 host->buffers->data = headerData;
+
                 if (host->headerFlags & ENET_PROTOCOL_HEADER_FLAG_SENT_TIME) {
                     header->sentTime = ENET_HOST_TO_NET_16(host->serviceTime & 0xFFFF);
                     host->buffers->dataLength = sizeof(ENetProtocolHeader);
@@ -3492,6 +3494,7 @@ extern "C" {
         acknowledgement->command  = *command;
 
         enet_list_insert(enet_list_end(&peer->acknowledgements), acknowledgement);
+
         return acknowledgement;
     }
 
@@ -3567,6 +3570,7 @@ extern "C" {
         }
 
         enet_peer_setup_outgoing_command(peer, outgoingCommand);
+
         return outgoingCommand;
     }
 
@@ -3893,6 +3897,7 @@ extern "C" {
 
         if (host->peers == NULL) {
             enet_free(host);
+
             return NULL;
         }
 
@@ -4167,6 +4172,7 @@ extern "C" {
                 }
 
                 peerBandwidth = (peer->incomingBandwidth * elapsedTime) / 1000;
+
                 if ((throttle * peer->outgoingDataTotal) / ENET_PEER_PACKET_THROTTLE_SCALE <= peerBandwidth) {
                     continue;
                 }
@@ -4320,6 +4326,7 @@ extern "C" {
                     frequencyToMicroseconds = 10.;
                 }
             }
+
             if (usePerformanceCounter) {
                 QueryPerformanceCounter(&t);
             } else {
@@ -4334,6 +4341,7 @@ extern "C" {
             t.QuadPart = (LONGLONG)microseconds;
             tv->tv_sec = (long)(t.QuadPart / 1000000);
             tv->tv_nsec = t.QuadPart % 1000000 * 1000;
+
             return (0);
         }
     #elif __APPLE__ && __MAC_OS_X_VERSION_MIN_REQUIRED < 101200
@@ -4508,7 +4516,7 @@ extern "C" {
                         freeaddrinfo(resultList);
 
                         return 0;
-                    } else if(result->ai_family == AF_INET6) {
+                    } else if (result->ai_family == AF_INET6) {
                         struct sockaddr_in6 * sin = (struct sockaddr_in6 *)result->ai_addr;
 
                         address->host = sin->sin6_addr;
@@ -4656,6 +4664,7 @@ extern "C" {
                 default:
                     break;
             }
+
             return result == -1 ? -1 : 0;
         }
 
@@ -4672,6 +4681,7 @@ extern "C" {
                 default:
                     break;
             }
+
             return result == -1 ? -1 : 0;
         }
 
@@ -5090,6 +5100,7 @@ extern "C" {
             }
 
             memcpy(&address->host, vals, sizeof(enet_uint32));
+
             return 0;
         }
 

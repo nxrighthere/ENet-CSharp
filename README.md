@@ -210,7 +210,7 @@ Contains a marshalled structure with the event type, managed pointer to the peer
 #### Packet
 Contains a managed pointer to the packet.
 
-`Packet.Dispose()` destroys the packet.
+`Packet.Dispose()` destroys the packet. Should be called only when the packet obtained from an event.
 
 `Packet.IsSet` returns a state of the managed pointer.
 

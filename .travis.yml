@@ -10,11 +10,6 @@ script:
   - cmake ./Source/Native/ -DCMAKE_BUILD_TYPE=Release -DENET_SHARED=1
   - cmake --build .
 
-env:
-  global:
-    - SURGE_LOGIN=nxrighthere@gmail.com
-    - SURGE_TOKEN=01c1e6bab42730872fcc023560ad6029
-
 deploy:
   provider: surge
   domain: enet.surge.sh

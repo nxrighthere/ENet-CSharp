@@ -1469,6 +1469,7 @@ extern "C" {
             enet_uint16 reliableWindow = reliableSequenceNumber / ENET_PEER_RELIABLE_WINDOW_SIZE;
             if (channel->reliableWindows[reliableWindow] > 0) {
                 --channel->reliableWindows[reliableWindow];
+
                 if (!channel->reliableWindows[reliableWindow]) {
                     channel->usedReliableWindows &= ~(1 << reliableWindow);
                 }
@@ -2238,7 +2239,7 @@ extern "C" {
                 peer->state == ENET_PEER_STATE_ZOMBIE ||
                 ((!in6_equal(host->receivedAddress.host , peer->address.host) ||
                 host->receivedAddress.port != peer->address.port) &&
-                1 /* No broadcast in ipv6 - !in6_equal(peer->address.host , ENET_HOST_BROADCAST) */) ||
+                1 /* No broadcast in IPv6 - !in6_equal(peer->address.host , ENET_HOST_BROADCAST) */) ||
                 (peer->outgoingPeerID < ENET_PROTOCOL_MAXIMUM_PEER_ID &&
                 sessionID != peer->incomingSessionID)
             ) {
@@ -2559,6 +2560,7 @@ extern "C" {
                 if (peer->packetThrottleCounter > peer->packetThrottle) {
                     enet_uint16 reliableSequenceNumber = outgoingCommand->reliableSequenceNumber;
                     enet_uint16 unreliableSequenceNumber = outgoingCommand->unreliableSequenceNumber;
+
                     for (;;) {
                         --outgoingCommand->packet->referenceCount;
 
@@ -2574,6 +2576,7 @@ extern "C" {
                         }
 
                         outgoingCommand = (ENetOutgoingCommand *) currentCommand;
+
                         if (outgoingCommand->reliableSequenceNumber != reliableSequenceNumber || outgoingCommand->unreliableSequenceNumber != unreliableSequenceNumber) {
                             break;
                         }
@@ -2684,7 +2687,6 @@ extern "C" {
 
         while (currentCommand != enet_list_end(&peer->outgoingReliableCommands)) {
             outgoingCommand = (ENetOutgoingCommand *) currentCommand;
-
             channel = outgoingCommand->command.header.channelID < peer->channelCount ? &peer->channels[outgoingCommand->command.header.channelID] : NULL;
             reliableWindow = outgoingCommand->reliableSequenceNumber / ENET_PEER_RELIABLE_WINDOW_SIZE;
 
@@ -2702,6 +2704,7 @@ extern "C" {
 
                 if (windowWrap) {
                     currentCommand = enet_list_next(currentCommand);
+
                     continue;
                 }
             }
@@ -2714,6 +2717,7 @@ extern "C" {
                         windowExceeded = 1;
                     }
                 }
+
                 if (windowExceeded) {
                     currentCommand = enet_list_next(currentCommand);
 

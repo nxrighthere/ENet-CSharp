@@ -694,7 +694,7 @@ namespace ENet {
 			return Native.enet_initialize();
 		}
 
-		public static int Initialize(ref Callbacks inits) {
+		public static int Initialize(Callbacks inits) {
 			var nativeCallbacks = inits.NativeData;
 
 			return Native.enet_initialize_with_callbacks(version, ref nativeCallbacks);

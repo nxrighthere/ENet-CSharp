@@ -137,7 +137,7 @@ OutOfMemoryCallback OnOutOfMemory = () => {
 
 Callbacks callbacks = new Callbacks(OnMemoryAllocate, OnMemoryFree, OnOutOfMemory);
 
-if (ENet.Library.Initialize(ref callbacks) > -1)
+if (ENet.Library.Initialize(callbacks) > -1)
 	Console.WriteLine("ENet successfully initialized using a custom memory allocator");
 ```
 

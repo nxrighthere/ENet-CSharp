@@ -89,7 +89,7 @@ namespace ENet {
 
 	internal static class ArrayPool {
 		[ThreadStatic]
-		private static byte[] buffer = null;
+		private static byte[] buffer;
 
 		public static byte[] GetBuffer() {
 			if (buffer == null)

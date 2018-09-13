@@ -65,6 +65,7 @@ namespace ENet {
 		[MarshalAs(UnmanagedType.ByValArray, SizeConst = 16)]
 		public byte[] host;
 		public ushort port;
+		public ushort sin6_scope_id;
 	}
 
 	[StructLayout(LayoutKind.Sequential)]

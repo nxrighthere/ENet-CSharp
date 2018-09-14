@@ -131,11 +131,11 @@ FreeCallback OnMemoryFree = (memory) => {
 	Marshal.FreeHGlobal(memory);
 };
 
-OutOfMemoryCallback OnOutOfMemory = () => {
+NoMemoryCallback OnNoMemory = () => {
 	throw new OutOfMemoryException();
 };
 
-Callbacks callbacks = new Callbacks(OnMemoryAllocate, OnMemoryFree, OnOutOfMemory);
+Callbacks callbacks = new Callbacks(OnMemoryAllocate, OnMemoryFree, OnNoMemory);
 
 if (ENet.Library.Initialize(callbacks) > -1)
 	Console.WriteLine("ENet successfully initialized using a custom memory allocator");
@@ -219,6 +219,8 @@ Contains a managed pointer to the packet.
 `Packet.Data` returns a managed pointer to the packet data.
 
 `Packet.Length` returns a length of payload in the packet.
+
+`Packet.SetFreeCallback(PacketFreeCallback callback)` set callback to notify the user when an appropriate packet is being destroyed.
 
 `Packet.Create(byte[] data, int length, PacketFlags flags)` creates a packet that may be sent to a peer. The length and flags parameters are optional. Multiple flags can be specified at once.
 

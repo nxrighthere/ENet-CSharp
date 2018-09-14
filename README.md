@@ -1,5 +1,5 @@
 <p align="center"> 
-  <img src="https://i.imgur.com/2Hp44uX.png" alt="alt logo">
+  <img src="https://i.imgur.com/CxkUxTs.png" alt="alt logo">
 </p>
 
 [![GitHub release](https://img.shields.io/github/release/nxrighthere/ENet-CSharp.svg)](https://github.com/nxrighthere/BenchmarkNet/releases) [![PayPal](https://drive.google.com/uc?id=1OQrtNBVJehNVxgPf6T6yX1wIysz1ElLR)](https://www.paypal.me/nxrighthere) [![Bountysource](https://drive.google.com/uc?id=19QRobscL8Ir2RL489IbVjcw3fULfWS_Q)](https://salt.bountysource.com/checkout/amount?team=nxrighthere)

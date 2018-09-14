@@ -192,11 +192,11 @@ Definitions of peer states for `Peer.State` property:
 #### Memory callbacks
 Provides per application events.
 
-`IntPtr AllocCallback(IntPtr size)` notifies when a memory is requested for allocation. Expects pointer to the newly allocated memory.
+`AllocCallback(IntPtr size)` notifies when a memory is requested for allocation. Expects pointer to the newly allocated memory.
 
-`void FreeCallback(IntPtr memory)` notifies when the memory can be freed.
+`FreeCallback(IntPtr memory)` notifies when the memory can be freed.
 
-`void NoMemoryCallback()` notifies when memory is not enough.
+`NoMemoryCallback()` notifies when memory is not enough.
 
 #### Packet callbacks
 Provides per packet events.

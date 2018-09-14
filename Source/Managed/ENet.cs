@@ -714,7 +714,11 @@ namespace ENet {
 
 	[SuppressUnmanagedCodeSecurity]
 	internal static class Native {
-		private const string nativeLibrary = "enet";
+		#if __IOS__ || UNITY_IOS
+			private const string nativeLibrary = "__Internal";
+		#else
+			private const string nativeLibrary = "enet";
+		#endif
 
 		[DllImport(nativeLibrary, CallingConvention = CallingConvention.Cdecl)]
 		internal static extern int enet_initialize();

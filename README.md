@@ -148,7 +148,7 @@ API reference
 --------
 ### Enumerations
 #### PacketFlags
-Definitions of a flags for `Peer.Send` function:
+Definitions of a flags for `Peer.Send()` function:
 
 `PacketFlags.None` unreliable sequenced, delivery of packet is not guaranteed.
 

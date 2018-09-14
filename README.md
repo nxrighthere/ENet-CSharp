@@ -12,7 +12,7 @@ To build a native library appropriate software is required:
 
 For desktop platforms [CMake](https://cmake.org/download/) with GNU Make or Visual Studio.
 
-For mobile platforms [Android NDK](https://developer.android.com/ndk/downloads/).
+For mobile platforms [NDK](https://developer.android.com/ndk/downloads/) for Android and [XCode](https://developer.apple.com/xcode/) for iOS.
 
 A managed assembly can be built using any available compiling platform that supports C# 3.0 or higher.
 

@@ -86,7 +86,8 @@ namespace ENet {
 
 	public delegate IntPtr AllocCallback(IntPtr size);
 	public delegate void FreeCallback(IntPtr memory);
-	public delegate void OutOfMemoryCallback();
+	public delegate void NoMemoryCallback();
+	public delegate void PacketFreeCallback(Packet packet);
 
 	internal static class ArrayPool {
 		[ThreadStatic]
@@ -196,10 +197,10 @@ namespace ENet {
 			}
 		}
 
-		public Callbacks(AllocCallback allocCallback, FreeCallback freeCallback, OutOfMemoryCallback outOfMemoryCallback) {
+		public Callbacks(AllocCallback allocCallback, FreeCallback freeCallback, NoMemoryCallback noMemoryCallback) {
 			nativeCallbacks.malloc = Marshal.GetFunctionPointerForDelegate(allocCallback);
 			nativeCallbacks.free = Marshal.GetFunctionPointerForDelegate(freeCallback);
-			nativeCallbacks.no_memory = Marshal.GetFunctionPointerForDelegate(outOfMemoryCallback);
+			nativeCallbacks.no_memory = Marshal.GetFunctionPointerForDelegate(noMemoryCallback);
 		}
 	}
 
@@ -252,6 +253,12 @@ namespace ENet {
 		internal void CheckCreated() {
 			if (nativePacket == IntPtr.Zero)
 				throw new InvalidOperationException("Packet not created");
+		}
+
+		public void SetFreeCallback(PacketFreeCallback callback) {
+			CheckCreated();
+
+			Native.enet_packet_set_free_callback(nativePacket, Marshal.GetFunctionPointerForDelegate(callback));
 		}
 
 		public void Create(byte[] data) {
@@ -689,7 +696,7 @@ namespace ENet {
 		public const uint timeoutLimit = 32;
 		public const uint timeoutMinimum = 5000;
 		public const uint timeoutMaximum = 30000;
-		public const uint version = (2 << 16) | (0 << 8) | (7);
+		public const uint version = (2 << 16) | (0 << 8) | (8);
 
 		public static int Initialize() {
 			return Native.enet_initialize();
@@ -743,6 +750,9 @@ namespace ENet {
 
 		[DllImport(nativeLibrary, CallingConvention = CallingConvention.Cdecl)]
 		internal static extern int enet_packet_get_length(IntPtr packet);
+
+		[DllImport(nativeLibrary, CallingConvention = CallingConvention.Cdecl)]
+		internal static extern void enet_packet_set_free_callback(IntPtr packet, IntPtr callback);
 
 		[DllImport(nativeLibrary, CallingConvention = CallingConvention.Cdecl)]
 		internal static extern void enet_packet_destroy(IntPtr packet);

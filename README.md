@@ -212,14 +212,14 @@ Provides per packet events.
 
 ### Structures
 #### Address
-Contains a marshalled structure with host data and port number.
+Contains marshalled structure with host data and port number.
 
 `Address.Port` set or get a port number.
 
 `Address.SetHost(string hostName)` set host name or an IP address (IPv4/IPv6). Returns 0 on success or < 0 on failure.
 
 #### Event
-Contains a marshalled structure with the event type, managed pointer to the peer, channel ID, user-supplied data, and managed pointer to the packet.
+Contains marshalled structure with the event type, managed pointer to the peer, channel ID, user-supplied data, and managed pointer to the packet.
 
 `Event.Type` returns a type of the event.
 

@@ -121,6 +121,13 @@ packet.Create(data);
 peer.Send(channelID, ref packet);
 ```
 
+##### Copy payload from a packet:
+```csharp
+byte[] buffer = new byte[1024];
+
+netEvent.Packet.CopyTo(buffer);
+```
+
 ##### Integrate with a custom memory allocator:
 ```csharp
 AllocCallback OnMemoryAllocate = (size) => {

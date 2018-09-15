@@ -30,7 +30,7 @@ Usage
 --------
 Before starting to work, the library should be initialized using `ENet.Library.Initialize();` function.
 
-When the work is done, deinitialize the library using `ENet.Library.Deinitialize();` function.
+After the work is done, deinitialize the library using `ENet.Library.Deinitialize();` function.
 
 ### .NET environment
 ##### Start a new server:

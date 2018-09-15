@@ -338,4 +338,4 @@ Contains constant fields.
 
 `Library.Deinitialize()` deinitializes the native library. Should be called after the work is done.
 
-`Library.Time` returns a current monotonic time in milliseconds. It never reset while the application remains alive.
+`Library.Time` returns a current local monotonic time in milliseconds. It never reset while the application remains alive.

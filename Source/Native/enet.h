@@ -1,7 +1,6 @@
 /*
  *  ENet reliable UDP networking library 
- *  Copyright (c) 2017 Lee Salzman
- *  Copyright (c) 2018 Vladyslav Hrytsenko, Dominik Madarász, Stanislav Denisov
+ *  Copyright (c) 2018 Lee Salzman, Vladyslav Hrytsenko, Dominik Madarász, Stanislav Denisov
  *
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal

@@ -4401,7 +4401,7 @@ extern "C" {
 // =======================================================================//
 
     void * enet_packet_get_data(ENetPacket *packet) {
-        return (void *) packet->data;
+        return (void *)packet->data;
     }
 
     int enet_packet_get_length(ENetPacket *packet) {
@@ -4409,7 +4409,7 @@ extern "C" {
     }
 
     void enet_packet_set_free_callback(ENetPacket *packet, const void *callback) {
-        packet->freeCallback = callback;
+        packet->freeCallback = (ENetPacketFreeCallback)callback;
     }
 
     enet_uint32 enet_host_get_peers_count(ENetHost *host) {
@@ -4469,11 +4469,11 @@ extern "C" {
     }
  
     void * enet_peer_get_data(ENetPeer *peer) {
-        return (void *) peer->data;
+        return (void *)peer->data;
     }
 
     void enet_peer_set_data(ENetPeer *peer, const void *data) {
-        peer->data = (enet_uint32 *) data;
+        peer->data = (enet_uint32 *)data;
     }
 
 // =======================================================================//

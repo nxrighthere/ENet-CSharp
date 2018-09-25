@@ -3121,10 +3121,7 @@ extern "C" {
                 return -1;
             }
 
-            if ((packet->flags & (ENET_PACKET_FLAG_RELIABLE | ENET_PACKET_FLAG_UNRELIABLE_FRAGMENT)) ==
-                ENET_PACKET_FLAG_UNRELIABLE_FRAGMENT &&
-                channel->outgoingUnreliableSequenceNumber < 0xFFFF)
-            {
+            if ((packet->flags & (ENET_PACKET_FLAG_RELIABLE | ENET_PACKET_FLAG_UNRELIABLE_FRAGMENT)) == ENET_PACKET_FLAG_UNRELIABLE_FRAGMENT && channel->outgoingUnreliableSequenceNumber < 0xFFFF) {
                 commandNumber       = ENET_PROTOCOL_COMMAND_SEND_UNRELIABLE_FRAGMENT;
                 startSequenceNumber = ENET_HOST_TO_NET_16(channel->outgoingUnreliableSequenceNumber + 1);
             } else {
@@ -4487,7 +4484,7 @@ extern "C" {
             return 0;
         }
 
-        void enet_deinitialize(void) {}
+        void enet_deinitialize(void);
 
         enet_uint64 enet_host_random_seed(void) {
             return (enet_uint64) time(NULL);
@@ -4878,7 +4875,6 @@ extern "C" {
 
     #ifdef _WIN32
         #ifdef __MINGW32__
-            /* inet_ntop/inet_pton for MinGW from http://mingw-users.1079350.n2.nabble.com/IPv6-getaddrinfo-amp-inet-ntop-td5891996.html */
             const char *inet_ntop(int af, const void *src, char *dst, socklen_t cnt) {
                 if (af == AF_INET) {
                     struct sockaddr_in in;
@@ -4911,10 +4907,9 @@ extern "C" {
                 *(tp = tmp) = 0;
 
                 int ch;
-                while ((ch = *src++) != '\0')
-                {
-                    if (ch >= '0' && ch <= '9')
-                    {
+
+                while ((ch = *src++) != '\0') {
+                    if (ch >= '0' && ch <= '9') {
                         uint32_t n = *tp * 10 + (ch - '0');
 
                         if (saw_digit && *tp == 0)
@@ -4924,21 +4919,20 @@ extern "C" {
                             return 0;
 
                         *tp = n;
-                        if (!saw_digit)
-                        {
+
+                        if (!saw_digit) {
                             if (++octets > 4)
                                 return 0;
+
                             saw_digit = 1;
                         }
-                    }
-                    else if (ch == '.' && saw_digit)
-                    {
+                    } else if (ch == '.' && saw_digit) {
                         if (octets == 4)
                             return 0;
+
                         *++tp = 0;
                         saw_digit = 0;
-                    }
-                    else
+                    } else
                         return 0;
                 }
                 if (octets < 4)
@@ -4958,8 +4952,7 @@ extern "C" {
                 uint8_t *colonp = NULL;
 
                 /* Leading :: requires some special handling. */
-                if (*src == ':')
-                {
+                if (*src == ':') {
                     if (*++src != ':')
                         return 0;
                 }
@@ -4968,58 +4961,63 @@ extern "C" {
                 int saw_xdigit = 0;
                 uint32_t val = 0;
                 int ch;
-                while ((ch = tolower(*src++)) != '\0')
-                {
+                while ((ch = tolower(*src++)) != '\0') {
                     const char *pch = strchr(xdigits, ch);
-                    if (pch != NULL)
-                    {
+
+                    if (pch != NULL) {
                         val <<= 4;
                         val |= (pch - xdigits);
+
                         if (val > 0xffff)
                             return 0;
+
                         saw_xdigit = 1;
+
                         continue;
                     }
-                    if (ch == ':')
-                    {
+
+                    if (ch == ':') {
                         curtok = src;
-                        if (!saw_xdigit)
-                        {
+                        if (!saw_xdigit) {
                             if (colonp)
                                 return 0;
+
                             colonp = tp;
+
                             continue;
-                        }
-                        else if (*src == '\0')
-                        {
+                        } else if (*src == '\0') {
                             return 0;
                         }
+
                         if (tp + NS_INT16SZ > endp)
                             return 0;
+
                         *tp++ = (uint8_t) (val >> 8) & 0xff;
                         *tp++ = (uint8_t) val & 0xff;
                         saw_xdigit = 0;
                         val = 0;
+
                         continue;
                     }
-                    if (ch == '.' && ((tp + NS_INADDRSZ) <= endp) &&
-                            inet_pton4(curtok, (char*)tp) > 0)
-                    {
+
+                    if (ch == '.' && ((tp + NS_INADDRSZ) <= endp) && inet_pton4(curtok, (char*)tp) > 0) {
                         tp += NS_INADDRSZ;
                         saw_xdigit = 0;
                         break; /* '\0' was seen by inet_pton4(). */
                     }
+
                     return 0;
                 }
-                if (saw_xdigit)
-                {
+
+                if (saw_xdigit) {
                     if (tp + NS_INT16SZ > endp)
                         return 0;
+
                     *tp++ = (uint8_t) (val >> 8) & 0xff;
                     *tp++ = (uint8_t) val & 0xff;
                 }
-                if (colonp != NULL)
-                {
+
+                if (colonp != NULL) {
                     /*
                      * Since some memmove()'s erroneously fail to handle
                      * overlapping regions, we'll do the shift by hand.
@@ -5029,13 +5027,14 @@ extern "C" {
                     if (tp == endp)
                         return 0;
 
-                    for (int i = 1; i <= n; i++)
-                    {
+                    for (int i = 1; i <= n; i++) {
                         endp[-i] = colonp[n - i];
                         colonp[n - i] = 0;
                     }
+
                     tp = endp;
                 }
+
                 if (tp != endp)
                     return 0;
 

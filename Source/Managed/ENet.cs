@@ -409,7 +409,7 @@ namespace ENet {
 			}
 
 			if (nativeHost == IntPtr.Zero)
-				throw new ENetException(0, "Host creation call failed");
+				throw new InvalidOperationException("Host creation call failed");
 		}
 
 		public void Broadcast(byte channelID, ref Packet packet) {
@@ -454,7 +454,7 @@ namespace ENet {
 			var peer = new Peer(Native.enet_host_connect(nativeHost, ref nativeAddress, (IntPtr)channelLimit, data));
 
 			if (peer.NativeData == IntPtr.Zero)
-				throw new ENetException(0, "Host connect call failed");
+				throw new InvalidOperationException("Host connect call failed");
 
 			return peer;
 		}
@@ -673,16 +673,6 @@ namespace ENet {
 			CheckCreated();
 
 			Native.enet_peer_reset(nativePeer);
-		}
-	}
-
-	public class ENetException : Exception {
-		public ENetException(int code, string message) : base(message) {
-			Code = code;
-		}
-
-		public int Code {
-			get; private set;
 		}
 	}
 

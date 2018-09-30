@@ -223,7 +223,7 @@ namespace ENet {
 
 		public void Dispose() {
 			if (nativePacket != IntPtr.Zero) {
-				Native.enet_packet_destroy(nativePacket);
+				Native.enet_packet_dispose(nativePacket);
 				nativePacket = IntPtr.Zero;
 			}
 		}
@@ -686,7 +686,7 @@ namespace ENet {
 		public const uint timeoutLimit = 32;
 		public const uint timeoutMinimum = 5000;
 		public const uint timeoutMaximum = 30000;
-		public const uint version = (2 << 16) | (0 << 8) | (8);
+		public const uint version = (2 << 16) | (0 << 8) | (9);
 
 		public static int Initialize() {
 			return Native.enet_initialize();
@@ -745,7 +745,7 @@ namespace ENet {
 		internal static extern void enet_packet_set_free_callback(IntPtr packet, IntPtr callback);
 
 		[DllImport(nativeLibrary, CallingConvention = CallingConvention.Cdecl)]
-		internal static extern void enet_packet_destroy(IntPtr packet);
+		internal static extern void enet_packet_dispose(IntPtr packet);
 
 		[DllImport(nativeLibrary, CallingConvention = CallingConvention.Cdecl)]
 		internal static extern IntPtr enet_host_create(ref ENetAddress address, IntPtr peerLimit, IntPtr channelLimit, uint incomingBandwidth, uint outgoingBandwidth);

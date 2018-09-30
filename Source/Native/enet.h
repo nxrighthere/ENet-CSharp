@@ -31,7 +31,7 @@
 
 #define ENET_VERSION_MAJOR 2
 #define ENET_VERSION_MINOR 0
-#define ENET_VERSION_PATCH 8
+#define ENET_VERSION_PATCH 9
 #define ENET_VERSION_CREATE(major, minor, patch) (((major)<<16) | ((minor)<<8) | (patch))
 #define ENET_VERSION_GET_MAJOR(version) (((version)>>16)&0xFF)
 #define ENET_VERSION_GET_MINOR(version) (((version)>>8)&0xFF)
@@ -670,7 +670,7 @@ extern "C" {
         ENetAddress           receivedAddress;
         enet_uint8 *          receivedData;
         size_t                receivedDataLength;
-        ENetInterceptCallback intercept;
+        ENetInterceptCallback interceptCallback;
         size_t                connectedPeers;
         size_t                bandwidthLimitedPeers;
         size_t                duplicatePeers;
@@ -771,6 +771,7 @@ extern "C" {
     ENET_API void *              enet_packet_get_data (ENetPacket *);
     ENET_API int                 enet_packet_get_length (ENetPacket *);
     ENET_API void                enet_packet_set_free_callback (ENetPacket *, const void *);
+    ENET_API void                enet_packet_dispose (ENetPacket *);
 
     ENET_API enet_uint32         enet_host_get_peers_count (ENetHost *);
     ENET_API enet_uint32         enet_host_get_packets_sent (ENetHost *);
@@ -1379,7 +1380,7 @@ extern "C" {
         }
     }
 
-    static void enet_protocol_notify_disconnect_timeout (ENetHost * host, ENetPeer * peer, ENetEvent * event) {
+    static void enet_protocol_notify_disconnect_timeout(ENetHost * host, ENetPeer * peer, ENetEvent * event) {
         if (peer->state >= ENET_PEER_STATE_CONNECTION_PENDING) {
            host->recalculateBandwidthLimits = 1;
         }
@@ -2448,8 +2449,8 @@ extern "C" {
             host->totalReceivedData += receivedLength;
             host->totalReceivedPackets++;
 
-            if (host->intercept != NULL) {
-                switch (host->intercept(host, (void *)event)) {
+            if (host->interceptCallback != NULL) {
+                switch (host->interceptCallback(host, (void *)event)) {
                     case 1:
                         if (event != NULL && event->type != ENET_EVENT_TYPE_NONE) {
                             return 1;
@@ -3963,7 +3964,7 @@ extern "C" {
         host->duplicatePeers                = ENET_PROTOCOL_MAXIMUM_PEER_ID;
         host->maximumPacketSize             = ENET_HOST_DEFAULT_MAXIMUM_PACKET_SIZE;
         host->maximumWaitingData            = ENET_HOST_DEFAULT_MAXIMUM_WAITING_DATA;
-        host->intercept                     = NULL;
+        host->interceptCallback             = NULL;
 
         enet_list_clear(&host->dispatchQueue);
 
@@ -4407,6 +4408,12 @@ extern "C" {
 
     void enet_packet_set_free_callback(ENetPacket *packet, const void *callback) {
         packet->freeCallback = (ENetPacketFreeCallback)callback;
+    }
+
+    void enet_packet_dispose(ENetPacket *packet) {
+        if (packet->referenceCount == 0) {
+            enet_packet_destroy(packet);
+        }
     }
 
     enet_uint32 enet_host_get_peers_count(ENetHost *host) {

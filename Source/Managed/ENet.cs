@@ -272,6 +272,10 @@ namespace ENet {
 			Create(data, length, PacketFlags.None);
 		}
 
+		public void Create(byte[] data, PacketFlags flags) {
+			Create(data, data.Length, flags);
+		}
+
 		public void Create(byte[] data, int length, PacketFlags flags) {
 			if (data == null)
 				throw new ArgumentNullException("data");

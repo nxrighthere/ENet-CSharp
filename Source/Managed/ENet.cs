@@ -574,6 +574,22 @@ namespace ENet {
 			}
 		}
 
+		public uint LastSendTime {
+			get {
+				CheckCreated();
+
+				return Native.enet_peer_get_lastsendtime(nativePeer);
+			}
+		}
+
+		public uint LastReceiveTime {
+			get {
+				CheckCreated();
+
+				return Native.enet_peer_get_lastreceivetime(nativePeer);
+			}
+		}
+
 		public ulong PacketsSent {
 			get {
 				CheckCreated();
@@ -690,7 +706,7 @@ namespace ENet {
 		public const uint timeoutLimit = 32;
 		public const uint timeoutMinimum = 5000;
 		public const uint timeoutMaximum = 30000;
-		public const uint version = (2 << 16) | (0 << 8) | (9);
+		public const uint version = (2 << 16) | (1 << 8) | (0);
 
 		public static int Initialize() {
 			return Native.enet_initialize();
@@ -813,6 +829,12 @@ namespace ENet {
 
 		[DllImport(nativeLibrary, CallingConvention = CallingConvention.Cdecl)]
 		internal static extern uint enet_peer_get_rtt(IntPtr peer);
+
+		[DllImport(nativeLibrary, CallingConvention = CallingConvention.Cdecl)]
+		internal static extern uint enet_peer_get_lastsendtime(IntPtr peer);
+
+		[DllImport(nativeLibrary, CallingConvention = CallingConvention.Cdecl)]
+		internal static extern uint enet_peer_get_lastreceivetime(IntPtr peer);
 
 		[DllImport(nativeLibrary, CallingConvention = CallingConvention.Cdecl)]
 		internal static extern ulong enet_peer_get_packets_sent(IntPtr peer);

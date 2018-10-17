@@ -30,8 +30,8 @@
 #include <time.h>
 
 #define ENET_VERSION_MAJOR 2
-#define ENET_VERSION_MINOR 0
-#define ENET_VERSION_PATCH 9
+#define ENET_VERSION_MINOR 1
+#define ENET_VERSION_PATCH 0
 #define ENET_VERSION_CREATE(major, minor, patch) (((major)<<16) | ((minor)<<8) | (patch))
 #define ENET_VERSION_GET_MAJOR(version) (((version)>>16)&0xFF)
 #define ENET_VERSION_GET_MINOR(version) (((version)>>8)&0xFF)
@@ -784,6 +784,8 @@ extern "C" {
     ENET_API enet_uint16         enet_peer_get_port (ENetPeer *);
     ENET_API ENetPeerState       enet_peer_get_state (ENetPeer *);
     ENET_API enet_uint32         enet_peer_get_rtt (ENetPeer *);
+    ENET_API enet_uint32         enet_peer_get_lastsendtime (ENetPeer *);
+    ENET_API enet_uint32         enet_peer_get_lastreceivetime (ENetPeer *);
     ENET_API enet_uint64         enet_peer_get_packets_sent (ENetPeer *);
     ENET_API enet_uint32         enet_peer_get_packets_lost (ENetPeer *);
     ENET_API enet_uint64         enet_peer_get_bytes_sent (ENetPeer *);
@@ -4454,6 +4456,14 @@ extern "C" {
 
     enet_uint32 enet_peer_get_rtt(ENetPeer *peer) {
         return peer->roundTripTime;
+    }
+
+    enet_uint32 enet_peer_get_lastsendtime(ENetPeer *peer) {
+        return peer->lastSendTime;
+    }
+
+    enet_uint32 enet_peer_get_lastreceivetime(ENetPeer *peer) {
+        return peer->lastReceiveTime;
     }
 
     enet_uint64 enet_peer_get_packets_sent(ENetPeer *peer) {

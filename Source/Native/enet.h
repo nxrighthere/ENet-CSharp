@@ -4501,7 +4501,7 @@ extern "C" {
             return 0;
         }
 
-        void enet_deinitialize(void);
+        void enet_deinitialize(void) { }
 
         enet_uint64 enet_host_random_seed(void) {
             return (enet_uint64) time(NULL);

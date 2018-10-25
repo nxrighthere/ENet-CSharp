@@ -731,7 +731,7 @@ namespace ENet {
 
 	[SuppressUnmanagedCodeSecurity]
 	internal static class Native {
-		#if __IOS__ || UNITY_IOS
+		#if __IOS__ || UNITY_IOS && !UNITY_EDITOR
 			private const string nativeLibrary = "__Internal";
 		#else
 			private const string nativeLibrary = "enet";

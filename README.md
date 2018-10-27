@@ -144,7 +144,7 @@ NoMemoryCallback OnNoMemory = () => {
 
 Callbacks callbacks = new Callbacks(OnMemoryAllocate, OnMemoryFree, OnNoMemory);
 
-if (!ENet.Library.Initialize(callbacks))
+if (ENet.Library.Initialize(callbacks))
 	Console.WriteLine("ENet successfully initialized using a custom memory allocator");
 ```
 

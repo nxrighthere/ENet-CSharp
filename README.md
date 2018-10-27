@@ -144,7 +144,7 @@ NoMemoryCallback OnNoMemory = () => {
 
 Callbacks callbacks = new Callbacks(OnMemoryAllocate, OnMemoryFree, OnNoMemory);
 
-if (ENet.Library.Initialize(callbacks) > -1)
+if (!ENet.Library.Initialize(callbacks))
 	Console.WriteLine("ENet successfully initialized using a custom memory allocator");
 ```
 
@@ -216,7 +216,7 @@ Contains marshalled structure with host data and port number.
 
 `Address.Port` set or get a port number.
 
-`Address.SetHost(string hostName)` set host name or an IP address (IPv4/IPv6). Should be used for binding to a network interface or for connection to a foreign host. Returns 0 on success or < 0 on failure.
+`Address.SetHost(string hostName)` set host name or an IP address (IPv4/IPv6). Should be used for binding to a network interface or for connection to a foreign host. Returns true success or false on failure.
 
 #### Event
 Contains marshalled structure with the event type, managed pointer to the peer, channel ID, user-supplied data, and managed pointer to the packet.
@@ -279,7 +279,7 @@ Contains a managed pointer to the peer.
 
 `Peer.ConfigureThrottle(uint interval, uint acceleration, uint deceleration)` configures throttle parameter for a peer. Unreliable packets are dropped by ENet in response to the varying conditions of the connection to the peer. The throttle represents a probability that an unreliable packet should not be dropped and thus sent by ENet to the peer. The lowest mean round trip time from the sending of a reliable packet to the receipt of its acknowledgment is measured over an amount of time specified by the interval parameter in milliseconds. If a measured round trip time happens to be significantly less than the mean round trip time measured over the interval, then the throttle probability is increased to allow more traffic by an amount specified in the acceleration parameter, which is a ratio to the `Library.throttleScale` constant. If a measured round trip time happens to be significantly greater than the mean round trip time measured over the interval, then the throttle probability is decreased to limit traffic by an amount specified in the deceleration parameter, which is a ratio to the `Library.throttleScale` constant. When the throttle has a value of `Library.throttleScale`, no unreliable packets are dropped by ENet, and so 100% of all unreliable packets will be sent. When the throttle has a value of 0, all unreliable packets are dropped by ENet, and so 0% of all unreliable packets will be sent. Intermediate values for the throttle represent intermediate probabilities between 0% and 100% of unreliable packets being sent. The bandwidth limits of the local and foreign hosts are taken into account to determine a sensible limit for the throttle probability above which it should not raise even in the best of conditions.
 
-`Peer.Send(byte channelID, ref Packet packet)` queues a packet to be sent. Returns 0 on success or < 0 on failure.
+`Peer.Send(byte channelID, ref Packet packet)` queues a packet to be sent. Returns true on success or false on failure.
 
 `Peer.Ping()` sends a ping request to a peer. ENet automatically pings all connected peers at regular intervals, however, this function may be called to ensure more frequent ping requests.
 
@@ -338,7 +338,7 @@ Contains constant fields.
 
 `Library.version` the current version of the native library.
 
-`Library.Initialize(ref Callbacks inits)` initializes the native library. Callbacks parameter is optional and should be used only with a custom memory allocator. Should be called before starting the work. Returns 0 on success or < 0 on failure.
+`Library.Initialize(ref Callbacks inits)` initializes the native library. Callbacks parameter is optional and should be used only with a custom memory allocator. Should be called before starting the work. Returns true on success or false on failure.
 
 `Library.Deinitialize()` deinitializes the native library. Should be called after the work is done.
 

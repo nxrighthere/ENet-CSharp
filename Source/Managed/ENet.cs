@@ -650,7 +650,7 @@ namespace ENet {
 		public bool Send(byte channelID, ref Packet packet) {
 			CheckCreated();
 
-			return Native.enet_peer_send(nativePeer, channelID, packet.NativeData) >= 0;
+			return Native.enet_peer_send(nativePeer, channelID, packet.NativeData) == 0;
 		}
 
 		public void Ping() {
@@ -708,14 +708,14 @@ namespace ENet {
 		public const uint timeoutMaximum = 30000;
 		public const uint version = (2 << 16) | (1 << 8) | (0);
 
-		public static int Initialize() {
-			return Native.enet_initialize();
+		public static bool Initialize() {
+			return Native.enet_initialize() == 0;
 		}
 
-		public static int Initialize(Callbacks inits) {
+		public static bool Initialize(Callbacks inits) {
 			var nativeCallbacks = inits.NativeData;
 
-			return Native.enet_initialize_with_callbacks(version, ref nativeCallbacks);
+			return Native.enet_initialize_with_callbacks(version, ref nativeCallbacks) == 0;
 		}
 
 		public static void Deinitialize() {

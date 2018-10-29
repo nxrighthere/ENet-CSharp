@@ -14,6 +14,8 @@ For desktop platforms [CMake](https://cmake.org/download/) with GNU Make or Visu
 
 For mobile platforms [NDK](https://developer.android.com/ndk/downloads/) for Android and [XCode](https://developer.apple.com/xcode/) for iOS.
 
+Define `ENET_LZ4` to build the library with an optional packet-level compression.
+
 A managed assembly can be built using any available compiling platform that supports C# 3.0 or higher.
 
 Compiled libraries
@@ -314,6 +316,8 @@ Contains a managed pointer to the host.
 `Host.BytesReceived` returns a total number of bytes received during the session.
 
 `Host.Create(Address? address, int peerLimit, int channelLimit, uint incomingBandwidth, uint outgoingBandwidth)` creates a host for communicating with peers. The bandwidth parameters determine the window size of a connection which limits the number of reliable packets that may be in transit at any given time. ENet will strategically drop packets on specific sides of a connection between hosts to ensure the host's bandwidth is not overwhelmed. All the parameters are optional except the address and peer limit in cases where the function is used to create a host which will listen for incoming connections.
+
+`Host.EnableCompression()` enables packet-level compression.
 
 `Host.Broadcast(byte channelID, ref Packet packet)` queues a packet to be sent to all peers associated with the host. 
 

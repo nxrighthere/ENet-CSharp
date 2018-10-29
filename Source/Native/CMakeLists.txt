@@ -3,7 +3,7 @@ project(enet C)
 
 set(ENET_STATIC "0" CACHE BOOL "Create a static library")
 set(ENET_SHARED "1" CACHE BOOL "Create a shared library")
-set(ENET_LZ4 "0" CACHE BOOL "Enable packet level compression")
+set(ENET_LZ4 "0" CACHE BOOL "Add support for an optional packet-level compression")
 
 if (MSVC)
 	add_definitions(-W3)

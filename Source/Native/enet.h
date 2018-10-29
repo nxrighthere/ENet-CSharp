@@ -670,7 +670,7 @@ extern "C" {
         size_t                commandCount;
         ENetBuffer            buffers[ENET_BUFFER_MAXIMUM];
         size_t                bufferCount;
-		enet_uint8            compression;
+        enet_uint8            compression;
         ENetChecksumCallback  checksum;
         enet_uint8            packetData[2][ENET_PROTOCOL_MAXIMUM_MTU];
         ENetAddress           receivedAddress;
@@ -4016,7 +4016,7 @@ extern "C" {
         host->peerCount                     = peerCount;
         host->commandCount                  = 0;
         host->bufferCount                   = 0;
-		host->compression                   = 0;
+        host->compression                   = 0;
         host->checksum                      = NULL;
         host->receivedAddress.host          = ENET_HOST_ANY;
         host->receivedAddress.port          = 0;
@@ -4071,9 +4071,13 @@ extern "C" {
         enet_free(host);
     }
 
-	void enet_host_enable_compression(ENetHost *host) {
-		host->compression = 1;
-	}
+    void enet_host_enable_compression(ENetHost *host) {
+        if (host == NULL) {
+            return;
+        }
+
+        host->compression = 1;
+    }
 
     ENetPeer * enet_host_connect(ENetHost *host, const ENetAddress *address, size_t channelCount, enet_uint32 data) {
         ENetPeer *currentPeer;

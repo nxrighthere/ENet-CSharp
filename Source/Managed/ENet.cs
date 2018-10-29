@@ -416,6 +416,12 @@ namespace ENet {
 				throw new InvalidOperationException("Host creation call failed");
 		}
 
+		public void EnableCompression() {
+			CheckCreated();
+
+			Native.enet_host_enable_compression(nativeHost);
+		}
+
 		public void Broadcast(byte channelID, ref Packet packet) {
 			CheckCreated();
 
@@ -706,7 +712,7 @@ namespace ENet {
 		public const uint timeoutLimit = 32;
 		public const uint timeoutMinimum = 5000;
 		public const uint timeoutMaximum = 30000;
-		public const uint version = (2 << 16) | (1 << 8) | (0);
+		public const uint version = (2 << 16) | (1 << 8) | (1);
 
 		public static bool Initialize() {
 			return Native.enet_initialize() == 0;
@@ -811,6 +817,9 @@ namespace ENet {
 
 		[DllImport(nativeLibrary, CallingConvention = CallingConvention.Cdecl)]
 		internal static extern void enet_host_destroy(IntPtr host);
+
+		[DllImport(nativeLibrary, CallingConvention = CallingConvention.Cdecl)]
+		internal static extern void enet_host_enable_compression(IntPtr host);
 
 		[DllImport(nativeLibrary, CallingConvention = CallingConvention.Cdecl)]
 		internal static extern void enet_peer_throttle_configure(IntPtr peer, uint interval, uint acceleration, uint deceleration);

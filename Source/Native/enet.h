@@ -29,9 +29,13 @@
 #include <stdint.h>
 #include <time.h>
 
+#ifdef ENET_LZ4
+    #include "lz4/lz4.h"
+#endif
+
 #define ENET_VERSION_MAJOR 2
 #define ENET_VERSION_MINOR 1
-#define ENET_VERSION_PATCH 0
+#define ENET_VERSION_PATCH 1
 #define ENET_VERSION_CREATE(major, minor, patch) (((major)<<16) | ((minor)<<8) | (patch))
 #define ENET_VERSION_GET_MAJOR(version) (((version)>>16)&0xFF)
 #define ENET_VERSION_GET_MINOR(version) (((version)>>8)&0xFF)
@@ -289,7 +293,8 @@ extern "C" {
         ENET_PROTOCOL_COMMAND_FLAG_ACKNOWLEDGE = (1 << 7),
         ENET_PROTOCOL_COMMAND_FLAG_UNSEQUENCED = (1 << 6),
         ENET_PROTOCOL_HEADER_FLAG_SENT_TIME    = (1 << 14),
-        ENET_PROTOCOL_HEADER_FLAG_MASK         = ENET_PROTOCOL_HEADER_FLAG_SENT_TIME,
+        ENET_PROTOCOL_HEADER_FLAG_COMPRESSED   = (1 << 15),
+        ENET_PROTOCOL_HEADER_FLAG_MASK         = ENET_PROTOCOL_HEADER_FLAG_SENT_TIME | ENET_PROTOCOL_HEADER_FLAG_COMPRESSED,
         ENET_PROTOCOL_HEADER_SESSION_MASK      = (3 << 12),
         ENET_PROTOCOL_HEADER_SESSION_SHIFT     = 12
     } ENetProtocolFlag;
@@ -665,6 +670,7 @@ extern "C" {
         size_t                commandCount;
         ENetBuffer            buffers[ENET_BUFFER_MAXIMUM];
         size_t                bufferCount;
+		enet_uint8            compression;
         ENetChecksumCallback  checksum;
         enet_uint8            packetData[2][ENET_PROTOCOL_MAXIMUM_MTU];
         ENetAddress           receivedAddress;
@@ -706,20 +712,20 @@ extern "C" {
     ENET_API ENetVersion         enet_linked_version (void);
     ENET_API enet_uint32         enet_time_get (void);
 
-    ENET_API ENetSocket          enet_socket_create(ENetSocketType);
-    ENET_API int                 enet_socket_bind(ENetSocket, const ENetAddress *);
-    ENET_API int                 enet_socket_get_address(ENetSocket, ENetAddress *);
-    ENET_API int                 enet_socket_listen(ENetSocket, int);
-    ENET_API ENetSocket          enet_socket_accept(ENetSocket, ENetAddress *);
-    ENET_API int                 enet_socket_connect(ENetSocket, const ENetAddress *);
-    ENET_API int                 enet_socket_send(ENetSocket, const ENetAddress *, const ENetBuffer *, size_t);
-    ENET_API int                 enet_socket_receive(ENetSocket, ENetAddress *, ENetBuffer *, size_t);
-    ENET_API int                 enet_socket_wait(ENetSocket, enet_uint32 *, enet_uint64);
-    ENET_API int                 enet_socket_set_option(ENetSocket, ENetSocketOption, int);
-    ENET_API int                 enet_socket_get_option(ENetSocket, ENetSocketOption, int *);
-    ENET_API int                 enet_socket_shutdown(ENetSocket, ENetSocketShutdown);
-    ENET_API void                enet_socket_destroy(ENetSocket);
-    ENET_API int                 enet_socketset_select(ENetSocket, ENetSocketSet *, ENetSocketSet *, enet_uint32);
+    ENET_API ENetSocket          enet_socket_create (ENetSocketType);
+    ENET_API int                 enet_socket_bind (ENetSocket, const ENetAddress *);
+    ENET_API int                 enet_socket_get_address (ENetSocket, ENetAddress *);
+    ENET_API int                 enet_socket_listen (ENetSocket, int);
+    ENET_API ENetSocket          enet_socket_accept (ENetSocket, ENetAddress *);
+    ENET_API int                 enet_socket_connect (ENetSocket, const ENetAddress *);
+    ENET_API int                 enet_socket_send (ENetSocket, const ENetAddress *, const ENetBuffer *, size_t);
+    ENET_API int                 enet_socket_receive (ENetSocket, ENetAddress *, ENetBuffer *, size_t);
+    ENET_API int                 enet_socket_wait (ENetSocket, enet_uint32 *, enet_uint64);
+    ENET_API int                 enet_socket_set_option (ENetSocket, ENetSocketOption, int);
+    ENET_API int                 enet_socket_get_option (ENetSocket, ENetSocketOption, int *);
+    ENET_API int                 enet_socket_shutdown (ENetSocket, ENetSocketShutdown);
+    ENET_API void                enet_socket_destroy (ENetSocket);
+    ENET_API int                 enet_socketset_select (ENetSocket, ENetSocketSet *, ENetSocketSet *, enet_uint32);
 
     ENET_API int                 enet_address_set_host_ip (ENetAddress * address, const char * hostName);
     ENET_API int                 enet_address_set_host (ENetAddress * address, const char * hostName);
@@ -734,6 +740,7 @@ extern "C" {
 
     ENET_API ENetHost *          enet_host_create (const ENetAddress *, size_t, size_t, enet_uint32, enet_uint32);
     ENET_API void                enet_host_destroy (ENetHost *);
+    ENET_API void                enet_host_enable_compression (ENetHost *);
     ENET_API ENetPeer *          enet_host_connect (ENetHost *, const ENetAddress *, size_t, enet_uint32);
     ENET_API int                 enet_host_check_events (ENetHost *, ENetEvent *);
     ENET_API int                 enet_host_service (ENetHost *, ENetEvent *, enet_uint32);
@@ -2214,7 +2221,7 @@ extern "C" {
         enet_uint16 peerID, flags;
         enet_uint8 sessionID;
 
-        if (host->receivedDataLength < (size_t) &((ENetProtocolHeader *)0)->sentTime) {
+        if (host->receivedDataLength < (size_t)&((ENetProtocolHeader *)0)->sentTime) {
             return 0;
         }
 
@@ -2225,7 +2232,7 @@ extern "C" {
         flags     = peerID & ENET_PROTOCOL_HEADER_FLAG_MASK;
         peerID   &= ~(ENET_PROTOCOL_HEADER_FLAG_MASK | ENET_PROTOCOL_HEADER_SESSION_MASK);
 
-        headerSize = (flags & ENET_PROTOCOL_HEADER_FLAG_SENT_TIME ? sizeof(ENetProtocolHeader) : (size_t) &((ENetProtocolHeader *)0)->sentTime);
+        headerSize = (flags & ENET_PROTOCOL_HEADER_FLAG_SENT_TIME ? sizeof(ENetProtocolHeader) : (size_t)&((ENetProtocolHeader *)0)->sentTime);
 
         if (host->checksum != NULL) {
             headerSize += sizeof(enet_uint32);
@@ -2249,6 +2256,20 @@ extern "C" {
                 return 0;
             }
         }
+
+        #ifdef ENET_LZ4
+            if (flags & ENET_PROTOCOL_HEADER_FLAG_COMPRESSED) {
+                size_t originalSize = LZ4_decompress_safe((const char *)host->receivedData + headerSize, (char *)host->packetData[1] + headerSize, host->receivedDataLength - headerSize, sizeof(host->packetData[1]) - headerSize);
+
+                if (originalSize <= 0 || originalSize > sizeof(host->packetData[1]) - headerSize) {
+                    return 0;
+                }
+
+                memcpy(host->packetData[1], header, headerSize);
+                host->receivedData       = host->packetData[1];
+                host->receivedDataLength = headerSize + originalSize;
+            }
+        #endif
 
         if (host->checksum != NULL) {
             enet_uint32 *checksum = (enet_uint32 *)&host->receivedData[headerSize - sizeof(enet_uint32)];
@@ -2800,6 +2821,10 @@ extern "C" {
         int sentLength;
         host->continueSending = 1;
 
+        #ifdef ENET_LZ4
+            size_t shouldCompress = 0;
+        #endif
+
         while (host->continueSending)
             for (host->continueSending = 0, currentPeer = host->peers; currentPeer < &host->peers[host->peerCount]; ++currentPeer) {
                 if (currentPeer->state == ENET_PEER_STATE_DISCONNECTED || currentPeer->state == ENET_PEER_STATE_ZOMBIE) {
@@ -2884,8 +2909,39 @@ extern "C" {
                     header->sentTime = ENET_HOST_TO_NET_16(host->serviceTime & 0xFFFF);
                     host->buffers->dataLength = sizeof(ENetProtocolHeader);
                 } else {
-                    host->buffers->dataLength = (size_t) &((ENetProtocolHeader *)0)->sentTime;
+                    host->buffers->dataLength = (size_t)&((ENetProtocolHeader *)0)->sentTime;
                 }
+
+                #ifdef ENET_LZ4
+                    if (host->compression == 1) {
+                        size_t originalSize = host->packetSize - sizeof(ENetProtocolHeader), compressedSize = 0;
+                        const ENetBuffer* buffers = &host->buffers[1];
+                        char * data = (char *)enet_malloc(originalSize);
+                        int totalSize = originalSize, dataSize = 0;
+
+                        while (totalSize) {
+                            for (int i = 0; i < host->bufferCount - 1; i++) {
+                                int copySize = ENET_MIN(totalSize, (int)buffers[i].dataLength);
+                                memcpy(data + dataSize, buffers[i].data, copySize);
+                                totalSize -= copySize;
+                                dataSize  += copySize;
+                            }
+                        }
+
+                        compressedSize = LZ4_compress_default((const char *)data, (char *)host->packetData[1], dataSize, originalSize);
+
+                        enet_free(data);
+
+                        if (compressedSize > 0 && compressedSize < originalSize) {
+                            host->headerFlags |= ENET_PROTOCOL_HEADER_FLAG_COMPRESSED;
+                            shouldCompress     = compressedSize;
+
+                            #ifdef ENET_DEBUG_COMPRESS
+                                printf("peer %u: compressed %u->%u (%u%%)\n", currentPeer->incomingPeerID, originalSize, compressedSize, (compressedSize * 100) / originalSize);
+                            #endif
+                        }
+                    }
+                #endif
 
                 if (currentPeer->outgoingPeerID < ENET_PROTOCOL_MAXIMUM_PEER_ID) {
                     host->headerFlags |= currentPeer->outgoingSessionID << ENET_PROTOCOL_HEADER_SESSION_SHIFT;
@@ -2899,6 +2955,14 @@ extern "C" {
                     host->buffers->dataLength += sizeof(enet_uint32);
                     *checksum = host->checksum(host->buffers, host->bufferCount);
                 }
+
+                #ifdef ENET_LZ4
+                    if (shouldCompress > 0) {
+                        host->buffers[1].data       = host->packetData[1];
+                        host->buffers[1].dataLength = shouldCompress;
+                        host->bufferCount           = 2;
+                    }
+                #endif
 
                 currentPeer->lastSendTime = host->serviceTime;
                 sentLength = enet_socket_send(host->socket, &currentPeer->address, host->buffers, host->bufferCount);
@@ -3952,6 +4016,7 @@ extern "C" {
         host->peerCount                     = peerCount;
         host->commandCount                  = 0;
         host->bufferCount                   = 0;
+		host->compression                   = 0;
         host->checksum                      = NULL;
         host->receivedAddress.host          = ENET_HOST_ANY;
         host->receivedAddress.port          = 0;
@@ -4005,6 +4070,10 @@ extern "C" {
         enet_free(host->peers);
         enet_free(host);
     }
+
+	void enet_host_enable_compression(ENetHost *host) {
+		host->compression = 1;
+	}
 
     ENetPeer * enet_host_connect(ENetHost *host, const ENetAddress *address, size_t channelCount, enet_uint32 data) {
         ENetPeer *currentPeer;
@@ -5017,7 +5086,7 @@ extern "C" {
                         continue;
                     }
 
-                    if (ch == '.' && ((tp + NS_INADDRSZ) <= endp) && inet_pton4(curtok, (char*)tp) > 0) {
+                    if (ch == '.' && ((tp + NS_INADDRSZ) <= endp) && inet_pton4(curtok, (char *)tp) > 0) {
                         tp += NS_INADDRSZ;
                         saw_xdigit = 0;
                         break; /* '\0' was seen by inet_pton4(). */

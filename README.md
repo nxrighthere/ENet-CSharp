@@ -233,7 +233,7 @@ Contains marshalled structure with host data and port number.
 
 `Address.Port` set or get a port number.
 
-`Address.SetHost(string hostName)` set host name or an IP address (IPv4/IPv6). Should be used for binding to a network interface or for connection to a foreign host. Returns true success or false on failure.
+`Address.SetHost(string hostName)` set host name or an IP address (IPv4/IPv6). Should be used for binding to a network interface or for connection to a foreign host. Returns true on success or false on failure.
 
 #### Event
 Contains marshalled structure with the event type, managed pointer to the peer, channel ID, user-supplied data, and managed pointer to the packet.

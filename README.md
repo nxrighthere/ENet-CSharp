@@ -334,6 +334,8 @@ Contains a managed pointer to the host.
 
 `Host.EnableCompression()` enables packet-level compression.
 
+`Host.IgnoreConnections(bool state)` prevents access to the host for new incoming connections.
+
 `Host.Broadcast(byte channelID, ref Packet packet)` queues a packet to be sent to all peers associated with the host. 
 
 `Host.CheckEvents(out Event @event)` checks for any queued events on the host and dispatches one if available. Returns > 0 if an event was dispatched, 0 if no events are available, < 0 on failure.

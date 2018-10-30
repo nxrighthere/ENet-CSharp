@@ -422,6 +422,12 @@ namespace ENet {
 			Native.enet_host_enable_compression(nativeHost);
 		}
 
+		public void IgnoreConnections(bool state) {
+			CheckCreated();
+
+			Native.enet_host_ignore_connections(nativeHost, (byte)(state ? 1 : 0));
+		}
+
 		public void Broadcast(byte channelID, ref Packet packet) {
 			CheckCreated();
 
@@ -712,7 +718,7 @@ namespace ENet {
 		public const uint timeoutLimit = 32;
 		public const uint timeoutMinimum = 5000;
 		public const uint timeoutMaximum = 30000;
-		public const uint version = (2 << 16) | (1 << 8) | (1);
+		public const uint version = (2 << 16) | (1 << 8) | (2);
 
 		public static bool Initialize() {
 			return Native.enet_initialize() == 0;
@@ -820,6 +826,9 @@ namespace ENet {
 
 		[DllImport(nativeLibrary, CallingConvention = CallingConvention.Cdecl)]
 		internal static extern void enet_host_enable_compression(IntPtr host);
+
+		[DllImport(nativeLibrary, CallingConvention = CallingConvention.Cdecl)]
+		internal static extern void enet_host_ignore_connections(IntPtr host, byte state);
 
 		[DllImport(nativeLibrary, CallingConvention = CallingConvention.Cdecl)]
 		internal static extern void enet_peer_throttle_configure(IntPtr peer, uint interval, uint acceleration, uint deceleration);

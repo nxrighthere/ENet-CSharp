@@ -35,7 +35,7 @@
 
 #define ENET_VERSION_MAJOR 2
 #define ENET_VERSION_MINOR 1
-#define ENET_VERSION_PATCH 1
+#define ENET_VERSION_PATCH 2
 #define ENET_VERSION_CREATE(major, minor, patch) (((major)<<16) | ((minor)<<8) | (patch))
 #define ENET_VERSION_GET_MAJOR(version) (((version)>>16)&0xFF)
 #define ENET_VERSION_GET_MINOR(version) (((version)>>8)&0xFF)
@@ -654,6 +654,7 @@ extern "C" {
         enet_uint32           mtu;
         enet_uint32           randomSeed;
         int                   recalculateBandwidthLimits;
+        enet_uint8            ignoreConnections;
         ENetPeer *            peers;
         size_t                peerCount;
         size_t                channelLimit;
@@ -741,6 +742,7 @@ extern "C" {
     ENET_API ENetHost *          enet_host_create (const ENetAddress *, size_t, size_t, enet_uint32, enet_uint32);
     ENET_API void                enet_host_destroy (ENetHost *);
     ENET_API void                enet_host_enable_compression (ENetHost *);
+    ENET_API void                enet_host_ignore_connections (ENetHost *, enet_uint8);
     ENET_API ENetPeer *          enet_host_connect (ENetHost *, const ENetAddress *, size_t, enet_uint32);
     ENET_API int                 enet_host_check_events (ENetHost *, ENetEvent *);
     ENET_API int                 enet_host_service (ENetHost *, ENetEvent *, enet_uint32);
@@ -2336,9 +2338,13 @@ extern "C" {
                     if (peer != NULL) {
                         goto commandError;
                     }
-                    peer = enet_protocol_handle_connect(host, header, command);
-                    if (peer == NULL) {
-                        goto commandError;
+
+                    if (host->ignoreConnections == 0) {
+                        peer = enet_protocol_handle_connect(host, header, command);
+
+                        if (peer == NULL) {
+                            goto commandError;
+                        }
                     }
                     break;
 
@@ -2559,6 +2565,7 @@ extern "C" {
         ENetListIterator currentCommand;
 
         currentCommand = enet_list_begin(&peer->outgoingUnreliableCommands);
+
         while (currentCommand != enet_list_end(&peer->outgoingUnreliableCommands)) {
             size_t commandSize;
 
@@ -4012,6 +4019,7 @@ extern "C" {
         host->outgoingBandwidth             = outgoingBandwidth;
         host->bandwidthThrottleEpoch        = 0;
         host->recalculateBandwidthLimits    = 0;
+        host->ignoreConnections             = 0;
         host->mtu                           = ENET_HOST_DEFAULT_MTU;
         host->peerCount                     = peerCount;
         host->commandCount                  = 0;
@@ -4077,6 +4085,14 @@ extern "C" {
         }
 
         host->compression = 1;
+    }
+
+    void enet_host_ignore_connections(ENetHost *host, enet_uint8 state) {
+        if (host == NULL) {
+            return;
+        }
+
+        host->ignoreConnections = state;
     }
 
     ENetPeer * enet_host_connect(ENetHost *host, const ENetAddress *address, size_t channelCount, enet_uint32 data) {
@@ -5051,6 +5067,7 @@ extern "C" {
                 int saw_xdigit = 0;
                 uint32_t val = 0;
                 int ch;
+
                 while ((ch = tolower(*src++)) != '\0') {
                     const char *pch = strchr(xdigits, ch);
 

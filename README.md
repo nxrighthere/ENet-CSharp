@@ -276,6 +276,8 @@ Contains a managed pointer to the peer.
 
 `Peer.Port` returns a port number.
 
+`Peer.MTU` returns an MTU.
+
 `Peer.State` returns a peer state described in the `PeerState` enumeration.
 
 `Peer.RoundTripTime` returns a round trip time in milliseconds.

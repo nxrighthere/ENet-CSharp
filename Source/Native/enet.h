@@ -654,7 +654,7 @@ extern "C" {
         enet_uint32           mtu;
         enet_uint32           randomSeed;
         int                   recalculateBandwidthLimits;
-        enet_uint8            ignoreConnections;
+        enet_uint8            preventConnections;
         ENetPeer *            peers;
         size_t                peerCount;
         size_t                channelLimit;
@@ -742,7 +742,7 @@ extern "C" {
     ENET_API ENetHost *          enet_host_create (const ENetAddress *, size_t, size_t, enet_uint32, enet_uint32);
     ENET_API void                enet_host_destroy (ENetHost *);
     ENET_API void                enet_host_enable_compression (ENetHost *);
-    ENET_API void                enet_host_ignore_connections (ENetHost *, enet_uint8);
+    ENET_API void                enet_host_prevent_connections (ENetHost *, enet_uint8);
     ENET_API ENetPeer *          enet_host_connect (ENetHost *, const ENetAddress *, size_t, enet_uint32);
     ENET_API int                 enet_host_check_events (ENetHost *, ENetEvent *);
     ENET_API int                 enet_host_service (ENetHost *, ENetEvent *, enet_uint32);
@@ -2339,7 +2339,7 @@ extern "C" {
                         goto commandError;
                     }
 
-                    if (host->ignoreConnections == 0) {
+                    if (host->preventConnections == 0) {
                         peer = enet_protocol_handle_connect(host, header, command);
 
                         if (peer == NULL) {
@@ -4019,7 +4019,7 @@ extern "C" {
         host->outgoingBandwidth             = outgoingBandwidth;
         host->bandwidthThrottleEpoch        = 0;
         host->recalculateBandwidthLimits    = 0;
-        host->ignoreConnections             = 0;
+        host->preventConnections            = 0;
         host->mtu                           = ENET_HOST_DEFAULT_MTU;
         host->peerCount                     = peerCount;
         host->commandCount                  = 0;
@@ -4087,12 +4087,12 @@ extern "C" {
         host->compression = 1;
     }
 
-    void enet_host_ignore_connections(ENetHost *host, enet_uint8 state) {
+    void enet_host_prevent_connections(ENetHost *host, enet_uint8 state) {
         if (host == NULL) {
             return;
         }
 
-        host->ignoreConnections = state;
+        host->preventConnections = state;
     }
 
     ENetPeer * enet_host_connect(ENetHost *host, const ENetAddress *address, size_t channelCount, enet_uint32 data) {

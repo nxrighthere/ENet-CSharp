@@ -422,10 +422,10 @@ namespace ENet {
 			Native.enet_host_enable_compression(nativeHost);
 		}
 
-		public void IgnoreConnections(bool state) {
+		public void PreventConnections(bool state) {
 			CheckCreated();
 
-			Native.enet_host_ignore_connections(nativeHost, (byte)(state ? 1 : 0));
+			Native.enet_host_prevent_connections(nativeHost, (byte)(state ? 1 : 0));
 		}
 
 		public void Broadcast(byte channelID, ref Packet packet) {
@@ -828,7 +828,7 @@ namespace ENet {
 		internal static extern void enet_host_enable_compression(IntPtr host);
 
 		[DllImport(nativeLibrary, CallingConvention = CallingConvention.Cdecl)]
-		internal static extern void enet_host_ignore_connections(IntPtr host, byte state);
+		internal static extern void enet_host_prevent_connections(IntPtr host, byte state);
 
 		[DllImport(nativeLibrary, CallingConvention = CallingConvention.Cdecl)]
 		internal static extern void enet_peer_throttle_configure(IntPtr peer, uint interval, uint acceleration, uint deceleration);

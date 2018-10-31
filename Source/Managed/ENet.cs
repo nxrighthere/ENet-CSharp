@@ -95,7 +95,7 @@ namespace ENet {
 
 		public static byte[] GetBuffer() {
 			if (buffer == null)
-				buffer = new byte[16];
+				buffer = new byte[64];
 
 			return buffer;
 		}

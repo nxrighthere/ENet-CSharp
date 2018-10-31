@@ -334,7 +334,7 @@ Contains a managed pointer to the host.
 
 `Host.EnableCompression()` enables packet-level compression.
 
-`Host.IgnoreConnections(bool state)` prevents access to the host for new incoming connections.
+`Host.PreventConnections(bool state)` prevents access to the host for new incoming connections.
 
 `Host.Broadcast(byte channelID, ref Packet packet)` queues a packet to be sent to all peers associated with the host. 
 

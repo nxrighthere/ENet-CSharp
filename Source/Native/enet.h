@@ -791,6 +791,7 @@ extern "C" {
     ENET_API enet_uint32         enet_peer_get_id (ENetPeer *);
     ENET_API int                 enet_peer_get_ip (ENetPeer *, char * ip, size_t ipLength);
     ENET_API enet_uint16         enet_peer_get_port (ENetPeer *);
+    ENET_API enet_uint32         enet_peer_get_mtu (ENetPeer *);
     ENET_API ENetPeerState       enet_peer_get_state (ENetPeer *);
     ENET_API enet_uint32         enet_peer_get_rtt (ENetPeer *);
     ENET_API enet_uint32         enet_peer_get_lastsendtime (ENetPeer *);
@@ -4537,6 +4538,10 @@ extern "C" {
 
     enet_uint16 enet_peer_get_port(ENetPeer *peer) {
         return peer->address.port;
+    }
+
+    enet_uint32 enet_peer_get_mtu(ENetPeer *peer) {
+        return peer->mtu;
     }
 
     ENetPeerState enet_peer_get_state(ENetPeer *peer) {

@@ -572,6 +572,14 @@ namespace ENet {
 			}
 		}
 
+		public uint MTU {
+			get {
+				CheckCreated();
+
+				return Native.enet_peer_get_mtu(nativePeer);
+			}
+		}
+
 		public PeerState State {
 			get {
 				return nativePeer == IntPtr.Zero ? PeerState.Uninitialized : Native.enet_peer_get_state(nativePeer);
@@ -841,6 +849,9 @@ namespace ENet {
 
 		[DllImport(nativeLibrary, CallingConvention = CallingConvention.Cdecl)]
 		internal static extern ushort enet_peer_get_port(IntPtr peer);
+
+		[DllImport(nativeLibrary, CallingConvention = CallingConvention.Cdecl)]
+		internal static extern uint enet_peer_get_mtu(IntPtr peer);
 
 		[DllImport(nativeLibrary, CallingConvention = CallingConvention.Cdecl)]
 		internal static extern PeerState enet_peer_get_state(IntPtr peer);

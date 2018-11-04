@@ -528,7 +528,7 @@ namespace ENet {
 
 	public struct Peer {
 		private IntPtr nativePeer;
-		private uint? nativeID;
+		private uint nativeID;
 
 		internal IntPtr NativeData {
 			get {
@@ -553,7 +553,7 @@ namespace ENet {
 
 		public uint ID {
 			get {
-				return nativeID ?? 0;
+				return nativeID;
 			}
 		}
 

@@ -528,6 +528,7 @@ namespace ENet {
 
 	public struct Peer {
 		private IntPtr nativePeer;
+		private uint? nativeID;
 
 		internal IntPtr NativeData {
 			get {
@@ -541,6 +542,7 @@ namespace ENet {
 
 		public Peer(IntPtr peer) {
 			nativePeer = peer;
+			nativeID = nativePeer != IntPtr.Zero ? Native.enet_peer_get_id(nativePeer) : 0;
 		}
 
 		public bool IsSet {
@@ -551,9 +553,7 @@ namespace ENet {
 
 		public uint ID {
 			get {
-				CheckCreated();
-
-				return Native.enet_peer_get_id(nativePeer);
+				return nativeID ?? 0;
 			}
 		}
 

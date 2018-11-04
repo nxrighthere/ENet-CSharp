@@ -286,6 +286,16 @@ namespace ENet {
 			nativePacket = Native.enet_packet_create(data, (IntPtr)length, flags);
 		}
 
+		public void Create(IntPtr data, int length, PacketFlags flags) {
+			if (data == IntPtr.Zero)
+				throw new ArgumentNullException("data");
+
+			if (length < 0)
+				throw new ArgumentOutOfRangeException();
+
+			nativePacket = Native.enet_packet_create(data, (IntPtr)length, flags);
+		}
+
 		public void CopyTo(byte[] destination) {
 			if (destination == null)
 				throw new ArgumentNullException("destination");
@@ -774,6 +784,9 @@ namespace ENet {
 
 		[DllImport(nativeLibrary, CallingConvention = CallingConvention.Cdecl)]
 		internal static extern IntPtr enet_packet_create(byte[] data, IntPtr dataLength, PacketFlags flags);
+
+		[DllImport(nativeLibrary, CallingConvention = CallingConvention.Cdecl)]
+		internal static extern IntPtr enet_packet_create(IntPtr data, IntPtr dataLength, PacketFlags flags);
 
 		[DllImport(nativeLibrary, CallingConvention = CallingConvention.Cdecl)]
 		internal static extern IntPtr enet_packet_get_data(IntPtr packet);

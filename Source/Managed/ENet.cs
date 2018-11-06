@@ -680,6 +680,8 @@ namespace ENet {
 		public bool Send(byte channelID, ref Packet packet) {
 			CheckCreated();
 
+			packet.CheckCreated();
+
 			return Native.enet_peer_send(nativePeer, channelID, packet.NativeData) == 0;
 		}
 

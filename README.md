@@ -261,7 +261,7 @@ Contains a managed pointer to the packet.
 
 `Packet.SetFreeCallback(PacketFreeCallback callback)` set callback to notify the user when an appropriate packet is being destroyed.
 
-`Packet.Create(byte[] data, int length, PacketFlags flags)` creates a packet that may be sent to a peer. The length and packet flags parameters are optional. Multiple flags can be specified at once. Managed pointer `IntPtr` to the native buffer can be used instead of a reference to a byte array.
+`Packet.Create(byte[] data, int length, PacketFlags flags)` creates a packet that may be sent to a peer. The length and packet flags parameters are optional. Multiple flags can be specified at once. Managed pointer `IntPtr` to a native buffer can be used instead of a reference to a byte array.
 
 `Packet.CopyTo(byte[] destination)` copies payload from the packet to the destination array.
 

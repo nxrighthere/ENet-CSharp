@@ -101,12 +101,6 @@
 
     #define ENET_SOCKET_NULL INVALID_SOCKET
 
-    #define ENET_HOST_TO_NET_16(value) (htons(value))
-    #define ENET_HOST_TO_NET_32(value) (htonl(value))
-
-    #define ENET_NET_TO_HOST_16(value) (ntohs(value))
-    #define ENET_NET_TO_HOST_32(value) (ntohl(value))
-
     typedef struct {
         size_t dataLength;
         void * data;
@@ -163,12 +157,6 @@
 
     #define ENET_SOCKET_NULL -1
 
-    #define ENET_HOST_TO_NET_16(value) (htons(value))
-    #define ENET_HOST_TO_NET_32(value) (htonl(value))
-
-    #define ENET_NET_TO_HOST_16(value) (ntohs(value))
-    #define ENET_NET_TO_HOST_32(value) (ntohl(value))
-
     typedef struct {
         void * data;
         size_t dataLength;
@@ -195,6 +183,11 @@
 #define ENET_HOST_ANY       in6addr_any
 #define ENET_HOST_BROADCAST 0xFFFFFFFFU
 #define ENET_PORT_ANY       0
+
+#define ENET_HOST_TO_NET_16(value) (htons(value))
+#define ENET_HOST_TO_NET_32(value) (htonl(value))
+#define ENET_NET_TO_HOST_16(value) (ntohs(value))
+#define ENET_NET_TO_HOST_32(value) (ntohl(value))
 
 #ifdef __cplusplus
 extern "C" {
@@ -2085,6 +2078,7 @@ extern "C" {
         roundTripTime = ENET_TIME_DIFFERENCE(host->serviceTime, receivedSentTime);
 
         enet_peer_throttle(peer, roundTripTime);
+
         peer->roundTripTimeVariance -= peer->roundTripTimeVariance / 4;
 
         if (roundTripTime >= peer->roundTripTime) {

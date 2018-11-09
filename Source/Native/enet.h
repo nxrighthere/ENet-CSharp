@@ -35,7 +35,7 @@
 
 #define ENET_VERSION_MAJOR 2
 #define ENET_VERSION_MINOR 1
-#define ENET_VERSION_PATCH 2
+#define ENET_VERSION_PATCH 3
 #define ENET_VERSION_CREATE(major, minor, patch) (((major) << 16) | ((minor) << 8) | (patch))
 #define ENET_VERSION_GET_MAJOR(version) (((version) >> 16) & 0xFF)
 #define ENET_VERSION_GET_MINOR(version) (((version) >> 8) & 0xFF)
@@ -45,9 +45,12 @@
 #define ENET_TIME_OVERFLOW 86400000
 #define ENET_TIME_LESS(a, b) ((a) - (b) >= ENET_TIME_OVERFLOW)
 #define ENET_TIME_GREATER(a, b) ((b) - (a) >= ENET_TIME_OVERFLOW)
-#define ENET_TIME_LESS_EQUAL(a, b) (! ENET_TIME_GREATER (a, b))
-#define ENET_TIME_GREATER_EQUAL(a, b) (! ENET_TIME_LESS (a, b))
+#define ENET_TIME_LESS_EQUAL(a, b) (! ENET_TIME_GREATER(a, b))
+#define ENET_TIME_GREATER_EQUAL(a, b) (! ENET_TIME_LESS(a, b))
 #define ENET_TIME_DIFFERENCE(a, b) ((a) - (b) >= ENET_TIME_OVERFLOW ? (b) - (a) : (a) - (b))
+
+#define ENET_SRTT_INITIAL 1.0
+#define ENET_SRTT_PARA_G  0.125
 
 // =======================================================================//
 // !
@@ -200,9 +203,9 @@ extern "C" {
 // =======================================================================//
 
     typedef uint8_t   enet_uint8;
-    typedef uint16_t enet_uint16;
-    typedef uint32_t enet_uint32;
-    typedef uint64_t enet_uint64;
+    typedef uint16_t  enet_uint16;
+    typedef uint32_t  enet_uint32;
+    typedef uint64_t  enet_uint64;
 
     typedef enet_uint32 ENetVersion;
 
@@ -448,7 +451,7 @@ extern "C" {
         ENET_SOCKOPT_SNDTIMEO  = 7,
         ENET_SOCKOPT_ERROR     = 8,
         ENET_SOCKOPT_NODELAY   = 9,
-        ENET_SOCKOPT_IPV6_V6ONLY = 10,
+        ENET_SOCKOPT_IPV6_V6ONLY = 10
     } ENetSocketOption;
 
     typedef enum _ENetSocketShutdown {
@@ -470,7 +473,7 @@ extern "C" {
         ENET_PACKET_FLAG_UNSEQUENCED         = (1 << 1),
         ENET_PACKET_FLAG_NO_ALLOCATE         = (1 << 2),
         ENET_PACKET_FLAG_UNRELIABLE_FRAGMENT = (1 << 3),
-        ENET_PACKET_FLAG_SENT                = (1 << 8),
+        ENET_PACKET_FLAG_SENT                = (1 << 8)
     } ENetPacketFlag;
 
     typedef void (ENET_CALLBACK *ENetPacketFreeCallback) (void *);
@@ -611,6 +614,7 @@ extern "C" {
         enet_uint32       timeoutLimit;
         enet_uint32       timeoutMinimum;
         enet_uint32       timeoutMaximum;
+        enet_uint32       smoothedRoundTripTime;
         enet_uint32       lastRoundTripTime;
         enet_uint32       lowestRoundTripTime;
         enet_uint32       lastRoundTripTimeVariance;
@@ -684,7 +688,7 @@ extern "C" {
         ENET_EVENT_TYPE_CONNECT    = 1,
         ENET_EVENT_TYPE_DISCONNECT = 2,
         ENET_EVENT_TYPE_RECEIVE    = 3,
-        ENET_EVENT_TYPE_DISCONNECT_TIMEOUT = 4,
+        ENET_EVENT_TYPE_DISCONNECT_TIMEOUT = 4
     } ENetEventType;
 
     typedef struct _ENetEvent {
@@ -2077,16 +2081,22 @@ extern "C" {
         peer->earliestTimeout = 0;
         roundTripTime = ENET_TIME_DIFFERENCE(host->serviceTime, receivedSentTime);
 
-        enet_peer_throttle(peer, roundTripTime);
+        if (peer->smoothedRoundTripTime == 0) {
+            peer->smoothedRoundTripTime = (enet_uint32)((1 - ENET_SRTT_PARA_G) * ENET_SRTT_INITIAL + ENET_SRTT_PARA_G * roundTripTime);
+        } else {
+            peer->smoothedRoundTripTime = (enet_uint32)((1 - ENET_SRTT_PARA_G) * peer->smoothedRoundTripTime + ENET_SRTT_PARA_G * roundTripTime);
+        }
+
+        enet_peer_throttle(peer, peer->smoothedRoundTripTime);
 
         peer->roundTripTimeVariance -= peer->roundTripTimeVariance / 4;
 
-        if (roundTripTime >= peer->roundTripTime) {
-            peer->roundTripTime         += (roundTripTime - peer->roundTripTime) / 8;
-            peer->roundTripTimeVariance += (roundTripTime - peer->roundTripTime) / 4;
+        if (peer->smoothedRoundTripTime >= peer->roundTripTime) {
+            peer->roundTripTime         += (peer->smoothedRoundTripTime - peer->roundTripTime) / 8;
+            peer->roundTripTimeVariance += (peer->smoothedRoundTripTime - peer->roundTripTime) / 4;
         } else {
-            peer->roundTripTime         -= (peer->roundTripTime - roundTripTime) / 8;
-            peer->roundTripTimeVariance += (peer->roundTripTime - roundTripTime) / 4;
+            peer->roundTripTime         -= (peer->roundTripTime - peer->smoothedRoundTripTime) / 8;
+            peer->roundTripTimeVariance += (peer->roundTripTime - peer->smoothedRoundTripTime) / 4;
         }
 
         if (peer->roundTripTime < peer->lowestRoundTripTime) {
@@ -2245,9 +2255,9 @@ extern "C" {
 
             if (peer->state == ENET_PEER_STATE_DISCONNECTED ||
                 peer->state == ENET_PEER_STATE_ZOMBIE ||
-                ((!in6_equal(host->receivedAddress.host , peer->address.host) ||
+                ((!in6_equal(host->receivedAddress.host, peer->address.host) ||
                 host->receivedAddress.port != peer->address.port) &&
-                1 /* No broadcast in IPv6 - !in6_equal(peer->address.host , ENET_HOST_BROADCAST) */) ||
+                1 /* No broadcast in IPv6 - !in6_equal(peer->address.host, ENET_HOST_BROADCAST) */) ||
                 (peer->outgoingPeerID < ENET_PROTOCOL_MAXIMUM_PEER_ID &&
                 sessionID != peer->incomingSessionID)
             ) {
@@ -2881,12 +2891,12 @@ extern "C" {
                     #ifdef ENET_DEBUG
                         printf(
                             "peer %u: %f%%+-%f%% packet loss, %u+-%u ms round trip time, %f%% throttle, %u/%u outgoing, %u/%u incoming\n", currentPeer->incomingPeerID,
-                            currentPeer->packetLoss / (float) ENET_PEER_PACKET_LOSS_SCALE,
-                            currentPeer->packetLossVariance / (float) ENET_PEER_PACKET_LOSS_SCALE, currentPeer->roundTripTime, currentPeer->roundTripTimeVariance,
-                            currentPeer->packetThrottle / (float) ENET_PEER_PACKET_THROTTLE_SCALE,
+                            currentPeer->packetLoss / (float)ENET_PEER_PACKET_LOSS_SCALE,
+                            currentPeer->packetLossVariance / (float)ENET_PEER_PACKET_LOSS_SCALE, currentPeer->roundTripTime, currentPeer->roundTripTimeVariance,
+                            currentPeer->packetThrottle / (float)ENET_PEER_PACKET_THROTTLE_SCALE,
                             enet_list_size(&currentPeer->outgoingReliableCommands),
                             enet_list_size(&currentPeer->outgoingUnreliableCommands),
-                            currentPeer->channels != NULL ? enet_list_size( &currentPeer->channels->incomingReliableCommands) : 0,
+                            currentPeer->channels != NULL ? enet_list_size(&currentPeer->channels->incomingReliableCommands) : 0,
                             currentPeer->channels != NULL ? enet_list_size(&currentPeer->channels->incomingUnreliableCommands) : 0
                         );
                     #endif
@@ -3425,6 +3435,7 @@ extern "C" {
         peer->timeoutLimit                   = ENET_PEER_TIMEOUT_LIMIT;
         peer->timeoutMinimum                 = ENET_PEER_TIMEOUT_MINIMUM;
         peer->timeoutMaximum                 = ENET_PEER_TIMEOUT_MAXIMUM;
+        peer->smoothedRoundTripTime          = 0;
         peer->lastRoundTripTime              = ENET_PEER_DEFAULT_ROUND_TRIP_TIME;
         peer->lowestRoundTripTime            = ENET_PEER_DEFAULT_ROUND_TRIP_TIME;
         peer->lastRoundTripTimeVariance      = 0;
@@ -4544,7 +4555,7 @@ extern "C" {
     }
 
     enet_uint32 enet_peer_get_rtt(ENetPeer *peer) {
-        return peer->roundTripTime;
+        return peer->smoothedRoundTripTime;
     }
 
     enet_uint32 enet_peer_get_lastsendtime(ENetPeer *peer) {

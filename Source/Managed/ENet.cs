@@ -564,10 +564,10 @@ namespace ENet {
 				byte[] ip = ArrayPool.GetBuffer();
 
 				if (Native.enet_peer_get_ip(nativePeer, ip, (IntPtr)ip.Length) == 0) {
-					if (Encoding.ASCII.GetString(ip).Remove(7) == "::ffff:")
-						return Encoding.ASCII.GetString(ip).Substring(7);
-
-					return Encoding.ASCII.GetString(ip);
+					if (Encoding.ASCII.GetString(ip).Remove(7) != "::ffff:")
+						return Encoding.ASCII.GetString(ip, 0, ip.StringLength());
+					else
+						return Encoding.ASCII.GetString(ip, 0, ip.StringLength()).Substring(7);
 				} else {
 					return String.Empty;
 				}
@@ -725,6 +725,19 @@ namespace ENet {
 			CheckCreated();
 
 			Native.enet_peer_reset(nativePeer);
+		}
+	}
+
+	public static class Extensions {
+		public static int StringLength(this byte[] data) {
+			if (data == null)
+				throw new ArgumentNullException("data");
+
+			int i;
+
+			for (i = 0; i < data.Length && data[i] != 0; i++);
+
+			return i;
 		}
 	}
 

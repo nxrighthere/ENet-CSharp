@@ -45,8 +45,8 @@
 #define ENET_TIME_OVERFLOW 86400000
 #define ENET_TIME_LESS(a, b) ((a) - (b) >= ENET_TIME_OVERFLOW)
 #define ENET_TIME_GREATER(a, b) ((b) - (a) >= ENET_TIME_OVERFLOW)
-#define ENET_TIME_LESS_EQUAL(a, b) (! ENET_TIME_GREATER(a, b))
-#define ENET_TIME_GREATER_EQUAL(a, b) (! ENET_TIME_LESS(a, b))
+#define ENET_TIME_LESS_EQUAL(a, b) (!ENET_TIME_GREATER(a, b))
+#define ENET_TIME_GREATER_EQUAL(a, b) (!ENET_TIME_LESS(a, b))
 #define ENET_TIME_DIFFERENCE(a, b) ((a) - (b) >= ENET_TIME_OVERFLOW ? (b) - (a) : (a) - (b))
 
 #define ENET_SRTT_INITIAL 1.0
@@ -4402,6 +4402,7 @@ extern "C" {
             t.QuadPart = f.dwHighDateTime;
             t.QuadPart <<= 32;
             t.QuadPart |= f.dwLowDateTime;
+
             return (t);
         }
 
@@ -4409,6 +4410,7 @@ extern "C" {
             LARGE_INTEGER t;
             FILETIME f;
             double microseconds;
+
             static LARGE_INTEGER offset;
             static double frequencyToMicroseconds;
             static int initialized = 0;
@@ -4418,6 +4420,7 @@ extern "C" {
                 LARGE_INTEGER performanceFrequency;
                 initialized = 1;
                 usePerformanceCounter = QueryPerformanceFrequency(&performanceFrequency);
+
                 if (usePerformanceCounter) {
                     QueryPerformanceCounter(&offset);
                     frequencyToMicroseconds = (double)performanceFrequency.QuadPart / 1000000.;
@@ -4431,6 +4434,7 @@ extern "C" {
                 QueryPerformanceCounter(&t);
             } else {
                 GetSystemTimeAsFileTime(&f);
+
                 t.QuadPart = f.dwHighDateTime;
                 t.QuadPart <<= 32;
                 t.QuadPart |= f.dwLowDateTime;
@@ -5121,6 +5125,7 @@ extern "C" {
                     if (ch == '.' && ((tp + NS_INADDRSZ) <= endp) && inet_pton4(curtok, (char *)tp) > 0) {
                         tp += NS_INADDRSZ;
                         saw_xdigit = 0;
+
                         break; /* '\0' was seen by inet_pton4(). */
                     }
 
@@ -5198,7 +5203,7 @@ extern "C" {
         }
 
         enet_uint64 enet_host_random_seed(void) {
-            return (enet_uint64) timeGetTime();
+            return (enet_uint64)timeGetTime();
         }
 
         int enet_address_set_host_ip(ENetAddress *address, const char *name) {

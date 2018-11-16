@@ -744,6 +744,7 @@ namespace ENet {
 	public static class Library {
 		public const uint maxChannelCount = 0xFF;
 		public const uint maxPeers = 0xFFF;
+		public const uint maxPacketSize = 32 * 1024 * 1024;
 		public const uint throttleScale = 32;
 		public const uint throttleAcceleration = 2;
 		public const uint throttleDeceleration = 2;

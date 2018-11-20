@@ -9,5 +9,8 @@ ifdef ENET_LZ4
 	LOCAL_SRC_FILES += ..\lz4\lz4.c
 endif
 
-#include $(BUILD_STATIC_LIBRARY)
-include $(BUILD_SHARED_LIBRARY)
+ifdef ENET_STATIC
+	include $(BUILD_STATIC_LIBRARY)
+else
+	include $(BUILD_SHARED_LIBRARY)
+endif

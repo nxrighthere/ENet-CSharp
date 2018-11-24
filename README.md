@@ -182,7 +182,7 @@ Definitions of a flags for `Peer.Send()` function:
 
 `PacketFlags.NoAllocate` a packet will not allocate data, and the user must supply it instead.
 
-`PacketFlags.UnreliableFragment` a packet will be fragmented if it exceeds the MTU.
+`PacketFlags.UnreliableFragment` a packet will be unreliably fragmented if it exceeds the MTU. By default packets larger than MTU fragmented reliably.
 
 #### EventType
 Definitions of event types for `Event.Type` property:

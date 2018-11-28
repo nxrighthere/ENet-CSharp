@@ -58,7 +58,7 @@
 // !
 // =======================================================================//
 
-#if defined(_WIN32)
+#ifdef _WIN32
     #if defined(_MSC_VER) && defined(ENET_IMPLEMENTATION)
         #pragma warning(disable: 4267) /* size_t to int conversion */
         #pragma warning(disable: 4244) /* 64bit to 32bit int */
@@ -817,7 +817,7 @@ extern "C" {
 // !
 // =======================================================================//
 
-#if defined(_MSC_VER)
+#ifdef _MSC_VER
     #define ENET_AT_CASSERT_PRED(predicate) sizeof(char[2 * !!(predicate)-1])
     #define ENET_IS_SUPPORTED_ATOMIC(size) ENET_AT_CASSERT_PRED(size == 1 || size == 2 || size == 4 || size == 8)
     #define ENET_ATOMIC_SIZEOF(variable) (ENET_IS_SUPPORTED_ATOMIC(sizeof(*(variable))), sizeof(*(variable)))
@@ -1011,6 +1011,16 @@ extern "C" {
 
 // =======================================================================//
 // !
+// ! Globals
+// !
+// =======================================================================//
+
+    ENetVersion enet_linked_version(void) {
+        return ENET_VERSION;
+    }
+
+// =======================================================================//
+// !
 // ! Callbacks
 // !
 // =======================================================================//
@@ -1036,10 +1046,6 @@ extern "C" {
         }
 
         return enet_initialize();
-    }
-
-    ENetVersion enet_linked_version(void) {
-        return ENET_VERSION;
     }
 
     void *enet_malloc(size_t size) {
@@ -1206,7 +1212,9 @@ extern "C" {
         int result = 0, bit;
 
         for (bit = 0; bit < bits; bit++) {
-            if (val & 1) { result |= 1 << (bits - 1 - bit); }
+            if (val & 1)
+                result |= 1 << (bits - 1 - bit);
+
             val >>= 1;
         }
 
@@ -1237,7 +1245,9 @@ extern "C" {
     enet_uint32 enet_crc32(const ENetBuffer *buffers, size_t bufferCount) {
         enet_uint32 crc = 0xFFFFFFFF;
 
-        if (!initializedCRC32) { initialize_crc32(); }
+        if (!initializedCRC32) {
+            initialize_crc32();
+        }
 
         while (bufferCount-- > 0) {
             const enet_uint8 *data = (const enet_uint8 *)buffers->data;
@@ -1294,6 +1304,7 @@ extern "C" {
 
         if (!peer->needsDispatch) {
             enet_list_insert(enet_list_end(&host->dispatchQueue), &peer->dispatchList);
+
             peer->needsDispatch = 1;
         }
     }
@@ -1331,6 +1342,7 @@ extern "C" {
                     }
 
                     event->packet = enet_peer_receive(peer, &event->channelID);
+
                     if (event->packet == NULL) {
                         continue;
                     }
@@ -1397,8 +1409,7 @@ extern "C" {
 
         if (peer->state != ENET_PEER_STATE_CONNECTING && peer->state < ENET_PEER_STATE_CONNECTION_SUCCEEDED) {
             enet_peer_reset (peer);
-        }
-        else if (event != NULL) {
+        } else if (event != NULL) {
             event->type = ENET_EVENT_TYPE_DISCONNECT_TIMEOUT;
             event->peer = peer;
             event->data = 0;
@@ -1478,6 +1489,7 @@ extern "C" {
         if (channelID < peer->channelCount) {
             ENetChannel *channel       = &peer->channels[channelID];
             enet_uint16 reliableWindow = reliableSequenceNumber / ENET_PEER_RELIABLE_WINDOW_SIZE;
+
             if (channel->reliableWindows[reliableWindow] > 0) {
                 --channel->reliableWindows[reliableWindow];
 
@@ -4470,7 +4482,7 @@ extern "C" {
         static uint64_t start_time_ns = 0;
 
         struct timespec ts;
-    #if defined(CLOCK_MONOTONIC_RAW)
+    #ifdef CLOCK_MONOTONIC_RAW
         clock_gettime(CLOCK_MONOTONIC_RAW, &ts);
     #else
         clock_gettime(CLOCK_MONOTONIC, &ts);
@@ -4701,6 +4713,7 @@ extern "C" {
         int enet_socket_bind(ENetSocket socket, const ENetAddress *address) {
             struct sockaddr_in6 sin;
             memset(&sin, 0, sizeof(struct sockaddr_in6));
+
             sin.sin6_family = AF_INET6;
 
             if (address != NULL) {
@@ -5003,6 +5016,7 @@ extern "C" {
                     in.sin_family = AF_INET;
                     memcpy(&in.sin_addr, src, sizeof(struct in_addr));
                     getnameinfo((struct sockaddr *)&in, sizeof(struct sockaddr_in), dst, cnt, NULL, 0, NI_NUMERICHOST);
+
                     return dst;
                 } else if (af == AF_INET6) {
                     struct sockaddr_in6 in;
@@ -5010,6 +5024,7 @@ extern "C" {
                     in.sin6_family = AF_INET6;
                     memcpy(&in.sin6_addr, src, sizeof(struct in_addr6));
                     getnameinfo((struct sockaddr *)&in, sizeof(struct sockaddr_in6), dst, cnt, NULL, 0, NI_NUMERICHOST);
+
                     return dst;
                 }
 
@@ -5190,10 +5205,12 @@ extern "C" {
 
             if (LOBYTE(wsaData.wVersion) != 1 || HIBYTE(wsaData.wVersion) != 1) {
                 WSACleanup();
+
                 return -1;
             }
 
             timeBeginPeriod(1);
+
             return 0;
         }
 
@@ -5212,6 +5229,7 @@ extern "C" {
 
             for (i = 0; i < 4; ++i) {
                 const char *next = name + 1;
+
                 if (*name != '0') {
                     long val = strtol(name, (char **)&next, 10);
 
@@ -5285,6 +5303,7 @@ extern "C" {
         int enet_socket_bind(ENetSocket socket, const ENetAddress *address) {
             struct sockaddr_in6 sin;
             memset(&sin, 0, sizeof(struct sockaddr_in6));
+
             sin.sin6_family = AF_INET6;
 
             if (address != NULL) {

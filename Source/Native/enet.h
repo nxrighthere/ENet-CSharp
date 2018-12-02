@@ -1212,8 +1212,9 @@ extern "C" {
         int result = 0, bit;
 
         for (bit = 0; bit < bits; bit++) {
-            if (val & 1)
+            if (val & 1) {
                 result |= 1 << (bits - 1 - bit);
+            }
 
             val >>= 1;
         }
@@ -4410,7 +4411,9 @@ extern "C" {
             s.wMinute = 0;
             s.wSecond = 0;
             s.wMilliseconds = 0;
+
             SystemTimeToFileTime(&s, &f);
+
             t.QuadPart = f.dwHighDateTime;
             t.QuadPart <<= 32;
             t.QuadPart |= f.dwLowDateTime;
@@ -4435,6 +4438,7 @@ extern "C" {
 
                 if (usePerformanceCounter) {
                     QueryPerformanceCounter(&offset);
+
                     frequencyToMicroseconds = (double)performanceFrequency.QuadPart / 1000000.;
                 } else {
                     offset = getFILETIMEoffset();
@@ -4635,6 +4639,7 @@ extern "C" {
             struct addrinfo hints, *resultList = NULL, *result = NULL;
 
             memset(&hints, 0, sizeof(hints));
+
             hints.ai_family = AF_UNSPEC;
 
             if (getaddrinfo(name, NULL, &hints, &resultList) != 0) {
@@ -4712,6 +4717,7 @@ extern "C" {
 
         int enet_socket_bind(ENetSocket socket, const ENetAddress *address) {
             struct sockaddr_in6 sin;
+
             memset(&sin, 0, sizeof(struct sockaddr_in6));
 
             sin.sin6_family = AF_INET6;

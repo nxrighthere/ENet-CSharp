@@ -266,7 +266,7 @@ Contains a managed pointer to the packet.
 `Packet.CopyTo(byte[] destination)` copies payload from the packet to the destination array.
 
 #### Peer
-Contains a managed pointer to the peer.
+Contains a managed pointer to the peer and cached ID.
 
 `Peer.IsSet` returns a state of the managed pointer.
 

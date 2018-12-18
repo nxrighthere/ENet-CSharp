@@ -401,6 +401,10 @@ namespace ENet {
 			Create(address, peerLimit, channelLimit, 0, 0);
 		}
 
+		public void Create(int peerLimit, int channelLimit) {
+			Create(null, peerLimit, channelLimit, 0, 0);
+		}
+
 		public void Create(int peerLimit, int channelLimit, uint incomingBandwidth, uint outgoingBandwidth) {
 			Create(null, peerLimit, channelLimit, incomingBandwidth, outgoingBandwidth);
 		}

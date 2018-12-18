@@ -4624,7 +4624,7 @@ extern "C" {
         void enet_deinitialize(void) { }
 
         enet_uint64 enet_host_random_seed(void) {
-            return (enet_uint64) time(NULL);
+            return (enet_uint64)time(NULL);
         }
 
         int enet_address_set_host_ip(ENetAddress *address, const char *name) {
@@ -5063,22 +5063,26 @@ extern "C" {
                         *tp = n;
 
                         if (!saw_digit) {
-                            if (++octets > 4)
+                            if (++octets > 4) {
                                 return 0;
+                            }
 
                             saw_digit = 1;
                         }
                     } else if (ch == '.' && saw_digit) {
-                        if (octets == 4)
+                        if (octets == 4) {
                             return 0;
+                        }
 
                         *++tp = 0;
                         saw_digit = 0;
                     } else
                         return 0;
                 }
-                if (octets < 4)
+
+                if (octets < 4) {
                     return 0;
+                }
 
                 memcpy(dst, tmp, NS_INADDRSZ);
 
@@ -5095,8 +5099,9 @@ extern "C" {
 
                 /* Leading :: requires some special handling. */
                 if (*src == ':') {
-                    if (*++src != ':')
+                    if (*++src != ':') {
                         return 0;
+                    }
                 }
 
                 const char *curtok = src;
@@ -5111,8 +5116,9 @@ extern "C" {
                         val <<= 4;
                         val |= (pch - xdigits);
 
-                        if (val > 0xffff)
+                        if (val > 0xffff) {
                             return 0;
+                        }
 
                         saw_xdigit = 1;
 
@@ -5122,8 +5128,9 @@ extern "C" {
                     if (ch == ':') {
                         curtok = src;
                         if (!saw_xdigit) {
-                            if (colonp)
+                            if (colonp) {
                                 return 0;
+                            }
 
                             colonp = tp;
 
@@ -5132,8 +5139,9 @@ extern "C" {
                             return 0;
                         }
 
-                        if (tp + NS_INT16SZ > endp)
+                        if (tp + NS_INT16SZ > endp) {
                             return 0;
+                        }
 
                         *tp++ = (uint8_t) (val >> 8) & 0xff;
                         *tp++ = (uint8_t) val & 0xff;
@@ -5154,8 +5162,9 @@ extern "C" {
                 }
 
                 if (saw_xdigit) {
-                    if (tp + NS_INT16SZ > endp)
+                    if (tp + NS_INT16SZ > endp) {
                         return 0;
+                    }
 
                     *tp++ = (uint8_t) (val >> 8) & 0xff;
                     *tp++ = (uint8_t) val & 0xff;
@@ -5168,8 +5177,9 @@ extern "C" {
                      */
                     const int n = tp - colonp;
 
-                    if (tp == endp)
+                    if (tp == endp) {
                         return 0;
+                    }
 
                     for (int i = 1; i <= n; i++) {
                         endp[-i] = colonp[n - i];
@@ -5179,8 +5189,9 @@ extern "C" {
                     tp = endp;
                 }
 
-                if (tp != endp)
+                if (tp != endp) {
                     return 0;
+                }
 
                 memcpy(dst, tmp, NS_IN6ADDRSZ);
 

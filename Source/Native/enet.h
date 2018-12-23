@@ -724,7 +724,7 @@ extern "C" {
     ENET_API int                 enet_socket_get_option(ENetSocket, ENetSocketOption, int *);
     ENET_API int                 enet_socket_shutdown(ENetSocket, ENetSocketShutdown);
     ENET_API void                enet_socket_destroy(ENetSocket);
-    ENET_API int                 enet_socketset_select(ENetSocket, ENetSocketSet *, ENetSocketSet *, enet_uint32);
+    ENET_API int                 enet_socket_set_select(ENetSocket, ENetSocketSet *, ENetSocketSet *, enet_uint32);
 
     ENET_API int                 enet_address_set_host_ip(ENetAddress * address, const char * hostName);
     ENET_API int                 enet_address_set_host(ENetAddress * address, const char * hostName);
@@ -4001,7 +4001,7 @@ extern "C" {
         host->socket = enet_socket_create(ENET_SOCKET_TYPE_DATAGRAM);
 
         if (host->socket != ENET_SOCKET_NULL) {
-            enet_socket_set_option (host->socket, ENET_SOCKOPT_IPV6_V6ONLY, 0);
+            enet_socket_set_option(host->socket, ENET_SOCKOPT_IPV6_V6ONLY, 0);
         }
 
         if (host->socket == ENET_SOCKET_NULL || (address != NULL && enet_socket_bind(host->socket, address) < 0)) {
@@ -4953,7 +4953,7 @@ extern "C" {
             return recvLength;
         }
 
-        int enet_socketset_select(ENetSocket maxSocket, ENetSocketSet *readSet, ENetSocketSet *writeSet, enet_uint32 timeout) {
+        int enet_socket_set_select(ENetSocket maxSocket, ENetSocketSet *readSet, ENetSocketSet *writeSet, enet_uint32 timeout) {
             struct timeval timeVal;
 
             timeVal.tv_sec  = timeout / 1000;
@@ -5538,7 +5538,7 @@ extern "C" {
             return (int)recvLength;
         }
 
-        int enet_socketset_select(ENetSocket maxSocket, ENetSocketSet *readSet, ENetSocketSet *writeSet, enet_uint32 timeout) {
+        int enet_socket_set_select(ENetSocket maxSocket, ENetSocketSet *readSet, ENetSocketSet *writeSet, enet_uint32 timeout) {
             struct timeval timeVal;
 
             timeVal.tv_sec  = timeout / 1000;

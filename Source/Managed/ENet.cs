@@ -91,13 +91,22 @@ namespace ENet {
 
 	internal static class ArrayPool {
 		[ThreadStatic]
-		private static byte[] buffer;
+		private static byte[] byteBuffer;
+		[ThreadStatic]
+		private static IntPtr[] pointerBuffer;
 
-		public static byte[] GetBuffer() {
-			if (buffer == null)
-				buffer = new byte[64];
+		public static byte[] GetByteBuffer() {
+			if (byteBuffer == null)
+				byteBuffer = new byte[64];
 
-			return buffer;
+			return byteBuffer;
+		}
+
+		public static IntPtr[] GetPointerBuffer() {
+			if (pointerBuffer == null)
+				pointerBuffer = new IntPtr[Library.maxPeers];
+
+			return pointerBuffer;
 		}
 	}
 
@@ -455,8 +464,15 @@ namespace ENet {
 
 			packet.CheckCreated();
 
-			if (peers.Length > 0)
-				Native.enet_host_broadcast_selective(nativeHost, channelID, packet.NativeData, ref peers, (IntPtr)peers.Length);
+			if (peers.Length > 0) {
+				IntPtr[] nativePeers = ArrayPool.GetPointerBuffer();
+
+				for (int i = 0; i < peers.Length; i++) {
+					nativePeers[i] = peers[i].NativeData;
+				}
+
+				Native.enet_host_broadcast_selective(nativeHost, channelID, packet.NativeData, ref nativePeers, (IntPtr)peers.Length);
+			}
 
 			packet.NativeData = IntPtr.Zero;
 		}
@@ -576,7 +592,7 @@ namespace ENet {
 			get {
 				CheckCreated();
 
-				byte[] ip = ArrayPool.GetBuffer();
+				byte[] ip = ArrayPool.GetByteBuffer();
 
 				if (Native.enet_peer_get_ip(nativePeer, ip, (IntPtr)ip.Length) == 0) {
 					if (Encoding.ASCII.GetString(ip).Remove(7) != "::ffff:")
@@ -844,7 +860,7 @@ namespace ENet {
 		internal static extern void enet_host_broadcast(IntPtr host, byte channelID, IntPtr packet);
 
 		[DllImport(nativeLibrary, CallingConvention = CallingConvention.Cdecl)]
-		internal static extern void enet_host_broadcast_selective(IntPtr host, byte channelID, IntPtr packet, ref Peer[] peers, IntPtr peersLength);
+		internal static extern void enet_host_broadcast_selective(IntPtr host, byte channelID, IntPtr packet, ref IntPtr[] peers, IntPtr peersLength);
 
 		[DllImport(nativeLibrary, CallingConvention = CallingConvention.Cdecl)]
 		internal static extern int enet_host_service(IntPtr host, out ENetEvent @event, uint timeout);

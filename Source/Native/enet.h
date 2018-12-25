@@ -4218,7 +4218,7 @@ extern "C" {
         }
 
         for (currentPeer = peers; currentPeer < &peers[length]; ++currentPeer) {
-            if (currentPeer->state != ENET_PEER_STATE_CONNECTED) {
+            if (currentPeer != NULL && currentPeer->state != ENET_PEER_STATE_CONNECTED) {
                 continue;
             }
 

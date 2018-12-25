@@ -450,6 +450,17 @@ namespace ENet {
 			packet.NativeData = IntPtr.Zero;
 		}
 
+		public void Broadcast(byte channelID, ref Packet packet, ref Peer[] peers) {
+			CheckCreated();
+
+			packet.CheckCreated();
+
+			if (peers.Length > 0)
+				Native.enet_host_broadcast_selective(nativeHost, channelID, packet.NativeData, ref peers, (IntPtr)peers.Length);
+
+			packet.NativeData = IntPtr.Zero;
+		}
+
 		public int CheckEvents(out Event @event) {
 			CheckCreated();
 
@@ -756,7 +767,7 @@ namespace ENet {
 		public const uint timeoutLimit = 32;
 		public const uint timeoutMinimum = 5000;
 		public const uint timeoutMaximum = 30000;
-		public const uint version = (2 << 16) | (1 << 8) | (3);
+		public const uint version = (2 << 16) | (1 << 8) | (4);
 
 		public static bool Initialize() {
 			return Native.enet_initialize() == 0;
@@ -831,6 +842,9 @@ namespace ENet {
 
 		[DllImport(nativeLibrary, CallingConvention = CallingConvention.Cdecl)]
 		internal static extern void enet_host_broadcast(IntPtr host, byte channelID, IntPtr packet);
+
+		[DllImport(nativeLibrary, CallingConvention = CallingConvention.Cdecl)]
+		internal static extern void enet_host_broadcast_selective(IntPtr host, byte channelID, IntPtr packet, ref Peer[] peers, IntPtr peersLength);
 
 		[DllImport(nativeLibrary, CallingConvention = CallingConvention.Cdecl)]
 		internal static extern int enet_host_service(IntPtr host, out ENetEvent @event, uint timeout);

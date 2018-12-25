@@ -35,7 +35,7 @@
 
 #define ENET_VERSION_MAJOR 2
 #define ENET_VERSION_MINOR 1
-#define ENET_VERSION_PATCH 3
+#define ENET_VERSION_PATCH 4
 #define ENET_VERSION_CREATE(major, minor, patch) (((major) << 16) | ((minor) << 8) | (patch))
 #define ENET_VERSION_GET_MAJOR(version) (((version) >> 16) & 0xFF)
 #define ENET_VERSION_GET_MINOR(version) (((version) >> 8) & 0xFF)
@@ -746,10 +746,11 @@ extern "C" {
     ENET_API int                 enet_host_service(ENetHost *, ENetEvent *, enet_uint32);
     ENET_API void                enet_host_flush(ENetHost *);
     ENET_API void                enet_host_broadcast(ENetHost *, enet_uint8, ENetPacket *);
+    ENET_API void                enet_host_broadcast_selective(ENetHost *, enet_uint8, ENetPacket *, ENetPeer *, size_t);
     ENET_API void                enet_host_channel_limit(ENetHost *, size_t);
     ENET_API void                enet_host_bandwidth_limit(ENetHost *, enet_uint32, enet_uint32);
     extern   void                enet_host_bandwidth_throttle(ENetHost *);
-    extern  enet_uint64          enet_host_random_seed(void);
+    extern   enet_uint64         enet_host_random_seed(void);
 
     ENET_API int                 enet_peer_send(ENetPeer *, enet_uint8, ENetPacket *);
     ENET_API ENetPacket *        enet_peer_receive(ENetPeer *, enet_uint8 * channelID);
@@ -4197,6 +4198,26 @@ extern "C" {
         ENetPeer *currentPeer;
 
         for (currentPeer = host->peers; currentPeer < &host->peers[host->peerCount]; ++currentPeer) {
+            if (currentPeer->state != ENET_PEER_STATE_CONNECTED) {
+                continue;
+            }
+
+            enet_peer_send(currentPeer, channelID, packet);
+        }
+
+        if (packet->referenceCount == 0) {
+            enet_packet_destroy(packet);
+        }
+    }
+
+    void enet_host_broadcast_selective(ENetHost *host, enet_uint8 channelID, ENetPacket *packet, ENetPeer *peers, size_t length) {
+        ENetPeer *currentPeer;
+
+        if (host == NULL) {
+            return;
+        }
+
+        for (currentPeer = peers; currentPeer < &peers[length]; ++currentPeer) {
             if (currentPeer->state != ENET_PEER_STATE_CONNECTED) {
                 continue;
             }

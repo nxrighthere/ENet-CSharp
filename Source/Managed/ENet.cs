@@ -471,7 +471,7 @@ namespace ENet {
 					nativePeers[i] = peers[i].NativeData;
 				}
 
-				Native.enet_host_broadcast_selective(nativeHost, channelID, packet.NativeData, ref nativePeers, (IntPtr)peers.Length);
+				Native.enet_host_broadcast_selective(nativeHost, channelID, packet.NativeData, nativePeers, (IntPtr)peers.Length);
 			}
 
 			packet.NativeData = IntPtr.Zero;
@@ -860,7 +860,7 @@ namespace ENet {
 		internal static extern void enet_host_broadcast(IntPtr host, byte channelID, IntPtr packet);
 
 		[DllImport(nativeLibrary, CallingConvention = CallingConvention.Cdecl)]
-		internal static extern void enet_host_broadcast_selective(IntPtr host, byte channelID, IntPtr packet, ref IntPtr[] peers, IntPtr peersLength);
+		internal static extern void enet_host_broadcast_selective(IntPtr host, byte channelID, IntPtr packet, IntPtr[] peers, IntPtr peersLength);
 
 		[DllImport(nativeLibrary, CallingConvention = CallingConvention.Cdecl)]
 		internal static extern int enet_host_service(IntPtr host, out ENetEvent @event, uint timeout);

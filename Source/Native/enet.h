@@ -2939,7 +2939,7 @@ extern "C" {
                 }
 
                 #ifdef ENET_LZ4
-                    if (host->compression == 1) {
+                    if (host->compression == 1 && host->packetSize > 64) {
                         size_t originalSize = host->packetSize - sizeof(ENetProtocolHeader), compressedSize = 0;
                         const ENetBuffer* buffers = &host->buffers[1];
                         char * data = (char *)enet_malloc(originalSize);

@@ -706,7 +706,7 @@ extern "C" {
 // =======================================================================//
 
     ENET_API int                 enet_initialize(void);
-    ENET_API int                 enet_initialize_with_callbacks(ENetVersion version, const ENetCallbacks * inits);
+    ENET_API int                 enet_initialize_with_callbacks(ENetVersion, const ENetCallbacks *);
     ENET_API void                enet_deinitialize(void);
     ENET_API ENetVersion         enet_linked_version(void);
     ENET_API enet_uint32         enet_time_get(void);
@@ -726,10 +726,10 @@ extern "C" {
     ENET_API void                enet_socket_destroy(ENetSocket);
     ENET_API int                 enet_socket_set_select(ENetSocket, ENetSocketSet *, ENetSocketSet *, enet_uint32);
 
-    ENET_API int                 enet_address_set_host_ip(ENetAddress * address, const char * hostName);
-    ENET_API int                 enet_address_set_host(ENetAddress * address, const char * hostName);
-    ENET_API int                 enet_address_get_host_ip(const ENetAddress * address, char * hostName, size_t nameLength);
-    ENET_API int                 enet_address_get_host(const ENetAddress * address, char * hostName, size_t nameLength);
+    ENET_API int                 enet_address_set_host_ip(ENetAddress *, const char *);
+    ENET_API int                 enet_address_set_host(ENetAddress *, const char *);
+    ENET_API int                 enet_address_get_host_ip(const ENetAddress *, char *, size_t);
+    ENET_API int                 enet_address_get_host(const ENetAddress *, char *, size_t);
 
     ENET_API ENetPacket *        enet_packet_create(const void *, size_t, enet_uint32);
     ENET_API ENetPacket *        enet_packet_create_offset(const void *, size_t, size_t, enet_uint32);

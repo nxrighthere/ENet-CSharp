@@ -4213,7 +4213,7 @@ extern "C" {
     void enet_host_broadcast_selective(ENetHost *host, enet_uint8 channelID, ENetPacket *packet, ENetPeer *peers, size_t length) {
         ENetPeer *currentPeer;
 
-        if (host == NULL) {
+        if (host == NULL || peers == NULL) {
             return;
         }
 

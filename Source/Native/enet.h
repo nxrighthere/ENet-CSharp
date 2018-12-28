@@ -4717,7 +4717,7 @@ extern "C" {
             memset(&sin, 0, sizeof(struct sockaddr_in6));
 
             sin.sin6_family = AF_INET6;
-            sin.sin6_port = ENET_HOST_TO_NET_16 (address->port);
+            sin.sin6_port = ENET_HOST_TO_NET_16(address->port);
             sin.sin6_addr = address->host;
             sin.sin6_scope_id = address->sin6_scope_id;
 
@@ -4886,7 +4886,7 @@ extern "C" {
 
             if (address != NULL) {
                 address->host = sin.sin6_addr;
-                address->port = ENET_NET_TO_HOST_16 (sin.sin6_port);
+                address->port = ENET_NET_TO_HOST_16(sin.sin6_port);
                 address->sin6_scope_id = sin.sin6_scope_id;
             }
 
@@ -5347,7 +5347,7 @@ extern "C" {
             sin.sin6_family = AF_INET6;
 
             if (address != NULL) {
-                sin.sin6_port       = ENET_HOST_TO_NET_16 (address->port);
+                sin.sin6_port       = ENET_HOST_TO_NET_16(address->port);
                 sin.sin6_addr       = address->host;
                 sin.sin6_scope_id   = address->sin6_scope_id;
             } else {

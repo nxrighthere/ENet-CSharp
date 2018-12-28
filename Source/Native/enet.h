@@ -4218,7 +4218,7 @@ extern "C" {
         }
 
         for (int i = 0; i < length; i++) {
-			currentPeer = peers[i];
+            currentPeer = peers[i];
 
             if (currentPeer == NULL || currentPeer->state != ENET_PEER_STATE_CONNECTED) {
                 continue;

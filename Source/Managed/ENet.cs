@@ -466,12 +466,16 @@ namespace ENet {
 
 			if (peers.Length > 0) {
 				IntPtr[] nativePeers = ArrayPool.GetPointerBuffer();
+				int nativeCount = 0;
 
 				for (int i = 0; i < peers.Length; i++) {
-					nativePeers[i] = peers[i].NativeData;
+					if (peers[i].NativeData != IntPtr.Zero) {
+						nativePeers[nativeCount] = peers[i].NativeData;
+						nativeCount++;
+					}
 				}
 
-				Native.enet_host_broadcast_selective(nativeHost, channelID, packet.NativeData, nativePeers, (IntPtr)peers.Length);
+				Native.enet_host_broadcast_selective(nativeHost, channelID, packet.NativeData, nativePeers, (IntPtr)nativeCount);
 			}
 
 			packet.NativeData = IntPtr.Zero;

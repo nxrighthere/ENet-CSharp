@@ -746,7 +746,7 @@ extern "C" {
     ENET_API int                 enet_host_service(ENetHost *, ENetEvent *, enet_uint32);
     ENET_API void                enet_host_flush(ENetHost *);
     ENET_API void                enet_host_broadcast(ENetHost *, enet_uint8, ENetPacket *);
-    ENET_API void                enet_host_broadcast_selective(ENetHost *, enet_uint8, ENetPacket *, ENetPeer *, size_t);
+    ENET_API void                enet_host_broadcast_selective(ENetHost *, enet_uint8, ENetPacket *, ENetPeer **, size_t);
     ENET_API void                enet_host_channel_limit(ENetHost *, size_t);
     ENET_API void                enet_host_bandwidth_limit(ENetHost *, enet_uint32, enet_uint32);
     extern   void                enet_host_bandwidth_throttle(ENetHost *);
@@ -4210,14 +4210,16 @@ extern "C" {
         }
     }
 
-    void enet_host_broadcast_selective(ENetHost *host, enet_uint8 channelID, ENetPacket *packet, ENetPeer *peers, size_t length) {
+    void enet_host_broadcast_selective(ENetHost *host, enet_uint8 channelID, ENetPacket *packet, ENetPeer **peers, size_t length) {
         ENetPeer *currentPeer;
 
-        if (host == NULL || peers == NULL) {
+        if (host == NULL) {
             return;
         }
 
-        for (currentPeer = peers; currentPeer < &peers[length]; ++currentPeer) {
+        for (int i = 0; i < length; i++) {
+			currentPeer = peers[i];
+
             if (currentPeer == NULL || currentPeer->state != ENET_PEER_STATE_CONNECTED) {
                 continue;
             }

@@ -363,7 +363,7 @@ Contains constant fields.
 
 `Library.version` the current version of the native library.
 
-`Library.Initialize(ref Callbacks inits)` initializes the native library. Callbacks parameter is optional and should be used only with a custom memory allocator. Should be called before starting the work. Returns true on success or false on failure.
+`Library.Initialize(Callbacks inits)` initializes the native library. Callbacks parameter is optional and should be used only with a custom memory allocator. Should be called before starting the work. Returns true on success or false on failure.
 
 `Library.Deinitialize()` deinitializes the native library. Should be called after the work is done.
 

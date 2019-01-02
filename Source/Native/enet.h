@@ -2096,6 +2096,10 @@ extern "C" {
         peer->earliestTimeout = 0;
         roundTripTime = ENET_TIME_DIFFERENCE(host->serviceTime, receivedSentTime);
 
+        if (roundTripTime == 0) {
+            roundTripTime = 1;
+        }
+
         if (peer->smoothedRoundTripTime == 0) {
             peer->smoothedRoundTripTime = (enet_uint32)((1 - ENET_SRTT_PARA_G) * ENET_SRTT_INITIAL + ENET_SRTT_PARA_G * roundTripTime);
         } else {

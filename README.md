@@ -259,7 +259,7 @@ Contains a managed pointer to the packet.
 
 `Packet.Length` returns a length of payload in the packet.
 
-`Packet.HasReferences` checks references to a packet.
+`Packet.HasReferences` checks references to the packet.
 
 `Packet.SetFreeCallback(PacketFreeCallback callback)` set callback to notify the user when an appropriate packet is being destroyed.
 

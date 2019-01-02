@@ -259,6 +259,14 @@ namespace ENet {
 			}
 		}
 
+		public bool HasReferences {
+			get {
+				CheckCreated();
+
+				return Native.enet_packet_check_references(nativePacket) != 0;
+			}
+		}
+
 		internal void CheckCreated() {
 			if (nativePacket == IntPtr.Zero)
 				throw new InvalidOperationException("Packet not created");
@@ -303,12 +311,6 @@ namespace ENet {
 				throw new ArgumentOutOfRangeException();
 
 			nativePacket = Native.enet_packet_create(data, (IntPtr)length, flags);
-		}
-
-		public bool CheckReferences() {
-			CheckCreated();
-
-			return Native.enet_packet_check_references(nativePacket) != 0;
 		}
 
 		public void CopyTo(byte[] destination) {

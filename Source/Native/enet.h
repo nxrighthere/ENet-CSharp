@@ -35,7 +35,7 @@
 
 #define ENET_VERSION_MAJOR 2
 #define ENET_VERSION_MINOR 1
-#define ENET_VERSION_PATCH 4
+#define ENET_VERSION_PATCH 5
 #define ENET_VERSION_CREATE(major, minor, patch) (((major) << 16) | ((minor) << 8) | (patch))
 #define ENET_VERSION_GET_MAJOR(version) (((version) >> 16) & 0xFF)
 #define ENET_VERSION_GET_MINOR(version) (((version) >> 8) & 0xFF)
@@ -779,6 +779,7 @@ extern "C" {
     ENET_API void *              enet_packet_get_data(ENetPacket *);
     ENET_API int                 enet_packet_get_length(ENetPacket *);
     ENET_API void                enet_packet_set_free_callback(ENetPacket *, const void *);
+    ENET_API int                 enet_packet_check_references(ENetPacket *);
     ENET_API void                enet_packet_dispose(ENetPacket *);
 
     ENET_API enet_uint32         enet_host_get_peers_count(ENetHost *);
@@ -4549,6 +4550,10 @@ extern "C" {
 
     void enet_packet_set_free_callback(ENetPacket *packet, const void *callback) {
         packet->freeCallback = (ENetPacketFreeCallback)callback;
+    }
+
+    int enet_packet_check_references(ENetPacket *packet) {
+        return (int)packet->referenceCount;
     }
 
     void enet_packet_dispose(ENetPacket *packet) {

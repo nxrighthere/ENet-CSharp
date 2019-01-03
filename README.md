@@ -27,7 +27,7 @@ To build the native library appropriate software is required:
 
 For desktop platforms [CMake](https://cmake.org/download/) with GNU Make or Visual Studio.
 
-For mobile platforms [NDK](https://developer.android.com/ndk/downloads/) for Android and [XCode](https://developer.apple.com/xcode/) for iOS.
+For mobile platforms [NDK](https://developer.android.com/ndk/downloads/) for Android and [Xcode](https://developer.apple.com/xcode/) for iOS.
 
 Define `ENET_LZ4` to build the library with support for an optional packet-level compression.
 

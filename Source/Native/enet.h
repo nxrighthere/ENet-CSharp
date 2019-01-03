@@ -21,8 +21,8 @@
  *  SOFTWARE.
  */
 
-#ifndef ENET_INCLUDE_H
-#define ENET_INCLUDE_H
+#ifndef ENET_H
+#define ENET_H
 
 #include <stdlib.h>
 #include <stdbool.h>
@@ -2948,7 +2948,7 @@ extern "C" {
                     if (host->compression == 1 && host->packetSize > 64) {
                         size_t originalSize = host->packetSize - sizeof(ENetProtocolHeader), compressedSize = 0;
                         const ENetBuffer* buffers = &host->buffers[1];
-                        char * data = (char *)enet_malloc(originalSize);
+                        char *data = (char *)enet_malloc(originalSize);
                         int totalSize = originalSize, dataSize = 0;
 
                         while (totalSize) {

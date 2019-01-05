@@ -168,6 +168,20 @@ if (ENet.Library.Initialize(callbacks))
 ### Unity
 Usage is almost the same as in the .NET environment, except that the console functions must be replaced with functions provided by Unity. If the `Host.Service()` will be called in a game loop, then make sure that the timeout parameter set to 0 which means non-blocking. Also, keep Unity run in background by enabling the appropriate option in the player settings.
 
+Threading
+--------
+### Strategy
+The best-known strategy is to use ENet in an independent I/O thread and utilize [inter-thread messaging](http://www.1024cores.net/home/lock-free-algorithms/queues) techniques for transferring data across threads/tasks without any locks/mutexes. Non-blocking queues like [Ring Buffer](https://www.slideshare.net/trishagee/introduction-to-the-disruptor) works best for this task. High-level abstractions and logic can be parallelized [using workers](https://forum.unity.com/threads/showcase-enet-unity-ecs-5000-real-time-player-simulation.605656/), then communicate with I/O thread and enqueuing/dequeuing messages for sending/receiving data across the network.
+
+### Functionality
+In general, ENet is not thread-safe, but some of its functions can be used safely if the user is careful enough:
+
+`Packet` structure and its functions are safe until a packet is only moving across threads by value and a custom memory allocator is not used.
+
+`Peer.ID` as soon as a pointer to a peer was obtained from the native side, the ID will be cached in `Peer` structure for further actions with objects that assigned to that ID. `Peer` structure can be moved across threads by value, but its functions  are not thread-safe because data in memory may change by the service in another thread.
+
+`Library.Time` utilizing atomic primitives internally for managing a local monotonic time.
+
 API reference
 --------
 ### Enumerations
@@ -261,7 +275,7 @@ Contains a managed pointer to the packet.
 
 `Packet.HasReferences` checks references to the packet.
 
-`Packet.SetFreeCallback(PacketFreeCallback callback)` set callback to notify the user when an appropriate packet is being destroyed.
+`Packet.SetFreeCallback(PacketFreeCallback callback)` set callback to notify the programmer when an appropriate packet is being destroyed.
 
 `Packet.Create(byte[] data, int length, PacketFlags flags)` creates a packet that may be sent to a peer. The length and packet flags parameters are optional. Multiple flags can be specified at once. Pointer `IntPtr` to a native buffer can be used instead of a reference to a byte array.
 
@@ -346,7 +360,7 @@ Contains a managed pointer to the host.
 
 `Host.Connect(Address address, int channelLimit, uint data)` initiates a connection to a foreign host. Returns a peer representing the foreign host on success or `null` on failure. The peer returned will not have completed the connection until `Host.Service()` notifies of an `EventType.Connect` event. The channel limit and user-supplied data parameters are optional.
 
-`Host.Service(int timeout, out Event @event)` waits for events on the specified host and shuttles packets between the host and its peers. ENet uses a polled event model to notify the programmer of significant events. ENet hosts are polled for events with this function, where an optional timeout value in milliseconds may be specified to control how long ENet will poll. If a timeout of 0 is specified, this function will return immediately if there are no events to dispatch. Otherwise, it will return 1 if an event was dispatched within the specified timeout. This function should be regularly called to ensure packets are sent and received. The timeout parameter set to 0 means non-blocking which required for cases where the function is called in a game loop.
+`Host.Service(int timeout, out Event @event)` waits for events on the specified host and shuttles packets between the host and its peers. ENet uses a polled event model to notify the user of significant events. ENet hosts are polled for events with this function, where an optional timeout value in milliseconds may be specified to control how long ENet will poll. If a timeout of 0 is specified, this function will return immediately if there are no events to dispatch. Otherwise, it will return 1 if an event was dispatched within the specified timeout. This function should be regularly called to ensure packets are sent and received. The timeout parameter set to 0 means non-blocking which required for cases where the function is called in a game loop.
 
 `Host.SetBandwidthLimit(uint incomingBandwidth, uint outgoingBandwidth)` adjusts the bandwidth limits of a host in bytes per second.
 

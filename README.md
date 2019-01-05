@@ -180,7 +180,7 @@ In general, ENet is not thread-safe, but some of its functions can be used safel
 
 `Peer.ID` as soon as a pointer to a peer was obtained from the native side, the ID will be cached in `Peer` structure for further actions with objects that assigned to that ID. `Peer` structure can be moved across threads by value, but its functions  are not thread-safe because data in memory may change by the service in another thread.
 
-`Library.Time` utilizing atomic primitives internally for managing a local monotonic time.
+`Library.Time` utilizing atomic primitives internally for managing local monotonic time.
 
 API reference
 --------

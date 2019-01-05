@@ -168,7 +168,7 @@ if (ENet.Library.Initialize(callbacks))
 ### Unity
 Usage is almost the same as in the .NET environment, except that the console functions must be replaced with functions provided by Unity. If the `Host.Service()` will be called in a game loop, then make sure that the timeout parameter set to 0 which means non-blocking. Also, keep Unity run in background by enabling the appropriate option in the player settings.
 
-Threading
+Multi-threading
 --------
 ### Strategy
 The best-known strategy is to use ENet in an independent I/O thread and utilize [inter-thread messaging](http://www.1024cores.net/home/lock-free-algorithms/queues) techniques for transferring data across threads/tasks without any locks/mutexes. Non-blocking queues like [Ring Buffer](https://www.slideshare.net/trishagee/introduction-to-the-disruptor) works best for this task. High-level abstractions and logic can be parallelized [using workers](https://forum.unity.com/threads/showcase-enet-unity-ecs-5000-real-time-player-simulation.605656/), then communicate with I/O thread and enqueuing/dequeuing messages for sending/receiving data across the network.

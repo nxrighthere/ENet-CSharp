@@ -171,7 +171,7 @@ Usage is almost the same as in the .NET environment, except that the console fun
 Multi-threading
 --------
 ### Strategy
-The best-known strategy is to use ENet in an independent I/O thread and utilize [inter-thread messaging](http://www.1024cores.net/home/lock-free-algorithms/queues) techniques for transferring data across threads/tasks without any locks/mutexes. Non-blocking queues like [Ring Buffer](https://www.slideshare.net/trishagee/introduction-to-the-disruptor) was designed for such purposes. High-level abstractions and logic can be parallelized [using workers](https://forum.unity.com/threads/showcase-enet-unity-ecs-5000-real-time-player-simulation.605656/), then communicate with I/O thread and enqueue/dequeue messages for send/receive data across the network.
+The best-known strategy is to use ENet in an independent I/O thread and utilize [inter-thread messaging](http://www.1024cores.net/home/lock-free-algorithms/queues) techniques for transferring data across threads/tasks without any locks/mutexes. Non-blocking queues like [Ring Buffer](https://www.slideshare.net/trishagee/introduction-to-the-disruptor) was designed for such purposes. High-level abstractions and logic can be parallelized [using workers](https://forum.unity.com/threads/showcase-enet-unity-ecs-5000-real-time-player-simulation.605656/), then communicate with I/O thread and enqueue/dequeue messages to send/receive data across the network.
 
 ### Functionality
 In general, ENet is not thread-safe, but some of its functions can be used safely if the user is careful enough:

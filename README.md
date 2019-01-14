@@ -37,7 +37,7 @@ Compiled libraries
 --------
 You can grab compiled libraries from the [release](https://github.com/nxrighthere/ENet-CSharp/releases) section:
 
-`ENet-CSharp` contains compiled assembly with native libraries for the .NET environment.
+`ENet-CSharp` contains compiled assembly with native libraries for the .NET environment (.NET Standard 2.0).
 
 `ENet-Unity` contains script with native libraries for the Unity.
 

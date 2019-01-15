@@ -65,7 +65,7 @@ namespace ENet {
 		[MarshalAs(UnmanagedType.ByValArray, SizeConst = 16)]
 		public byte[] host;
 		public ushort port;
-		public ushort sin6_scope_id;
+		public ushort scope;
 	}
 
 	[StructLayout(LayoutKind.Sequential)]
@@ -79,9 +79,9 @@ namespace ENet {
 
 	[StructLayout(LayoutKind.Sequential)]
 	public struct ENetCallbacks {
-		public IntPtr malloc;
-		public IntPtr free;
-		public IntPtr no_memory;
+		public AllocCallback malloc;
+		public FreeCallback free;
+		public NoMemoryCallback noMemory;
 	}
 
 	public delegate IntPtr AllocCallback(IntPtr size);
@@ -207,9 +207,9 @@ namespace ENet {
 		}
 
 		public Callbacks(AllocCallback allocCallback, FreeCallback freeCallback, NoMemoryCallback noMemoryCallback) {
-			nativeCallbacks.malloc = Marshal.GetFunctionPointerForDelegate(allocCallback);
-			nativeCallbacks.free = Marshal.GetFunctionPointerForDelegate(freeCallback);
-			nativeCallbacks.no_memory = Marshal.GetFunctionPointerForDelegate(noMemoryCallback);
+			nativeCallbacks.malloc = allocCallback;
+			nativeCallbacks.free = freeCallback;
+			nativeCallbacks.noMemory = noMemoryCallback;
 		}
 	}
 

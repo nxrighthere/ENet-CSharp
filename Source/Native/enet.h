@@ -125,8 +125,6 @@
 	#else
 		#define ENET_API extern
 	#endif
-
-	typedef fd_set ENetSocketSet;
 #else
 	#include <sys/types.h>
 	#include <sys/ioctl.h>
@@ -167,8 +165,6 @@
 
 	#define ENET_CALLBACK
 	#define ENET_API extern
-
-	typedef fd_set ENetSocketSet;
 #endif
 
 #ifndef ENET_BUFFER_MAXIMUM
@@ -208,6 +204,8 @@ extern "C" {
 	typedef uint64_t enet_uint64;
 
 	typedef enet_uint32 ENetVersion;
+
+	typedef fd_set ENetSocketSet;
 
 	typedef struct _ENetCallbacks {
 		void*(ENET_CALLBACK* malloc)(size_t size);

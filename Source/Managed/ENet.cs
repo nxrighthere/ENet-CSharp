@@ -467,7 +467,7 @@ namespace ENet {
 			packet.NativeData = IntPtr.Zero;
 		}
 
-		public void Broadcast(byte channelID, ref Packet packet, ref Peer[] peers) {
+		public void Broadcast(byte channelID, ref Packet packet, Peer[] peers) {
 			CheckCreated();
 
 			packet.CheckCreated();

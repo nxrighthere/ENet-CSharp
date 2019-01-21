@@ -143,6 +143,24 @@ namespace ENet {
 
 			return Native.enet_address_set_host(ref nativeAddress, Encoding.ASCII.GetBytes(hostName)) == 0;
 		}
+
+		public string GetHost()
+	    	{
+            		StringBuilder sb = new StringBuilder(255);
+	        	if (Native.enet_address_get_host(ref nativeAddress, sb, sb.Capacity) != 0)
+	            		return null;
+
+	        	return sb.ToString();
+	    	}
+		
+		public string GetHostIp()
+	    	{
+            		StringBuilder sb = new StringBuilder(255);
+	        	if (Native.enet_address_get_host_ip(ref nativeAddress, sb, sb.Capacity) != 0)
+	            		return null;
+
+	        	return sb.ToString();
+	    	}		
 	}
 
 	public struct Event {
@@ -835,6 +853,12 @@ namespace ENet {
 
 		[DllImport(nativeLibrary, CallingConvention = CallingConvention.Cdecl)]
 		internal static extern uint enet_time_get();
+
+                [DllImport(nativeLibrary, CallingConvention = CallingConvention.Cdecl)]
+                internal static extern int enet_address_get_host(ref ENetAddress address, StringBuilder hostName, int nameLength);
+
+                [DllImport(nativeLibrary, CallingConvention = CallingConvention.Cdecl)]
+                internal static extern int enet_address_get_host_ip(ref ENetAddress address, StringBuilder hostName, int nameLength);
 
 		[DllImport(nativeLibrary, CallingConvention = CallingConvention.Cdecl)]
 		internal static extern int enet_address_set_host(ref ENetAddress address, byte[] hostName);

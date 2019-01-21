@@ -59,6 +59,11 @@
 // =======================================================================//
 
 #ifdef _WIN32
+    #ifdef __MINGW32__
+        #include "mingw/inet_ntop.c"
+        #include "mingw/inet_pton.c"
+    #endif
+
     #if defined(_MSC_VER) && defined(ENET_IMPLEMENTATION)
         #pragma warning(disable: 4267) /* size_t to int conversion */
         #pragma warning(disable: 4244) /* 64bit to 32bit int */
@@ -670,7 +675,7 @@ extern "C" {
         ENetBuffer            buffers[ENET_BUFFER_MAXIMUM];
         size_t                bufferCount;
         enet_uint8            compression;
-        ENetChecksumCallback  checksum;
+        ENetChecksumCallback  checksumCallback;
         enet_uint8            packetData[2][ENET_PROTOCOL_MAXIMUM_MTU];
         ENetAddress           receivedAddress;
         enet_uint8 *          receivedData;
@@ -2261,7 +2266,7 @@ extern "C" {
 
         headerSize = (flags & ENET_PROTOCOL_HEADER_FLAG_SENT_TIME ? sizeof(ENetProtocolHeader) : (size_t)&((ENetProtocolHeader *)0)->sentTime);
 
-        if (host->checksum != NULL) {
+        if (host->checksumCallback != NULL) {
             headerSize += sizeof(enet_uint32);
         }
 
@@ -2298,7 +2303,7 @@ extern "C" {
             }
         #endif
 
-        if (host->checksum != NULL) {
+        if (host->checksumCallback != NULL) {
             enet_uint32 *checksum = (enet_uint32 *)&host->receivedData[headerSize - sizeof(enet_uint32)];
             enet_uint32 desiredChecksum = *checksum;
             ENetBuffer buffer;
@@ -2308,7 +2313,7 @@ extern "C" {
             buffer.data       = host->receivedData;
             buffer.dataLength = host->receivedDataLength;
 
-            if (host->checksum(&buffer, 1) != desiredChecksum) {
+            if (host->checksumCallback(&buffer, 1) != desiredChecksum) {
                 return 0;
             }
         }
@@ -2981,11 +2986,11 @@ extern "C" {
 
                 header->peerID = ENET_HOST_TO_NET_16(currentPeer->outgoingPeerID | host->headerFlags);
 
-                if (host->checksum != NULL) {
+                if (host->checksumCallback != NULL) {
                     enet_uint32 *checksum = (enet_uint32 *)&headerData[host->buffers->dataLength];
                     *checksum = currentPeer->outgoingPeerID < ENET_PROTOCOL_MAXIMUM_PEER_ID ? currentPeer->connectID : 0;
                     host->buffers->dataLength += sizeof(enet_uint32);
-                    *checksum = host->checksum(host->buffers, host->bufferCount);
+                    *checksum = host->checksumCallback(host->buffers, host->bufferCount);
                 }
 
                 #ifdef ENET_LZ4
@@ -3205,7 +3210,7 @@ extern "C" {
 
         fragmentLength = peer->mtu - sizeof(ENetProtocolHeader) - sizeof(ENetProtocolSendFragment);
 
-        if (peer->host->checksum != NULL) {
+        if (peer->host->checksumCallback != NULL) {
             fragmentLength -= sizeof(enet_uint32);
         }
 
@@ -4051,7 +4056,7 @@ extern "C" {
         host->commandCount                  = 0;
         host->bufferCount                   = 0;
         host->compression                   = 0;
-        host->checksum                      = NULL;
+        host->checksumCallback              = NULL;
         host->receivedAddress.host          = ENET_HOST_ANY;
         host->receivedAddress.port          = 0;
         host->receivedData                  = NULL;
@@ -5046,204 +5051,6 @@ extern "C" {
 // =======================================================================//
 
     #ifdef _WIN32
-        #ifdef __MINGW32__
-            const char *inet_ntop(int af, const void *src, char *dst, socklen_t cnt) {
-                if (af == AF_INET) {
-                    struct sockaddr_in in;
-                    memset(&in, 0, sizeof(in));
-                    in.sin_family = AF_INET;
-                    memcpy(&in.sin_addr, src, sizeof(struct in_addr));
-                    getnameinfo((struct sockaddr *)&in, sizeof(struct sockaddr_in), dst, cnt, NULL, 0, NI_NUMERICHOST);
-
-                    return dst;
-                } else if (af == AF_INET6) {
-                    struct sockaddr_in6 in;
-                    memset(&in, 0, sizeof(in));
-                    in.sin6_family = AF_INET6;
-                    memcpy(&in.sin6_addr, src, sizeof(struct in_addr6));
-                    getnameinfo((struct sockaddr *)&in, sizeof(struct sockaddr_in6), dst, cnt, NULL, 0, NI_NUMERICHOST);
-
-                    return dst;
-                }
-
-                return NULL;
-            }
-
-            #define NS_INADDRSZ  4
-            #define NS_IN6ADDRSZ 16
-            #define NS_INT16SZ   2
-
-            int inet_pton4(const char *src, char *dst) {
-                uint8_t tmp[NS_INADDRSZ], *tp;
-
-                int saw_digit = 0;
-                int octets = 0;
-                *(tp = tmp) = 0;
-
-                int ch;
-
-                while ((ch = *src++) != '\0') {
-                    if (ch >= '0' && ch <= '9') {
-                        uint32_t n = *tp * 10 + (ch - '0');
-
-                        if (saw_digit && *tp == 0)
-                            return 0;
-
-                        if (n > 255)
-                            return 0;
-
-                        *tp = n;
-
-                        if (!saw_digit) {
-                            if (++octets > 4) {
-                                return 0;
-                            }
-
-                            saw_digit = 1;
-                        }
-                    } else if (ch == '.' && saw_digit) {
-                        if (octets == 4) {
-                            return 0;
-                        }
-
-                        *++tp = 0;
-                        saw_digit = 0;
-                    } else
-                        return 0;
-                }
-
-                if (octets < 4) {
-                    return 0;
-                }
-
-                memcpy(dst, tmp, NS_INADDRSZ);
-
-                return 1;
-            }
-
-            int inet_pton6(const char *src, char *dst) {
-                static const char xdigits[] = "0123456789abcdef";
-                uint8_t tmp[NS_IN6ADDRSZ];
-
-                uint8_t *tp = (uint8_t*)memset(tmp, '\0', NS_IN6ADDRSZ);
-                uint8_t *endp = tp + NS_IN6ADDRSZ;
-                uint8_t *colonp = NULL;
-
-                /* Leading :: requires some special handling. */
-                if (*src == ':') {
-                    if (*++src != ':') {
-                        return 0;
-                    }
-                }
-
-                const char *curtok = src;
-                int saw_xdigit = 0;
-                uint32_t val = 0;
-                int ch;
-
-                while ((ch = tolower(*src++)) != '\0') {
-                    const char *pch = strchr(xdigits, ch);
-
-                    if (pch != NULL) {
-                        val <<= 4;
-                        val |= (pch - xdigits);
-
-                        if (val > 0xffff) {
-                            return 0;
-                        }
-
-                        saw_xdigit = 1;
-
-                        continue;
-                    }
-
-                    if (ch == ':') {
-                        curtok = src;
-                        if (!saw_xdigit) {
-                            if (colonp) {
-                                return 0;
-                            }
-
-                            colonp = tp;
-
-                            continue;
-                        } else if (*src == '\0') {
-                            return 0;
-                        }
-
-                        if (tp + NS_INT16SZ > endp) {
-                            return 0;
-                        }
-
-                        *tp++ = (uint8_t) (val >> 8) & 0xff;
-                        *tp++ = (uint8_t) val & 0xff;
-                        saw_xdigit = 0;
-                        val = 0;
-
-                        continue;
-                    }
-
-                    if (ch == '.' && ((tp + NS_INADDRSZ) <= endp) && inet_pton4(curtok, (char *)tp) > 0) {
-                        tp += NS_INADDRSZ;
-                        saw_xdigit = 0;
-
-                        break; /* '\0' was seen by inet_pton4(). */
-                    }
-
-                    return 0;
-                }
-
-                if (saw_xdigit) {
-                    if (tp + NS_INT16SZ > endp) {
-                        return 0;
-                    }
-
-                    *tp++ = (uint8_t) (val >> 8) & 0xff;
-                    *tp++ = (uint8_t) val & 0xff;
-                }
-
-                if (colonp != NULL) {
-                    /*
-                     * Since some memmove()'s erroneously fail to handle
-                     * overlapping regions, we'll do the shift by hand.
-                     */
-                    const int n = tp - colonp;
-
-                    if (tp == endp) {
-                        return 0;
-                    }
-
-                    for (int i = 1; i <= n; i++) {
-                        endp[-i] = colonp[n - i];
-                        colonp[n - i] = 0;
-                    }
-
-                    tp = endp;
-                }
-
-                if (tp != endp) {
-                    return 0;
-                }
-
-                memcpy(dst, tmp, NS_IN6ADDRSZ);
-
-                return 1;
-            }
-
-            int inet_pton(int af, const char *src, struct in6_addr *dst) {
-                switch (af) {
-                    case AF_INET:
-                        return inet_pton4(src, (char *)dst);
-
-                    case AF_INET6:
-                        return inet_pton6(src, (char *)dst);
-
-                    default:
-                        return -1;
-                }
-            }
-        #endif
-
         int enet_initialize(void) {
             WORD versionRequested = MAKEWORD(1, 1);
             WSADATA wsaData;

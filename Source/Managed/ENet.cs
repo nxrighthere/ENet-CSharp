@@ -137,6 +137,15 @@ namespace ENet {
 			}
 		}
 
+		public string GetHost() {
+			StringBuilder hostName = new StringBuilder(1024);
+
+			if (Native.enet_address_get_host(nativeAddress, hostName, (IntPtr)hostName.Capacity) != 0)
+				return null;
+
+			return hostName.ToString();
+		}
+
 		public bool SetHost(string hostName) {
 			if (hostName == null)
 				throw new ArgumentNullException("hostName");
@@ -835,6 +844,9 @@ namespace ENet {
 
 		[DllImport(nativeLibrary, CallingConvention = CallingConvention.Cdecl)]
 		internal static extern uint enet_time_get();
+
+		[DllImport(nativeLibrary, CallingConvention = CallingConvention.Cdecl)]
+		internal static extern int enet_address_get_host(ENetAddress address, StringBuilder hostName, IntPtr nameLength);
 
 		[DllImport(nativeLibrary, CallingConvention = CallingConvention.Cdecl)]
 		internal static extern int enet_address_set_host(ref ENetAddress address, byte[] hostName);

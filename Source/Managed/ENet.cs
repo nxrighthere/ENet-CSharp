@@ -141,7 +141,7 @@ namespace ENet {
 			StringBuilder hostName = new StringBuilder(1024);
 
 			if (Native.enet_address_get_host(nativeAddress, hostName, (IntPtr)hostName.Capacity) != 0)
-				return null;
+				return String.Empty;
 
 			return hostName.ToString();
 		}

@@ -1368,6 +1368,7 @@ extern "C" {
 			enet_peer_reset(peer);
 		} else {
 			peer->eventData = 0;
+
 			enet_protocol_dispatch_state(host, peer, ENET_PEER_STATE_ZOMBIE);
 		}
 	}
@@ -4148,7 +4149,7 @@ extern "C" {
 	#endif
 
 	enet_uint32 enet_time_get() {
-		static uint64_t start_time_ns = 0;
+		static enet_uint64 start_time_ns = 0;
 
 		struct timespec ts;
 
@@ -4158,20 +4159,20 @@ extern "C" {
 			clock_gettime(CLOCK_MONOTONIC, &ts);
 		#endif
 
-		static const uint64_t ns_in_s = 1000 * 1000 * 1000;
-		static const uint64_t ns_in_ms = 1000 * 1000;
+		static const enet_uint64 ns_in_s = 1000 * 1000 * 1000;
+		static const enet_uint64 ns_in_ms = 1000 * 1000;
 
-		uint64_t current_time_ns = ts.tv_nsec + (uint64_t)ts.tv_sec * ns_in_s;
-		uint64_t offset_ns = ENET_ATOMIC_READ(&start_time_ns);
+		enet_uint64 current_time_ns = ts.tv_nsec + (enet_uint64)ts.tv_sec * ns_in_s;
+		enet_uint64 offset_ns = ENET_ATOMIC_READ(&start_time_ns);
 
 		if (offset_ns == 0) {
-			uint64_t want_value = current_time_ns - 1 * ns_in_ms;
-			uint64_t old_value = ENET_ATOMIC_CAS(&start_time_ns, 0, want_value);
+			enet_uint64 want_value = current_time_ns - 1 * ns_in_ms;
+			enet_uint64 old_value = ENET_ATOMIC_CAS(&start_time_ns, 0, want_value);
 
 			offset_ns = old_value == 0 ? want_value : old_value;
 		}
 
-		uint64_t result_in_ns = current_time_ns - offset_ns;
+		enet_uint64 result_in_ns = current_time_ns - offset_ns;
 
 		return (enet_uint32)(result_in_ns / ns_in_ms);
 	}
@@ -4318,10 +4319,10 @@ extern "C" {
 					if (result->ai_family == AF_INET) {
 						struct sockaddr_in* sin = (struct sockaddr_in*)result->ai_addr;
 
-						((uint32_t*)&address->host.s6_addr)[0] = 0;
-						((uint32_t*)&address->host.s6_addr)[1] = 0;
-						((uint32_t*)&address->host.s6_addr)[2] = htonl(0xffff);
-						((uint32_t*)&address->host.s6_addr)[3] = sin->sin_addr.s_addr;
+						((enet_uint32*)&address->host.s6_addr)[0] = 0;
+						((enet_uint32*)&address->host.s6_addr)[1] = 0;
+						((enet_uint32*)&address->host.s6_addr)[2] = htonl(0xffff);
+						((enet_uint32*)&address->host.s6_addr)[3] = sin->sin_addr.s_addr;
 
 						freeaddrinfo(resultList);
 

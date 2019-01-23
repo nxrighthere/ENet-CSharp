@@ -150,7 +150,7 @@ namespace ENet {
 			if (hostName == null)
 				throw new ArgumentNullException("hostName");
 
-			return Native.enet_address_set_host(ref nativeAddress, Encoding.ASCII.GetBytes(hostName)) == 0;
+			return Native.enet_address_set_host(ref nativeAddress, hostName) == 0;
 		}
 	}
 
@@ -447,7 +447,7 @@ namespace ENet {
 			if (address != null) {
 				var nativeAddress = address.Value.NativeData;
 
-				nativeHost = Native.enet_host_create(nativeAddress, (IntPtr)peerLimit, (IntPtr)channelLimit, incomingBandwidth, outgoingBandwidth);
+				nativeHost = Native.enet_host_create(ref nativeAddress, (IntPtr)peerLimit, (IntPtr)channelLimit, incomingBandwidth, outgoingBandwidth);
 			} else {
 				nativeHost = Native.enet_host_create(IntPtr.Zero, (IntPtr)peerLimit, (IntPtr)channelLimit, incomingBandwidth, outgoingBandwidth);
 			}
@@ -529,7 +529,7 @@ namespace ENet {
 			CheckChannelLimit(channelLimit);
 
 			var nativeAddress = address.NativeData;
-			var peer = new Peer(Native.enet_host_connect(nativeHost, nativeAddress, (IntPtr)channelLimit, data));
+			var peer = new Peer(Native.enet_host_connect(nativeHost, ref nativeAddress, (IntPtr)channelLimit, data));
 
 			if (peer.NativeData == IntPtr.Zero)
 				throw new InvalidOperationException("Host connect call failed");
@@ -804,7 +804,7 @@ namespace ENet {
 		public const uint timeoutLimit = 32;
 		public const uint timeoutMinimum = 5000;
 		public const uint timeoutMaximum = 30000;
-		public const uint version = (2 << 16) | (1 << 8) | (5);
+		public const uint version = (2 << 16) | (1 << 8) | (6);
 
 		public static bool Initialize() {
 			return Native.enet_initialize() == 0;
@@ -849,7 +849,7 @@ namespace ENet {
 		internal static extern int enet_address_get_host(ENetAddress address, StringBuilder hostName, IntPtr nameLength);
 
 		[DllImport(nativeLibrary, CallingConvention = CallingConvention.Cdecl)]
-		internal static extern int enet_address_set_host(ref ENetAddress address, byte[] hostName);
+		internal static extern int enet_address_set_host(ref ENetAddress address, string hostName);
 
 		[DllImport(nativeLibrary, CallingConvention = CallingConvention.Cdecl)]
 		internal static extern IntPtr enet_packet_create(byte[] data, IntPtr dataLength, PacketFlags flags);
@@ -873,13 +873,13 @@ namespace ENet {
 		internal static extern void enet_packet_dispose(IntPtr packet);
 
 		[DllImport(nativeLibrary, CallingConvention = CallingConvention.Cdecl)]
-		internal static extern IntPtr enet_host_create(ENetAddress address, IntPtr peerLimit, IntPtr channelLimit, uint incomingBandwidth, uint outgoingBandwidth);
+		internal static extern IntPtr enet_host_create(ref ENetAddress address, IntPtr peerLimit, IntPtr channelLimit, uint incomingBandwidth, uint outgoingBandwidth);
 
 		[DllImport(nativeLibrary, CallingConvention = CallingConvention.Cdecl)]
 		internal static extern IntPtr enet_host_create(IntPtr address, IntPtr peerLimit, IntPtr channelLimit, uint incomingBandwidth, uint outgoingBandwidth);
 
 		[DllImport(nativeLibrary, CallingConvention = CallingConvention.Cdecl)]
-		internal static extern IntPtr enet_host_connect(IntPtr host, ENetAddress address, IntPtr channelCount, uint data);
+		internal static extern IntPtr enet_host_connect(IntPtr host, ref ENetAddress address, IntPtr channelCount, uint data);
 
 		[DllImport(nativeLibrary, CallingConvention = CallingConvention.Cdecl)]
 		internal static extern void enet_host_broadcast(IntPtr host, byte channelID, IntPtr packet);

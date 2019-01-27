@@ -747,8 +747,6 @@ extern "C" {
 	ENET_API void enet_host_broadcast_selective(ENetHost*, enet_uint8, ENetPacket*, ENetPeer**, size_t);
 	ENET_API void enet_host_channel_limit(ENetHost*, size_t);
 	ENET_API void enet_host_bandwidth_limit(ENetHost*, enet_uint32, enet_uint32);
-	extern void enet_host_bandwidth_throttle(ENetHost*);
-	extern enet_uint64 enet_host_random_seed(void);
 
 	ENET_API int enet_peer_send(ENetPeer*, enet_uint8, ENetPacket*);
 	ENET_API ENetPacket* enet_peer_receive(ENetPeer*, enet_uint8* channelID);
@@ -760,18 +758,6 @@ extern "C" {
 	ENET_API void enet_peer_disconnect_now(ENetPeer*, enet_uint32);
 	ENET_API void enet_peer_disconnect_later(ENetPeer*, enet_uint32);
 	ENET_API void enet_peer_throttle_configure(ENetPeer*, enet_uint32, enet_uint32, enet_uint32);
-	extern int enet_peer_throttle(ENetPeer*, enet_uint32);
-	extern void enet_peer_reset_queues(ENetPeer*);
-	extern void enet_peer_setup_outgoing_command(ENetPeer*, ENetOutgoingCommand*);
-	extern ENetOutgoingCommand* enet_peer_queue_outgoing_command(ENetPeer*, const ENetProtocol*, ENetPacket*, enet_uint32, enet_uint16);
-	extern ENetIncomingCommand* enet_peer_queue_incoming_command(ENetPeer*, const ENetProtocol*, const void*, size_t, enet_uint32, enet_uint32);
-	extern ENetAcknowledgement* enet_peer_queue_acknowledgement(ENetPeer*, const ENetProtocol*, enet_uint16);
-	extern void enet_peer_dispatch_incoming_unreliable_commands(ENetPeer*, ENetChannel*);
-	extern void enet_peer_dispatch_incoming_reliable_commands(ENetPeer*, ENetChannel*);
-	extern void enet_peer_on_connect(ENetPeer*);
-	extern void enet_peer_on_disconnect(ENetPeer*);
-
-	extern size_t enet_protocol_command_size(enet_uint8);
 
 	/* Extended API for easier binding in other programming languages */
 	ENET_API void* enet_packet_get_data(ENetPacket*);
@@ -800,6 +786,28 @@ extern "C" {
 	ENET_API enet_uint64 enet_peer_get_bytes_received(ENetPeer*);
 	ENET_API void* enet_peer_get_data(ENetPeer*);
 	ENET_API void enet_peer_set_data(ENetPeer*, const void*);
+
+// =======================================================================//
+// !
+// ! Private API
+// !
+// =======================================================================//
+
+	extern void enet_host_bandwidth_throttle(ENetHost*);
+	extern enet_uint64 enet_host_random_seed(void);
+
+	extern int enet_peer_throttle(ENetPeer*, enet_uint32);
+	extern void enet_peer_reset_queues(ENetPeer*);
+	extern void enet_peer_setup_outgoing_command(ENetPeer*, ENetOutgoingCommand*);
+	extern ENetOutgoingCommand* enet_peer_queue_outgoing_command(ENetPeer*, const ENetProtocol*, ENetPacket*, enet_uint32, enet_uint16);
+	extern ENetIncomingCommand* enet_peer_queue_incoming_command(ENetPeer*, const ENetProtocol*, const void*, size_t, enet_uint32, enet_uint32);
+	extern ENetAcknowledgement* enet_peer_queue_acknowledgement(ENetPeer*, const ENetProtocol*, enet_uint16);
+	extern void enet_peer_dispatch_incoming_unreliable_commands(ENetPeer*, ENetChannel*);
+	extern void enet_peer_dispatch_incoming_reliable_commands(ENetPeer*, ENetChannel*);
+	extern void enet_peer_on_connect(ENetPeer*);
+	extern void enet_peer_on_disconnect(ENetPeer*);
+
+	extern size_t enet_protocol_command_size(enet_uint8);
 
 #ifdef __cplusplus
 }
@@ -2665,8 +2673,10 @@ extern "C" {
 							currentPeer->packetLoss / (float)ENET_PEER_PACKET_LOSS_SCALE,
 							currentPeer->packetLossVariance / (float)ENET_PEER_PACKET_LOSS_SCALE, currentPeer->roundTripTime, currentPeer->roundTripTimeVariance,
 							currentPeer->packetThrottle / (float)ENET_PEER_PACKET_THROTTLE_SCALE,
+
 							enet_list_size(&currentPeer->outgoingReliableCommands),
 							enet_list_size(&currentPeer->outgoingUnreliableCommands),
+
 							currentPeer->channels != NULL ? enet_list_size(&currentPeer->channels->incomingReliableCommands) : 0,
 							currentPeer->channels != NULL ? enet_list_size(&currentPeer->channels->incomingUnreliableCommands) : 0
 						);
@@ -2751,6 +2761,7 @@ extern "C" {
 
 				currentPeer->lastSendTime = host->serviceTime;
 				sentLength = enet_socket_send(host->socket, &currentPeer->address, host->buffers, host->bufferCount);
+
 				enet_protocol_remove_sent_unreliable_commands(currentPeer);
 
 				if (sentLength < 0)
@@ -3921,13 +3932,13 @@ extern "C" {
 	}
 
 	void enet_host_bandwidth_throttle(ENetHost* host) {
-		enet_uint32 timeCurrent       = enet_time_get();
-		enet_uint32 elapsedTime       = timeCurrent - host->bandwidthThrottleEpoch;
-		enet_uint32 peersRemaining    = (enet_uint32)host->connectedPeers;
-		enet_uint32 dataTotal         = ~0;
-		enet_uint32 bandwidth         = ~0;
-		enet_uint32 throttle          = 0;
-		enet_uint32 bandwidthLimit    = 0;
+		enet_uint32 timeCurrent    = enet_time_get();
+		enet_uint32 elapsedTime    = timeCurrent - host->bandwidthThrottleEpoch;
+		enet_uint32 peersRemaining = (enet_uint32)host->connectedPeers;
+		enet_uint32 dataTotal      = ~0;
+		enet_uint32 bandwidth      = ~0;
+		enet_uint32 throttle       = 0;
+		enet_uint32 bandwidthLimit = 0;
 
 		int needsAdjustment = host->bandwidthLimitedPeers > 0 ? 1 : 0;
 		ENetPeer* peer;
@@ -4168,7 +4179,6 @@ extern "C" {
 		if (offset_ns == 0) {
 			enet_uint64 want_value = current_time_ns - 1 * ns_in_ms;
 			enet_uint64 old_value = ENET_ATOMIC_CAS(&start_time_ns, 0, want_value);
-
 			offset_ns = old_value == 0 ? want_value : old_value;
 		}
 

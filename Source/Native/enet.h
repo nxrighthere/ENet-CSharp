@@ -477,12 +477,11 @@ extern "C" {
 	typedef void (ENET_CALLBACK* ENetPacketFreeCallback)(void*);
 
 	typedef struct _ENetPacket {
-		size_t referenceCount;
 		enet_uint32 flags;
+		enet_uint32 dataLength;
 		enet_uint8* data;
-		size_t dataLength;
 		ENetPacketFreeCallback freeCallback;
-		void* userData;
+		enet_uint32 referenceCount;
 	} ENetPacket;
 
 	typedef struct _ENetAcknowledgement {
@@ -1143,7 +1142,6 @@ extern "C" {
 		packet->flags          = flags;
 		packet->dataLength     = dataLength;
 		packet->freeCallback   = NULL;
-		packet->userData       = NULL;
 
 		return packet;
 	}
@@ -1174,7 +1172,6 @@ extern "C" {
 		packet->flags          = flags;
 		packet->dataLength     = dataLength + dataOffset;
 		packet->freeCallback   = NULL;
-		packet->userData       = NULL;
 
 		return packet;
 	}

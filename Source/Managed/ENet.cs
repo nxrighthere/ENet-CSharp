@@ -326,7 +326,7 @@ namespace ENet {
 			if (data == null)
 				throw new ArgumentNullException("data");
 
-			if (length < 0 || length > data.Length)
+			if (offset < 0 || length < 0 || length > data.Length)
 				throw new ArgumentOutOfRangeException();
 
 			nativePacket = Native.enet_packet_create_offset(data, (IntPtr)length, (IntPtr)offset, flags);
@@ -336,7 +336,7 @@ namespace ENet {
 			if (data == IntPtr.Zero)
 				throw new ArgumentNullException("data");
 
-			if (length < 0)
+			if (offset < 0 || length < 0)
 				throw new ArgumentOutOfRangeException();
 
 			nativePacket = Native.enet_packet_create_offset(data, (IntPtr)length, (IntPtr)offset, flags);

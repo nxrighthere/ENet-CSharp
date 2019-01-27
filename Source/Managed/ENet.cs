@@ -322,6 +322,26 @@ namespace ENet {
 			nativePacket = Native.enet_packet_create(data, (IntPtr)length, flags);
 		}
 
+		public void Create(byte[] data, int offset, int length, PacketFlags flags) {
+			if (data == null)
+				throw new ArgumentNullException("data");
+
+			if (length < 0 || length > data.Length)
+				throw new ArgumentOutOfRangeException();
+
+			nativePacket = Native.enet_packet_create_offset(data, (IntPtr)length, (IntPtr)offset, flags);
+		}
+
+		public void Create(IntPtr data, int offset, int length, PacketFlags flags) {
+			if (data == IntPtr.Zero)
+				throw new ArgumentNullException("data");
+
+			if (length < 0)
+				throw new ArgumentOutOfRangeException();
+
+			nativePacket = Native.enet_packet_create_offset(data, (IntPtr)length, (IntPtr)offset, flags);
+		}
+
 		public void CopyTo(byte[] destination) {
 			if (destination == null)
 				throw new ArgumentNullException("destination");
@@ -856,6 +876,12 @@ namespace ENet {
 
 		[DllImport(nativeLibrary, CallingConvention = CallingConvention.Cdecl)]
 		internal static extern IntPtr enet_packet_create(IntPtr data, IntPtr dataLength, PacketFlags flags);
+
+		[DllImport(nativeLibrary, CallingConvention = CallingConvention.Cdecl)]
+		internal static extern IntPtr enet_packet_create_offset(byte[] data, IntPtr dataLength, IntPtr dataOffset, PacketFlags flags);
+
+		[DllImport(nativeLibrary, CallingConvention = CallingConvention.Cdecl)]
+		internal static extern IntPtr enet_packet_create_offset(IntPtr data, IntPtr dataLength, IntPtr dataOffset, PacketFlags flags);
 
 		[DllImport(nativeLibrary, CallingConvention = CallingConvention.Cdecl)]
 		internal static extern int enet_packet_check_references(IntPtr packet);

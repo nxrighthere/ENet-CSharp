@@ -972,9 +972,8 @@ extern "C" {
 			#define ENET_ATOMIC_CAS(ptr, old_value, new_value)                                                                   \
 				({                                                                                                               \
 					typeof(*(ptr)) ENET_ATOMIC_CAS_old_actual_ = (*(ptr));                                                       \
-					if (ATOMIC_CAS_old_actual_ == (old_value)) {                                                                 \
+					if (ATOMIC_CAS_old_actual_ == (old_value))                                                                   \
 						*(ptr) = new_value;                                                                                      \
-					}                                                                                                            \
 					ENET_ATOMIC_CAS_old_actual_;                                                                                 \
 				})
 			#else
@@ -4146,7 +4145,7 @@ extern "C" {
 
 			return 0;
 		}
-	#elif __APPLE__ && __MAC_OS_X_VERSION_MIN_REQUIRED < 101200
+	#elif __APPLE__ && __MAC_OS_X_VERSION_MIN_REQUIRED < 101200 && !defined(CLOCK_MONOTONIC)
 		#define CLOCK_MONOTONIC 0
 
 		int clock_gettime(int X, struct timespec* ts) {

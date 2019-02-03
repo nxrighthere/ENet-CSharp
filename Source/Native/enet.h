@@ -667,6 +667,8 @@ extern "C" {
 		ENetBuffer buffers[ENET_BUFFER_MAXIMUM];
 		size_t bufferCount;
 		enet_uint8 compression;
+		char* compressionBuffer;
+		size_t compressionBufferSize;
 		ENetChecksumCallback checksumCallback;
 		enet_uint8 packetData[2][ENET_PROTOCOL_MAXIMUM_MTU];
 		ENetAddress receivedAddress;
@@ -2714,23 +2716,28 @@ extern "C" {
 					if (host->compression == 1 && host->packetSize > 64) {
 						size_t originalSize = host->packetSize - sizeof(ENetProtocolHeader), compressedSize = 0;
 						const ENetBuffer* buffers = &host->buffers[1];
-						char* data = (char*)enet_malloc(originalSize);
+
+						if (host->compressionBufferSize < originalSize) {
+							enet_free(host->compressionBuffer);
+
+							host->compressionBuffer = (char*)enet_malloc(originalSize);
+							host->compressionBufferSize = originalSize;
+						}
+
 						int totalSize = originalSize, dataSize = 0;
 
 						while (totalSize) {
 							for (int i = 0; i < host->bufferCount - 1; i++) {
 								int copySize = ENET_MIN(totalSize, (int)buffers[i].dataLength);
 
-								memcpy(data + dataSize, buffers[i].data, copySize);
+								memcpy(host->compressionBuffer + dataSize, buffers[i].data, copySize);
 
 								totalSize -= copySize;
 								dataSize  += copySize;
 							}
 						}
 
-						compressedSize = LZ4_compress_default((const char*)data, (char*)host->packetData[1], dataSize, originalSize);
-
-						enet_free(data);
+						compressedSize = LZ4_compress_default((const char*)host->compressionBuffer, (char*)host->packetData[1], dataSize, originalSize);
 
 						if (compressedSize > 0 && compressedSize < originalSize) {
 							host->headerFlags |= ENET_PROTOCOL_HEADER_FLAG_COMPRESSED;
@@ -3748,6 +3755,7 @@ extern "C" {
 		host->commandCount               = 0;
 		host->bufferCount                = 0;
 		host->compression                = 0;
+		host->compressionBufferSize      = 0;
 		host->checksumCallback           = NULL;
 		host->receivedAddress.host       = ENET_HOST_ANY;
 		host->receivedAddress.port       = 0;
@@ -3797,6 +3805,7 @@ extern "C" {
 		}
 
 		enet_free(host->peers);
+		enet_free(host->compressionBuffer);
 		enet_free(host);
 	}
 

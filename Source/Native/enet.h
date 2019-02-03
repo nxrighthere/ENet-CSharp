@@ -35,7 +35,7 @@
 
 #define ENET_VERSION_MAJOR 2
 #define ENET_VERSION_MINOR 1
-#define ENET_VERSION_PATCH 7
+#define ENET_VERSION_PATCH 8
 #define ENET_VERSION_CREATE(major, minor, patch) (((major) << 16) | ((minor) << 8) | (patch))
 #define ENET_VERSION_GET_MAJOR(version) (((version) >> 16) & 0xFF)
 #define ENET_VERSION_GET_MINOR(version) (((version) >> 8) & 0xFF)
@@ -1156,7 +1156,7 @@ extern "C" {
 
 			packet->data = (enet_uint8*)data;
 		} else {
-			packet = (ENetPacket*)enet_malloc(sizeof(ENetPacket) + dataLength + dataOffset);
+			packet = (ENetPacket*)enet_malloc(sizeof(ENetPacket) + dataLength - dataOffset);
 
 			if (packet == NULL)
 				return NULL;
@@ -1164,12 +1164,12 @@ extern "C" {
 			packet->data = (enet_uint8*)packet + sizeof(ENetPacket);
 
 			if (data != NULL)
-				memcpy(packet->data + dataOffset, data, dataLength);
+				memcpy(packet->data, data + dataOffset, dataLength - dataOffset);
 		}
 
 		packet->referenceCount = 0;
 		packet->flags          = flags;
-		packet->dataLength     = dataLength + dataOffset;
+		packet->dataLength     = dataLength - dataOffset;
 		packet->freeCallback   = NULL;
 
 		return packet;

@@ -63,28 +63,37 @@ using (Host server = new Host()) {
 	server.Create(address, maxClients);
 
 	while (!Console.KeyAvailable) {
-		server.Service(15, out Event netEvent);
+		bool polled = false;
 
-		switch (netEvent.Type) {
-			case EventType.None:
-				break;
+		while (!polled) {
+			if (server.CheckEvents(out netEvent) <= 0) {
+				if (server.Service(15, out netEvent) <= 0)
+					break;
 
-			case EventType.Connect:
-				Console.WriteLine("Client connected - ID: " + netEvent.Peer.ID + ", IP: " + netEvent.Peer.IP);
-				break;
+				polled = true;
+			}
 
-			case EventType.Disconnect:
-				Console.WriteLine("Client disconnected - ID: " + netEvent.Peer.ID + ", IP: " + netEvent.Peer.IP);
-				break;
+			switch (netEvent.Type) {
+				case EventType.None:
+					break;
 
-			case EventType.Timeout:
-				Console.WriteLine("Client timeout - ID: " + netEvent.Peer.ID + ", IP: " + netEvent.Peer.IP);
-				break;
+				case EventType.Connect:
+					Console.WriteLine("Client connected - ID: " + netEvent.Peer.ID + ", IP: " + netEvent.Peer.IP);
+					break;
 
-			case EventType.Receive:
-				Console.WriteLine("Packet received from - ID: " + netEvent.Peer.ID + ", IP: " + netEvent.Peer.IP + ", Channel ID: " + netEvent.ChannelID + ", Data length: " + netEvent.Packet.Length);
-				netEvent.Packet.Dispose();
-				break;
+				case EventType.Disconnect:
+					Console.WriteLine("Client disconnected - ID: " + netEvent.Peer.ID + ", IP: " + netEvent.Peer.IP);
+					break;
+
+				case EventType.Timeout:
+					Console.WriteLine("Client timeout - ID: " + netEvent.Peer.ID + ", IP: " + netEvent.Peer.IP);
+					break;
+
+				case EventType.Receive:
+					Console.WriteLine("Packet received from - ID: " + netEvent.Peer.ID + ", IP: " + netEvent.Peer.IP + ", Channel ID: " + netEvent.ChannelID + ", Data length: " + netEvent.Packet.Length);
+					netEvent.Packet.Dispose();
+					break;
+			}
 		}
 	}
 
@@ -104,28 +113,37 @@ using (Host client = new Host()) {
 	Peer peer = client.Connect(address);
 
 	while (!Console.KeyAvailable) {
-		client.Service(15, out Event netEvent);
+		bool polled = false;
 
-		switch (netEvent.Type) {
-			case EventType.None:
-				break;
+		while (!polled) {
+			if (client.CheckEvents(out netEvent) <= 0) {
+				if (client.Service(15, out netEvent) <= 0)
+					break;
 
-			case EventType.Connect:
-				Console.WriteLine("Client connected to server - ID: " + peer.ID);
-				break;
+				polled = true;
+			}
 
-			case EventType.Disconnect:
-				Console.WriteLine("Client disconnected from server");
-				break;
+			switch (netEvent.Type) {
+				case EventType.None:
+					break;
 
-			case EventType.Timeout:
-				Console.WriteLine("Client connection timeout");
-				break;
+				case EventType.Connect:
+					Console.WriteLine("Client connected to server - ID: " + peer.ID);
+					break;
 
-			case EventType.Receive:
-				Console.WriteLine("Packet received from server - Channel ID: " + netEvent.ChannelID + ", Data length: " + netEvent.Packet.Length);
-				netEvent.Packet.Dispose();
-				break;
+				case EventType.Disconnect:
+					Console.WriteLine("Client disconnected from server");
+					break;
+
+				case EventType.Timeout:
+					Console.WriteLine("Client connection timeout");
+					break;
+
+				case EventType.Receive:
+					Console.WriteLine("Packet received from server - Channel ID: " + netEvent.ChannelID + ", Data length: " + netEvent.Packet.Length);
+					netEvent.Packet.Dispose();
+					break;
+			}
 		}
 	}
 

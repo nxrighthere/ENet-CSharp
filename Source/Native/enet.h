@@ -3731,7 +3731,6 @@ extern "C" {
 		enet_socket_set_option(host->socket, ENET_SOCKOPT_BROADCAST, 1);
 		enet_socket_set_option(host->socket, ENET_SOCKOPT_RCVBUF, ENET_HOST_RECEIVE_BUFFER_SIZE);
 		enet_socket_set_option(host->socket, ENET_SOCKOPT_SNDBUF, ENET_HOST_SEND_BUFFER_SIZE);
-		enet_socket_set_option(host->socket, ENET_SOCKOPT_IPV6_V6ONLY, 0);
 
 		if (address != NULL && enet_socket_get_address(host->socket, &host->address) < 0)
 			host->address = *address;

@@ -173,20 +173,14 @@
 
 #define ENET_MAX(x, y) ((x) > (y) ? (x) : (y))
 #define ENET_MIN(x, y) ((x) < (y) ? (x) : (y))
-#define ENET_IPV6           1
 #define ENET_HOST_ANY       in6addr_any
-#define ENET_HOST_BROADCAST 0xFFFFFFFFU
 #define ENET_PORT_ANY       0
+#define ENET_HOST_BROADCAST 0xFFFFFFFFU
 
 #define ENET_HOST_TO_NET_16(value) (htons(value))
 #define ENET_HOST_TO_NET_32(value) (htonl(value))
 #define ENET_NET_TO_HOST_16(value) (ntohs(value))
 #define ENET_NET_TO_HOST_32(value) (ntohl(value))
-
-#define ENET_SOCKETSET_EMPTY(sockset)          FD_ZERO(&(sockset))
-#define ENET_SOCKETSET_ADD(sockset, socket)    FD_SET(socket, &(sockset))
-#define ENET_SOCKETSET_REMOVE(sockset, socket) FD_CLR(socket, &(sockset))
-#define ENET_SOCKETSET_CHECK(sockset, socket)  FD_ISSET(socket, &(sockset))
 
 #ifdef __cplusplus
 extern "C" {
@@ -4343,7 +4337,7 @@ extern "C" {
 
 						((enet_uint32*)&address->host.s6_addr)[0] = 0;
 						((enet_uint32*)&address->host.s6_addr)[1] = 0;
-						((enet_uint32*)&address->host.s6_addr)[2] = htonl(0xffff);
+						((enet_uint32*)&address->host.s6_addr)[2] = ENET_HOST_TO_NET_32(0xFFFF);
 						((enet_uint32*)&address->host.s6_addr)[3] = sin->sin_addr.s_addr;
 
 						freeaddrinfo(resultList);
@@ -4765,7 +4759,7 @@ extern "C" {
 
 			((enet_uint32*)&address->host.s6_addr)[0] = 0;
 			((enet_uint32*)&address->host.s6_addr)[1] = 0;
-			((enet_uint32*)&address->host.s6_addr)[2] = htonl(0xffff);
+			((enet_uint32*)&address->host.s6_addr)[2] = ENET_HOST_TO_NET_32(0xFFFF);
 			((enet_uint32*)&address->host.s6_addr)[3] = *(enet_uint32*)hostEntry->h_addr_list[0];
 
 			return 0;

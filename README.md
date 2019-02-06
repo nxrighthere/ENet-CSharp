@@ -380,7 +380,7 @@ Contains a managed pointer to the host.
 
 `Host.EnableCompression()` enables packet-level compression.
 
-`Host.PreventConnections(bool state)` prevents access to the host for new incoming connections.
+`Host.PreventConnections(bool state)` prevents access to the host for new incoming connections. This function makes the host completely invisible from outside, any peer that attempts to connect to it will be timed out.
 
 `Host.Broadcast(byte channelID, ref Packet packet, Peer[] peers)` queues a packet to be sent to a range of peers or to all peers associated with the host if the optional peers parameter is not used. Any zeroed `Peer` structure in an array will be excluded from the broadcast.
 

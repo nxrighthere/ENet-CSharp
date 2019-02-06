@@ -62,6 +62,8 @@ using (Host server = new Host()) {
 	address.Port = port;
 	server.Create(address, maxClients);
 
+	Event netEvent;
+
 	while (!Console.KeyAvailable) {
 		bool polled = false;
 
@@ -111,6 +113,8 @@ using (Host client = new Host()) {
 	client.Create();
 
 	Peer peer = client.Connect(address);
+
+	Event netEvent;
 
 	while (!Console.KeyAvailable) {
 		bool polled = false;

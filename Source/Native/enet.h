@@ -1160,7 +1160,7 @@ extern "C" {
 			packet->data = (enet_uint8*)packet + sizeof(ENetPacket);
 
 			if (data != NULL)
-				memcpy(packet->data, data + dataOffset, dataLength - dataOffset);
+				memcpy(packet->data, (enet_uint32*)data + dataOffset, dataLength - dataOffset);
 		}
 
 		packet->referenceCount = 0;

@@ -49,6 +49,9 @@
 #define ENET_TIME_GREATER_EQUAL(a, b) (!ENET_TIME_LESS(a, b))
 #define ENET_TIME_DIFFERENCE(a, b) ((a) - (b) >= ENET_TIME_OVERFLOW ? (b) - (a) : (a) - (b))
 
+#define ENET_MAX(x, y) ((x) > (y) ? (x) : (y))
+#define ENET_MIN(x, y) ((x) < (y) ? (x) : (y))
+
 #define ENET_SRTT_INITIAL 1.0
 #define ENET_SRTT_PARA_G  0.125
 
@@ -65,10 +68,10 @@
 	#endif
 
 	#if defined(_MSC_VER) && defined(ENET_IMPLEMENTATION)
-		#pragma warning(disable: 4267) /* size_t to int conversion */
-		#pragma warning(disable: 4244) /* 64bit to 32bit int */
 		#pragma warning(disable: 4018) /* signed/unsigned mismatch */
 		#pragma warning(disable: 4146) /* unary minus operator applied to unsigned type */
+		#pragma warning(disable: 4244) /* 64bit to 32bit int */
+		#pragma warning(disable: 4267) /* size_t to int conversion */
 	#endif
 
 	#ifndef ENET_NO_PRAGMA_LINK
@@ -171,8 +174,6 @@
 	#define ENET_BUFFER_MAXIMUM (1 + 2 * ENET_PROTOCOL_MAXIMUM_PACKET_COMMANDS)
 #endif
 
-#define ENET_MAX(x, y) ((x) > (y) ? (x) : (y))
-#define ENET_MIN(x, y) ((x) < (y) ? (x) : (y))
 #define ENET_HOST_ANY       in6addr_any
 #define ENET_PORT_ANY       0
 #define ENET_HOST_BROADCAST 0xFFFFFFFFU

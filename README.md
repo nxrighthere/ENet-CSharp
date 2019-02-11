@@ -12,7 +12,7 @@ Features:
 
 - Lightweight and straightforward
 - Low resource consumption
-- IPv4/IPv6 support
+- Dual-stack IPv4/IPv6 support
 - Connection management
 - Sequencing
 - Channels

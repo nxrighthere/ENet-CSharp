@@ -700,7 +700,7 @@ namespace ENet {
 			}
 		}
 
-		public uint PacketsLost {
+		public ulong PacketsLost {
 			get {
 				CheckCreated();
 
@@ -824,7 +824,7 @@ namespace ENet {
 		public const uint timeoutLimit = 32;
 		public const uint timeoutMinimum = 5000;
 		public const uint timeoutMaximum = 30000;
-		public const uint version = (2 << 16) | (1 << 8) | (8);
+		public const uint version = (2 << 16) | (1 << 8) | (9);
 
 		public static bool Initialize() {
 			return Native.enet_initialize() == 0;
@@ -983,7 +983,7 @@ namespace ENet {
 		internal static extern ulong enet_peer_get_packets_sent(IntPtr peer);
 
 		[DllImport(nativeLibrary, CallingConvention = CallingConvention.Cdecl)]
-		internal static extern uint enet_peer_get_packets_lost(IntPtr peer);
+		internal static extern ulong enet_peer_get_packets_lost(IntPtr peer);
 
 		[DllImport(nativeLibrary, CallingConvention = CallingConvention.Cdecl)]
 		internal static extern ulong enet_peer_get_bytes_sent(IntPtr peer);

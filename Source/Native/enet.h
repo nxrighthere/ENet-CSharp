@@ -35,7 +35,7 @@
 
 #define ENET_VERSION_MAJOR 2
 #define ENET_VERSION_MINOR 1
-#define ENET_VERSION_PATCH 8
+#define ENET_VERSION_PATCH 9
 #define ENET_VERSION_CREATE(major, minor, patch) (((major) << 16) | ((minor) << 8) | (patch))
 #define ENET_VERSION_GET_MAJOR(version) (((version) >> 16) & 0xFF)
 #define ENET_VERSION_GET_MINOR(version) (((version) >> 8) & 0xFF)
@@ -203,9 +203,9 @@ extern "C" {
 	typedef fd_set ENetSocketSet;
 
 	typedef struct _ENetCallbacks {
-		void*(ENET_CALLBACK* malloc)(size_t size);
-		void(ENET_CALLBACK* free)(void* memory);
-		void(ENET_CALLBACK* noMemory)(void);
+		void*(ENET_CALLBACK *malloc)(size_t size);
+		void(ENET_CALLBACK *free)(void* memory);
+		void(ENET_CALLBACK *noMemory)(void);
 	} ENetCallbacks;
 
 	extern void* enet_malloc(size_t);
@@ -469,7 +469,7 @@ extern "C" {
 		ENET_PACKET_FLAG_SENT                = (1 << 8)
 	} ENetPacketFlag;
 
-	typedef void (ENET_CALLBACK* ENetPacketFreeCallback)(void*);
+	typedef void (ENET_CALLBACK *ENetPacketFreeCallback)(void*);
 
 	typedef struct _ENetPacket {
 		enet_uint32 flags;
@@ -592,7 +592,7 @@ extern "C" {
 		enet_uint32 packetsSent;
 		enet_uint64 totalPacketsSent;
 		enet_uint32 packetsLost;
-		enet_uint32 totalPacketsLost;
+		enet_uint64 totalPacketsLost;
 		enet_uint32 packetLoss;
 		enet_uint32 packetLossVariance;
 		enet_uint32 packetThrottle;
@@ -631,9 +631,9 @@ extern "C" {
 		size_t totalWaitingData;
 	} ENetPeer;
 
-	typedef enet_uint32 (ENET_CALLBACK* ENetChecksumCallback)(const ENetBuffer* buffers, size_t bufferCount);
+	typedef enet_uint32 (ENET_CALLBACK *ENetChecksumCallback)(const ENetBuffer* buffers, size_t bufferCount);
 
-	typedef int (ENET_CALLBACK* ENetInterceptCallback)(struct _ENetHost* host, void* event);
+	typedef int (ENET_CALLBACK *ENetInterceptCallback)(struct _ENetHost* host, void* event);
 
 	typedef struct _ENetHost {
 		ENetSocket socket;
@@ -777,7 +777,7 @@ extern "C" {
 	ENET_API enet_uint32 enet_peer_get_lastsendtime(ENetPeer*);
 	ENET_API enet_uint32 enet_peer_get_lastreceivetime(ENetPeer*);
 	ENET_API enet_uint64 enet_peer_get_packets_sent(ENetPeer*);
-	ENET_API enet_uint32 enet_peer_get_packets_lost(ENetPeer*);
+	ENET_API enet_uint64 enet_peer_get_packets_lost(ENetPeer*);
 	ENET_API enet_uint64 enet_peer_get_bytes_sent(ENetPeer*);
 	ENET_API enet_uint64 enet_peer_get_bytes_received(ENetPeer*);
 	ENET_API void* enet_peer_get_data(ENetPeer*);
@@ -4277,7 +4277,7 @@ extern "C" {
 		return peer->totalPacketsSent;
 	}
 
-	enet_uint32 enet_peer_get_packets_lost(ENetPeer* peer) {
+	enet_uint64 enet_peer_get_packets_lost(ENetPeer* peer) {
 		return peer->totalPacketsLost;
 	}
 

@@ -281,6 +281,12 @@ namespace ENet {
 				throw new InvalidOperationException("Packet not created");
 		}
 
+		public void SetFreeCallback(IntPtr callback) {
+			CheckCreated();
+
+			Native.enet_packet_set_free_callback(nativePacket, callback);
+		}
+
 		public void SetFreeCallback(PacketFreeCallback callback) {
 			CheckCreated();
 

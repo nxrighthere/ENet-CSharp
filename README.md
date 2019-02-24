@@ -39,7 +39,7 @@ A managed assembly can be built using any available compiling platform that supp
 
 Compiled libraries
 --------
-You can grab compiled libraries from the [release](https://github.com/nxrighthere/ENet-CSharp/releases) section:
+You can grab compiled libraries from the [release](https://github.com/nxrighthere/ENet-CSharp/releases) section or from [NuGet](https://www.nuget.org/packages/ENet-CSharp):
 
 `ENet-CSharp` contains compiled assembly with native libraries for the .NET environment (.NET Standard 2.0).
 

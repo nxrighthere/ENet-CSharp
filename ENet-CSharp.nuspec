@@ -18,17 +18,14 @@
   <files>
     <file src="build\ENet-CSharp.targets" target="build\ENet-CSharp.targets" />
     <file src="lib\net35\ENet-CSharp.dll" target="lib\net35\ENet-CSharp.dll" />
-    <file src="lib\net35\enet.dll" target="lib\net35\enet.dll" />
-    <file src="lib\net35\enet.dylib" target="lib\net35\enet.dylib" />
-    <file src="lib\net35\libenet.so" target="lib\net35\libenet.so" />
     <file src="lib\netcoreapp2.0\ENet-CSharp.dll" target="lib\netcoreapp2.0\ENet-CSharp.dll" />
     <file src="lib\netcoreapp2.0\enet.dll" target="lib\netcoreapp2.0\enet.dll" />
     <file src="lib\netcoreapp2.0\enet.dylib" target="lib\netcoreapp2.0\enet.dylib" />
     <file src="lib\netcoreapp2.0\libenet.so" target="lib\netcoreapp2.0\libenet.so" />
     <file src="lib\netstandard2.0\ENet-CSharp.dll" target="lib\netstandard2.0\ENet-CSharp.dll" />
-    <file src="lib\netstandard2.0\enet.dll" target="lib\netstandard2.0\enet.dll" />
-    <file src="lib\netstandard2.0\enet.dylib" target="lib\netstandard2.0\enet.dylib" />
-    <file src="lib\netstandard2.0\libenet.so" target="lib\netstandard2.0\libenet.so" />
+    <file src="lib\enet.dll" target="lib\enet.dll" />
+    <file src="lib\enet.dylib" target="lib\enet.dylib" />
+    <file src="lib\libenet.so" target="lib\libenet.so" />
     <file src="license\license.txt" target="license\license.txt" />
   </files>
 </package>

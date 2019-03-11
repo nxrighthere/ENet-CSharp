@@ -176,6 +176,7 @@
 
 #define ENET_HOST_ANY       in6addr_any
 #define ENET_PORT_ANY       0
+#define ENET_HOST_SIZE      1025
 #define ENET_HOST_BROADCAST 0xFFFFFFFFU
 
 #define ENET_HOST_TO_NET_16(value) (htons(value))

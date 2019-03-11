@@ -203,9 +203,9 @@ extern "C" {
 	typedef fd_set ENetSocketSet;
 
 	typedef struct _ENetCallbacks {
-		void*(ENET_CALLBACK *malloc)(size_t size);
-		void(ENET_CALLBACK *free)(void* memory);
-		void(ENET_CALLBACK *noMemory)(void);
+		void* (ENET_CALLBACK *malloc)(size_t size);
+		void (ENET_CALLBACK *free)(void* memory);
+		void (ENET_CALLBACK *noMemory)(void);
 	} ENetCallbacks;
 
 	extern void* enet_malloc(size_t);
@@ -462,6 +462,7 @@ extern "C" {
 	#define in6_equal(in6_addr_a, in6_addr_b) (memcmp(&in6_addr_a, &in6_addr_b, sizeof(struct in6_addr)) == 0)
 
 	typedef enum _ENetPacketFlag {
+		ENET_PACKET_FLAG_NONE                = 0,
 		ENET_PACKET_FLAG_RELIABLE            = (1 << 0),
 		ENET_PACKET_FLAG_UNSEQUENCED         = (1 << 1),
 		ENET_PACKET_FLAG_NO_ALLOCATE         = (1 << 2),
@@ -1021,7 +1022,11 @@ extern "C" {
 // !
 // =======================================================================//
 
-	static ENetCallbacks callbacks = { malloc, free, abort };
+	static ENetCallbacks callbacks = {
+		malloc,
+		free,
+		abort
+	};
 
 	int enet_initialize_with_callbacks(ENetVersion version, const ENetCallbacks* inits) {
 		if (version < ENET_VERSION_CREATE(1, 3, 0))
@@ -2632,7 +2637,7 @@ extern "C" {
 			size_t shouldCompress = 0;
 		#endif
 
-		while (host->continueSending)
+		while (host->continueSending) {
 			for (host->continueSending = 0, currentPeer = host->peers; currentPeer < &host->peers[host->peerCount]; ++currentPeer) {
 				if (currentPeer->state == ENET_PEER_STATE_DISCONNECTED || currentPeer->state == ENET_PEER_STATE_ZOMBIE)
 					continue;
@@ -2777,6 +2782,7 @@ extern "C" {
 				currentPeer->totalDataSent += sentLength;
 				host->totalSentPackets++;
 			}
+		}
 
 		return 0;
 	}

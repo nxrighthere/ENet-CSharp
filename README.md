@@ -6,7 +6,7 @@
 
 This project is based on collaborative work with [@inlife](https://github.com/inlife) and inherited all features of the custom [fork](https://github.com/zpl-c/enet) where the native library was heavily modified. You can find the most notable changes [here](https://github.com/nxrighthere/ENet-CSharp/issues/22#issuecomment-432982154). This version is extended, optimized, and involves new features that were not available before to boost the development process and run safely in the managed .NET environment with the highest possible performance.
 
-Although the project is called ENet-CSharp, this is not just a C# wrapper for the native C library, but an independent fork which is incompatible with any other ENet implementation including the original one since 2.0 version. Programmers who are using C/C++ languages can utilize this fork as well in any projects.
+Although the project is called ENet-CSharp, this is not just a C# wrapper for the native C library, but an independent fork which is incompatible with any other ENet implementation including the [original](https://github.com/lsalzman/enet) since 2.0.0 version. Programmers who are using C/C++ languages can utilize this fork as well in any projects.
 
 Features:
 

@@ -2725,11 +2725,13 @@ extern "C" {
 							host->compressionBufferSize = originalSize;
 						}
 
-						int totalSize = originalSize, dataSize = 0;
+						size_t totalSize = originalSize, dataSize = 0;
 
 						while (totalSize) {
-							for (int i = 0; i < host->bufferCount - 1; i++) {
-								int copySize = ENET_MIN(totalSize, (int)buffers[i].dataLength);
+							size_t i;
+
+							for (i = 0; i < host->bufferCount - 1; i++) {
+								size_t copySize = ENET_MIN(totalSize, buffers[i].dataLength);
 
 								memcpy(host->compressionBuffer + dataSize, buffers[i].data, copySize);
 
@@ -3913,11 +3915,12 @@ extern "C" {
 
 	void enet_host_broadcast_selective(ENetHost* host, enet_uint8 channelID, ENetPacket* packet, ENetPeer** peers, size_t length) {
 		ENetPeer* currentPeer;
+		size_t i;
 
 		if (host == NULL)
 			return;
 
-		for (int i = 0; i < length; i++) {
+		for (i = 0; i < length; i++) {
 			currentPeer = peers[i];
 
 			if (currentPeer == NULL || currentPeer->state != ENET_PEER_STATE_CONNECTED)

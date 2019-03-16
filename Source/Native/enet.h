@@ -79,6 +79,10 @@
 		#pragma comment(lib, "winmm.lib")
 	#endif
 
+	#if _MSC_VER
+		#define _WINSOCK_DEPRECATED_NO_WARNINGS
+	#endif
+
 	#if _MSC_VER >= 1910
 		/* It looks like there were changes as of Visual Studio 2017 and there are no 32/64 bit
 		versions of _InterlockedExchange[operation], only InterlockedExchange[operation]

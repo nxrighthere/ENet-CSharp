@@ -4256,7 +4256,7 @@ extern "C" {
 	}
 
 	enet_uint32 enet_peer_get_id(const ENetPeer* peer) {
-		return peer->connectID;
+		return peer->incomingPeerID;
 	}
 
 	int enet_peer_get_ip(const ENetPeer* peer, char* ip, size_t ipLength) {

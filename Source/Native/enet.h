@@ -4258,6 +4258,10 @@ extern "C" {
 	enet_uint32 enet_peer_get_id(const ENetPeer* peer) {
 		return peer->connectID;
 	}
+	
+	enet_uint16 enet_peer_get_peer_id(const ENetPeer* peer) {
+		return peer->incomingPeerID;
+	}
 
 	int enet_peer_get_ip(const ENetPeer* peer, char* ip, size_t ipLength) {
 		return enet_address_get_host_ip(&peer->address, ip, ipLength);

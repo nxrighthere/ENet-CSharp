@@ -607,7 +607,6 @@ namespace ENet {
 	public struct Peer {
 		private IntPtr nativePeer;
 		private uint nativeID;
-		private ushort nativePeerID;
 
 		internal IntPtr NativeData {
 			get {
@@ -622,7 +621,6 @@ namespace ENet {
 		public Peer(IntPtr peer) {
 			nativePeer = peer;
 			nativeID = nativePeer != IntPtr.Zero ? Native.enet_peer_get_id(nativePeer) : 0;
-			nativePeerID = nativePeer != IntPtr.Zero ? Native.enet_peer_get_peer_id(nativePeer) : 0;
 		}
 
 		public bool IsSet {
@@ -634,12 +632,6 @@ namespace ENet {
 		public uint ID {
 			get {
 				return nativeID;
-			}
-		}
-		
-		public ushort PeerID {
-			get {
-				return nativePeerID;
 			}
 		}
 
@@ -971,9 +963,6 @@ namespace ENet {
 
 		[DllImport(nativeLibrary, CallingConvention = CallingConvention.Cdecl)]
 		internal static extern uint enet_peer_get_id(IntPtr peer);
-		
-		[DllImport(nativeLibrary, CallingConvention = CallingConvention.Cdecl)]
-		internal static extern ushort enet_peer_get_peer_id(IntPtr peer);
 
 		[DllImport(nativeLibrary, CallingConvention = CallingConvention.Cdecl)]
 		internal static extern int enet_peer_get_ip(IntPtr peer, byte[] ip, IntPtr ipLength);

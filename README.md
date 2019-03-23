@@ -132,7 +132,7 @@ using (Host client = new Host()) {
 					break;
 
 				case EventType.Connect:
-					Console.WriteLine("Client connected to server - ID: " + peer.ID);
+					Console.WriteLine("Client connected to server");
 					break;
 
 				case EventType.Disconnect:

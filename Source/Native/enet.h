@@ -35,7 +35,7 @@
 
 #define ENET_VERSION_MAJOR 2
 #define ENET_VERSION_MINOR 2
-#define ENET_VERSION_PATCH 2
+#define ENET_VERSION_PATCH 3
 #define ENET_VERSION_CREATE(major, minor, patch) (((major) << 16) | ((minor) << 8) | (patch))
 #define ENET_VERSION_GET_MAJOR(version) (((version) >> 16) & 0xFF)
 #define ENET_VERSION_GET_MINOR(version) (((version) >> 8) & 0xFF)
@@ -746,6 +746,7 @@ extern "C" {
 	ENET_API int enet_host_service(ENetHost*, ENetEvent*, enet_uint32);
 	ENET_API void enet_host_flush(ENetHost*);
 	ENET_API void enet_host_broadcast(ENetHost*, enet_uint8, ENetPacket*);
+	ENET_API void enet_host_broadcast_excluding(ENetHost*, enet_uint8, ENetPacket*, ENetPeer*);
 	ENET_API void enet_host_broadcast_selective(ENetHost*, enet_uint8, ENetPacket*, ENetPeer**, size_t);
 	ENET_API void enet_host_channel_limit(ENetHost*, size_t);
 	ENET_API void enet_host_bandwidth_limit(ENetHost*, enet_uint32, enet_uint32);
@@ -3915,6 +3916,20 @@ extern "C" {
 
 		if (packet->referenceCount == 0)
 			enet_packet_destroy(packet);
+	}
+
+	void enet_host_broadcast_excluding(ENetHost* host, enet_uint8 channelID, ENetPacket* packet, ENetPeer* peer) {
+		ENetPeer* currentPeer;
+
+		for (currentPeer = host->peers; currentPeer < &host->peers[host->peerCount]; ++currentPeer) {
+			if (currentPeer->state != ENET_PEER_STATE_CONNECTED || currentPeer == peer)
+				continue;
+
+			enet_peer_send(currentPeer, channelID, packet);
+		}
+
+		if (packet->referenceCount == 0)
+			enet_packet_destroy(packet);		
 	}
 
 	void enet_host_broadcast_selective(ENetHost* host, enet_uint8 channelID, ENetPacket* packet, ENetPeer** peers, size_t length) {

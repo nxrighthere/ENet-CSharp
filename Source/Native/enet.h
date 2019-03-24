@@ -3918,11 +3918,11 @@ extern "C" {
 			enet_packet_destroy(packet);
 	}
 
-	void enet_host_broadcast_excluding(ENetHost* host, enet_uint8 channelID, ENetPacket* packet, ENetPeer* peer) {
+	void enet_host_broadcast_excluding(ENetHost* host, enet_uint8 channelID, ENetPacket* packet, ENetPeer* excludedPeer) {
 		ENetPeer* currentPeer;
 
 		for (currentPeer = host->peers; currentPeer < &host->peers[host->peerCount]; ++currentPeer) {
-			if (currentPeer->state != ENET_PEER_STATE_CONNECTED || currentPeer == peer)
+			if (currentPeer->state != ENET_PEER_STATE_CONNECTED || currentPeer == excludedPeer)
 				continue;
 
 			enet_peer_send(currentPeer, channelID, packet);

@@ -502,11 +502,11 @@ namespace ENet {
 			packet.NativeData = IntPtr.Zero;
 		}
 
-		public void Broadcast(byte channelID, ref Packet packet, Peer peer) {
+		public void Broadcast(byte channelID, ref Packet packet, Peer excludedPeer) {
 			CheckCreated();
 
 			packet.CheckCreated();
-			Native.enet_host_broadcast_excluding(nativeHost, channelID, packet.NativeData, peer.NativeData);
+			Native.enet_host_broadcast_excluding(nativeHost, channelID, packet.NativeData, excludedPeer.NativeData);
 			packet.NativeData = IntPtr.Zero;
 		}
 
@@ -925,7 +925,7 @@ namespace ENet {
 		internal static extern void enet_host_broadcast(IntPtr host, byte channelID, IntPtr packet);
 
 		[DllImport(nativeLibrary, CallingConvention = CallingConvention.Cdecl)]
-		internal static extern void enet_host_broadcast_excluding(IntPtr host, byte channelID, IntPtr packet, IntPtr peer);
+		internal static extern void enet_host_broadcast_excluding(IntPtr host, byte channelID, IntPtr packet, IntPtr excludedPeer);
 
 		[DllImport(nativeLibrary, CallingConvention = CallingConvention.Cdecl)]
 		internal static extern void enet_host_broadcast_selective(IntPtr host, byte channelID, IntPtr packet, IntPtr[] peers, IntPtr peersLength);

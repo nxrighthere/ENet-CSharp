@@ -1876,24 +1876,24 @@ extern "C" {
 				--startCommand->fragmentsRemaining;
 				startCommand->fragments[fragmentNumber / 32] |= (1 << (fragmentNumber % 32));
 
-				if (fragmentOffset + fragmentLength > startCommand->packet->dataLength)
-					fragmentLength = startCommand->packet->dataLength - fragmentOffset;
+			if (fragmentOffset + fragmentLength > startCommand->packet->dataLength)
+				fragmentLength = startCommand->packet->dataLength - fragmentOffset;
 
-				memcpy(startCommand->packet->data + fragmentOffset, (enet_uint8*)command + sizeof(ENetProtocolSendFragment), fragmentLength);
+			memcpy(startCommand->packet->data + fragmentOffset, (enet_uint8*)command + sizeof(ENetProtocolSendFragment), fragmentLength);
 
-				if (startCommand->fragmentsRemaining <= 0)
-					enet_peer_dispatch_incoming_unreliable_commands(peer, channel);
-			}
-
-			return 0;
+			if (startCommand->fragmentsRemaining <= 0)
+				enet_peer_dispatch_incoming_unreliable_commands(peer, channel);
 		}
 
-		static int enet_protocol_handle_ping(ENetHost* host, ENetPeer* peer, const ENetProtocol* command) {
-			if (peer->state != ENET_PEER_STATE_CONNECTED && peer->state != ENET_PEER_STATE_DISCONNECT_LATER)
-				return -1;
+		return 0;
+	}
 
-			return 0;
-		}
+	static int enet_protocol_handle_ping(ENetHost* host, ENetPeer* peer, const ENetProtocol* command) {
+		if (peer->state != ENET_PEER_STATE_CONNECTED && peer->state != ENET_PEER_STATE_DISCONNECT_LATER)
+			return -1;
+
+		return 0;
+	}
 
 	static int enet_protocol_handle_bandwidth_limit(ENetHost* host, ENetPeer* peer, const ENetProtocol* command) {
 		if (peer->state != ENET_PEER_STATE_CONNECTED && peer->state != ENET_PEER_STATE_DISCONNECT_LATER)
@@ -2005,9 +2005,7 @@ extern "C" {
 		if (peer->roundTripTimeVariance > peer->highestRoundTripTimeVariance)
 			peer->highestRoundTripTimeVariance = peer->roundTripTimeVariance;
 
-		if (peer->packetThrottleEpoch == 0 ||
-			ENET_TIME_DIFFERENCE(host->serviceTime, peer->packetThrottleEpoch) >= peer->packetThrottleInterval) {
-
+		if (peer->packetThrottleEpoch == 0 || ENET_TIME_DIFFERENCE(host->serviceTime, peer->packetThrottleEpoch) >= peer->packetThrottleInterval) {
 			peer->lastRoundTripTime            = peer->lowestRoundTripTime;
 			peer->lastRoundTripTimeVariance    = peer->highestRoundTripTimeVariance;
 			peer->lowestRoundTripTime          = peer->roundTripTime;
@@ -4553,8 +4551,8 @@ extern "C" {
 		}
 
 		int enet_socket_connect(ENetSocket socket, const ENetAddress* address) {
+			int result = -1;
 			struct sockaddr_in6 sin;
-			int result;
 
 			memset(&sin, 0, sizeof(struct sockaddr_in6));
 
@@ -4571,7 +4569,7 @@ extern "C" {
 		}
 
 		ENetSocket enet_socket_accept(ENetSocket socket, ENetAddress* address) {
-			int result;
+			int result = -1;
 			struct sockaddr_in6 sin;
 			socklen_t sinLength = sizeof(struct sockaddr_in6);
 
@@ -4594,7 +4592,7 @@ extern "C" {
 		}
 
 		void enet_socket_destroy(ENetSocket socket) {
-			if (socket != -1)
+			if (socket != ENET_SOCKET_NULL)
 				close(socket);
 		}
 
@@ -4941,8 +4939,8 @@ extern "C" {
 		}
 
 		int enet_socket_connect(ENetSocket socket, const ENetAddress* address) {
+			int result = -1;
 			struct sockaddr_in6 sin;
-			int result;
 
 			memset(&sin, 0, sizeof(struct sockaddr_in6));
 

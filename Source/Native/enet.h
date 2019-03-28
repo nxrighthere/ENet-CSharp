@@ -5000,7 +5000,7 @@ extern "C" {
 			}
 
 			if (WSASendTo(socket, (LPWSABUF)buffers, (DWORD)bufferCount, &sentLength, 0, address != NULL ? (struct sockaddr*)&sin : NULL, address != NULL ? sizeof(struct sockaddr_in6) : 0, NULL, NULL) == SOCKET_ERROR)
-				return (WSAGetLastError() == WSAEWOULDBLOCK) ? 0 : 1;
+				return (WSAGetLastError() == WSAEWOULDBLOCK) ? 0 : -1;
 
 			return (int)sentLength;
 		}

@@ -4338,7 +4338,11 @@ extern "C" {
 		void enet_deinitialize(void) { }
 
 		enet_uint64 enet_host_random_seed(void) {
-			return (enet_uint64)time(NULL);
+			struct timeval timeVal;
+
+			gettimeofday(&timeVal, NULL);
+
+			return (timeVal.tv_sec * 1000) ^ (timeVal.tv_usec / 1000);
 		}
 
 		int enet_address_set_host_ip(ENetAddress* address, const char* name) {
@@ -4616,7 +4620,7 @@ extern "C" {
 
 			msgHdr.msg_iov    = (struct iovec*)buffers;
 			msgHdr.msg_iovlen = bufferCount;
-			sentLength = sendmsg(socket, &msgHdr, MSG_NOSIGNAL);
+			sentLength        = sendmsg(socket, &msgHdr, MSG_NOSIGNAL);
 
 			if (sentLength == -1) {
 				if (errno == EWOULDBLOCK)
@@ -4642,7 +4646,7 @@ extern "C" {
 
 			msgHdr.msg_iov    = (struct iovec*)buffers;
 			msgHdr.msg_iovlen = bufferCount;
-			recvLength = recvmsg(socket, &msgHdr, MSG_NOSIGNAL);
+			recvLength        = recvmsg(socket, &msgHdr, MSG_NOSIGNAL);
 
 			if (recvLength == -1) {
 				if (errno == EWOULDBLOCK)

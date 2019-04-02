@@ -29,13 +29,9 @@
 #include <stdint.h>
 #include <time.h>
 
-#ifdef ENET_LZ4
-	#include "lz4/lz4.h"
-#endif
-
 #define ENET_VERSION_MAJOR 2
 #define ENET_VERSION_MINOR 2
-#define ENET_VERSION_PATCH 3
+#define ENET_VERSION_PATCH 4
 #define ENET_VERSION_CREATE(major, minor, patch) (((major) << 16) | ((minor) << 8) | (patch))
 #define ENET_VERSION_GET_MAJOR(version) (((version) >> 16) & 0xFF)
 #define ENET_VERSION_GET_MINOR(version) (((version) >> 8) & 0xFF)
@@ -191,6 +187,10 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+	#ifdef ENET_LZ4
+		#include "lz4/lz4.h"
+	#endif
 
 // =======================================================================//
 // !
@@ -423,7 +423,7 @@ extern "C" {
 
 // =======================================================================//
 // !
-// ! General ENet structs/enums
+// ! General structs/enums
 // !
 // =======================================================================//
 
@@ -4326,7 +4326,7 @@ extern "C" {
 
 // =======================================================================//
 // !
-// ! Platform Specific (Unix)
+// ! Platform-specific (Unix)
 // !
 // =======================================================================//
 
@@ -4718,7 +4718,7 @@ extern "C" {
 
 // =======================================================================//
 // !
-// ! Platform Specific (Win)
+// ! Platform-specific (Windows)
 // !
 // =======================================================================//
 

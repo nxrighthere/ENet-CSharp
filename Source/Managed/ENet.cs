@@ -838,7 +838,7 @@ namespace ENet {
 		public const uint timeoutLimit = 32;
 		public const uint timeoutMinimum = 5000;
 		public const uint timeoutMaximum = 30000;
-		public const uint version = (2 << 16) | (2 << 8) | (3);
+		public const uint version = (2 << 16) | (2 << 8) | (4);
 
 		public static bool Initialize() {
 			return Native.enet_initialize() == 0;

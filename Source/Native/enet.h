@@ -533,7 +533,7 @@ extern "C" {
 		ENET_HOST_RECEIVE_BUFFER_SIZE          = 256 * 1024,
 		ENET_HOST_SEND_BUFFER_SIZE             = 256 * 1024,
 		ENET_HOST_BANDWIDTH_THROTTLE_INTERVAL  = 1000,
-		ENET_HOST_DEFAULT_MTU                  = 1400,
+		ENET_HOST_DEFAULT_MTU                  = 1280,
 		ENET_HOST_DEFAULT_MAXIMUM_PACKET_SIZE  = 32 * 1024 * 1024,
 		ENET_HOST_DEFAULT_MAXIMUM_WAITING_DATA = 32 * 1024 * 1024,
 		ENET_PEER_DEFAULT_ROUND_TRIP_TIME      = 500,
@@ -4111,7 +4111,7 @@ extern "C" {
 // =======================================================================//
 
 	#ifdef _WIN32
-		static LARGE_INTEGER getFILETIMEoffset() {
+		static LARGE_INTEGER getFILETIMEoffset(void) {
 			SYSTEMTIME s;
 			FILETIME f;
 			LARGE_INTEGER t;

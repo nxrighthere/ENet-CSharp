@@ -275,6 +275,10 @@ Contains marshalled structure with host data and port number.
 
 `Address.Port` set or get a port number.
 
+`Address.GetIP()` get an IP address.
+
+`Address.SetIP(string ip)` set an IP address.
+
 `Address.GetHost()` attempts to do a reverse lookup from the address. Returns a string with a resolved name or an IP address.
 
 `Address.SetHost(string hostName)` set host name or an IP address (IPv4/IPv6). Should be used for binding to a network interface or for connection to a foreign host. Returns true on success or false on failure.

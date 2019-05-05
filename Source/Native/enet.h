@@ -2749,7 +2749,7 @@ extern "C" {
 							host->headerFlags |= ENET_PROTOCOL_HEADER_FLAG_COMPRESSED;
 							shouldCompress     = compressedSize;
 
-							#ifdef ENET_DEBUG_COMPRESS
+							#ifdef ENET_DEBUG
 								printf("peer %u: compressed %u->%u (%u%%)\n", currentPeer->incomingPeerID, originalSize, compressedSize, (compressedSize * 100) / originalSize);
 							#endif
 						}

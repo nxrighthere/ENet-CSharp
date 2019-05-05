@@ -14,6 +14,10 @@ endif()
 
 include_directories(${PROJECT_SOURCE_DIR})
 
+if (ENET_DEBUG)
+    add_definitions(-DENET_DEBUG)
+endif()
+
 if (ENET_LZ4)
     add_definitions(-DENET_LZ4)
     set(SOURCES lz4/lz4.c)

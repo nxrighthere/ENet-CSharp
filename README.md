@@ -350,6 +350,8 @@ Contains a managed pointer to the peer and cached ID.
 
 `Peer.Send(byte channelID, ref Packet packet)` queues a packet to be sent. Returns true on success or false on failure.
 
+`Peer.Receive(out channelID, out Packet packet)` attempts to dequeue any incoming queued packet. Returns true if a packet was dequeued or false if no packets available.
+
 `Peer.Ping()` sends a ping request to a peer. ENet automatically pings all connected peers at regular intervals, however, this function may be called to ensure more frequent ping requests.
 
 `Peer.PingInterval(uint interval)` sets an interval at which pings will be sent to a peer. Pings are used both to monitor the liveness of the connection and also to dynamically adjust the throttle during periods of low traffic so that the throttle has reasonable responsiveness during traffic spikes.

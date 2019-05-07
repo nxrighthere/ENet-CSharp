@@ -787,6 +787,22 @@ namespace ENet {
 			return Native.enet_peer_send(nativePeer, channelID, packet.NativeData) == 0;
 		}
 
+		public bool Receive(out byte channelID, out Packet packet) {
+			CheckCreated();
+
+			IntPtr nativePacket = Native.enet_peer_receive(nativePeer, out channelID);
+
+			if (nativePacket != IntPtr.Zero) {
+				packet = new Packet(nativePacket);
+
+				return true;
+			}
+
+			packet = default(Packet);
+
+			return false;
+		}
+
 		public void Ping() {
 			CheckCreated();
 
@@ -854,7 +870,7 @@ namespace ENet {
 		public const uint timeoutLimit = 32;
 		public const uint timeoutMinimum = 5000;
 		public const uint timeoutMaximum = 30000;
-		public const uint version = (2 << 16) | (2 << 8) | (5);
+		public const uint version = (2 << 16) | (2 << 8) | (6);
 
 		public static bool Initialize() {
 			return Native.enet_initialize() == 0;
@@ -1038,6 +1054,9 @@ namespace ENet {
 
 		[DllImport(nativeLibrary, CallingConvention = CallingConvention.Cdecl)]
 		internal static extern int enet_peer_send(IntPtr peer, byte channelID, IntPtr packet);
+
+		[DllImport(nativeLibrary, CallingConvention = CallingConvention.Cdecl)]
+		internal static extern IntPtr enet_peer_receive(IntPtr peer, out byte channelID);
 
 		[DllImport(nativeLibrary, CallingConvention = CallingConvention.Cdecl)]
 		internal static extern void enet_peer_ping(IntPtr peer);

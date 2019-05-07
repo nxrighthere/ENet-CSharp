@@ -31,7 +31,7 @@
 
 #define ENET_VERSION_MAJOR 2
 #define ENET_VERSION_MINOR 2
-#define ENET_VERSION_PATCH 5
+#define ENET_VERSION_PATCH 6
 #define ENET_VERSION_CREATE(major, minor, patch) (((major) << 16) | ((minor) << 8) | (patch))
 #define ENET_VERSION_GET_MAJOR(version) (((version) >> 16) & 0xFF)
 #define ENET_VERSION_GET_MINOR(version) (((version) >> 8) & 0xFF)
@@ -752,7 +752,7 @@ extern "C" {
 	ENET_API void enet_host_bandwidth_limit(ENetHost*, enet_uint32, enet_uint32);
 
 	ENET_API int enet_peer_send(ENetPeer*, enet_uint8, ENetPacket*);
-	ENET_API ENetPacket* enet_peer_receive(ENetPeer*, enet_uint8* channelID);
+	ENET_API ENetPacket* enet_peer_receive(ENetPeer*, enet_uint8*);
 	ENET_API void enet_peer_ping(ENetPeer*);
 	ENET_API void enet_peer_ping_interval(ENetPeer*, enet_uint32);
 	ENET_API void enet_peer_timeout(ENetPeer*, enet_uint32, enet_uint32, enet_uint32);
@@ -776,7 +776,7 @@ extern "C" {
 	ENET_API enet_uint32 enet_host_get_bytes_received(const ENetHost*);
 
 	ENET_API enet_uint32 enet_peer_get_id(const ENetPeer*);
-	ENET_API int enet_peer_get_ip(const ENetPeer*, char* ip, size_t ipLength);
+	ENET_API int enet_peer_get_ip(const ENetPeer*, char*, size_t);
 	ENET_API enet_uint16 enet_peer_get_port(const ENetPeer*);
 	ENET_API enet_uint32 enet_peer_get_mtu(const ENetPeer*);
 	ENET_API ENetPeerState enet_peer_get_state(const ENetPeer*);
@@ -4353,7 +4353,7 @@ extern "C" {
 		}
 
 		int enet_address_set_host(ENetAddress* address, const char* name) {
-			struct addrinfo hints, * resultList = NULL, * result = NULL;
+			struct addrinfo hints, *resultList = NULL, *result = NULL;
 
 			memset(&hints, 0, sizeof(hints));
 

@@ -12,8 +12,6 @@ else()
     add_definitions(-Wno-error)
 endif()
 
-include_directories(${PROJECT_SOURCE_DIR})
-
 if (ENET_DEBUG)
     add_definitions(-DENET_DEBUG)
 endif()

@@ -58,11 +58,6 @@
 // =======================================================================//
 
 #ifdef _WIN32
-	#ifdef __MINGW32__
-		#include "mingw/inet_ntop.c"
-		#include "mingw/inet_pton.c"
-	#endif
-
 	#if defined(_MSC_VER) && defined(ENET_IMPLEMENTATION)
 		#pragma warning(disable: 4018) /* signed/unsigned mismatch */
 		#pragma warning(disable: 4146) /* unary minus operator applied to unsigned type */
@@ -187,10 +182,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-	#ifdef ENET_LZ4
-		#include "lz4/lz4.h"
-	#endif
 
 // =======================================================================//
 // !
@@ -820,6 +811,15 @@ extern "C" {
 #define ENET_IMPLEMENTATION_DONE 1
 #ifdef __cplusplus
 extern "C" {
+#endif
+
+#ifdef ENET_LZ4
+	#include "lz4/lz4.h"
+#endif
+
+#ifdef __MINGW32__
+	#include "mingw/inet_ntop.c"
+	#include "mingw/inet_pton.c"
 #endif
 
 // =======================================================================//

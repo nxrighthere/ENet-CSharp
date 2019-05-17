@@ -556,7 +556,7 @@ namespace ENet {
 			var result = Native.enet_host_check_events(nativeHost, out nativeEvent);
 
 			if (result <= 0) {
-				@event = new Event();
+				@event = default(Event);
 
 				return result;
 			}
@@ -598,7 +598,7 @@ namespace ENet {
 			var result = Native.enet_host_service(nativeHost, out nativeEvent, (uint)timeout);
 
 			if (result <= 0) {
-				@event = new Event();
+				@event = default(Event);
 
 				return result;
 			}

@@ -220,7 +220,7 @@ Definitions of a flags for `Peer.Send()` function:
 
 `PacketFlags.Reliable` reliable sequenced, a packet must be received by the target peer and resend attempts should be made until the packet is delivered.
 
-`PacketFlags.Unsequenced` a packet will not be sequenced with other packets and may be delivered out of order.
+`PacketFlags.Unsequenced` a packet will not be sequenced with other packets and may be delivered out of order. This flag makes delivery unreliable.
 
 `PacketFlags.NoAllocate` a packet will not allocate data, and the user must supply it instead.
 

@@ -461,23 +461,27 @@ namespace ENet {
 			Create(null, 1, 0);
 		}
 
+		public void Create(int bufferSize) {
+			Create(null, 1, 0, 0, 0, bufferSize);
+		}
+
 		public void Create(Address? address, int peerLimit) {
 			Create(address, peerLimit, 0);
 		}
 
 		public void Create(Address? address, int peerLimit, int channelLimit) {
-			Create(address, peerLimit, channelLimit, 0, 0);
+			Create(address, peerLimit, channelLimit, 0, 0, 0);
 		}
 
 		public void Create(int peerLimit, int channelLimit) {
-			Create(null, peerLimit, channelLimit, 0, 0);
+			Create(null, peerLimit, channelLimit, 0, 0, 0);
 		}
 
 		public void Create(int peerLimit, int channelLimit, uint incomingBandwidth, uint outgoingBandwidth) {
-			Create(null, peerLimit, channelLimit, incomingBandwidth, outgoingBandwidth);
+			Create(null, peerLimit, channelLimit, incomingBandwidth, outgoingBandwidth, 0);
 		}
 
-		public void Create(Address? address, int peerLimit, int channelLimit, uint incomingBandwidth, uint outgoingBandwidth) {
+		public void Create(Address? address, int peerLimit, int channelLimit, uint incomingBandwidth, uint outgoingBandwidth, int bufferSize) {
 			if (nativeHost != IntPtr.Zero)
 				throw new InvalidOperationException("Host already created");
 
@@ -489,9 +493,9 @@ namespace ENet {
 			if (address != null) {
 				var nativeAddress = address.Value.NativeData;
 
-				nativeHost = Native.enet_host_create(ref nativeAddress, (IntPtr)peerLimit, (IntPtr)channelLimit, incomingBandwidth, outgoingBandwidth);
+				nativeHost = Native.enet_host_create(ref nativeAddress, (IntPtr)peerLimit, (IntPtr)channelLimit, incomingBandwidth, outgoingBandwidth, bufferSize);
 			} else {
-				nativeHost = Native.enet_host_create(IntPtr.Zero, (IntPtr)peerLimit, (IntPtr)channelLimit, incomingBandwidth, outgoingBandwidth);
+				nativeHost = Native.enet_host_create(IntPtr.Zero, (IntPtr)peerLimit, (IntPtr)channelLimit, incomingBandwidth, outgoingBandwidth, bufferSize);
 			}
 
 			if (nativeHost == IntPtr.Zero)
@@ -870,7 +874,7 @@ namespace ENet {
 		public const uint timeoutLimit = 32;
 		public const uint timeoutMinimum = 5000;
 		public const uint timeoutMaximum = 30000;
-		public const uint version = (2 << 16) | (2 << 8) | (6);
+		public const uint version = (2 << 16) | (2 << 8) | (7);
 
 		public static bool Initialize() {
 			return Native.enet_initialize() == 0;
@@ -951,10 +955,10 @@ namespace ENet {
 		internal static extern void enet_packet_dispose(IntPtr packet);
 
 		[DllImport(nativeLibrary, CallingConvention = CallingConvention.Cdecl)]
-		internal static extern IntPtr enet_host_create(ref ENetAddress address, IntPtr peerLimit, IntPtr channelLimit, uint incomingBandwidth, uint outgoingBandwidth);
+		internal static extern IntPtr enet_host_create(ref ENetAddress address, IntPtr peerLimit, IntPtr channelLimit, uint incomingBandwidth, uint outgoingBandwidth, int bufferSize);
 
 		[DllImport(nativeLibrary, CallingConvention = CallingConvention.Cdecl)]
-		internal static extern IntPtr enet_host_create(IntPtr address, IntPtr peerLimit, IntPtr channelLimit, uint incomingBandwidth, uint outgoingBandwidth);
+		internal static extern IntPtr enet_host_create(IntPtr address, IntPtr peerLimit, IntPtr channelLimit, uint incomingBandwidth, uint outgoingBandwidth, int bufferSize);
 
 		[DllImport(nativeLibrary, CallingConvention = CallingConvention.Cdecl)]
 		internal static extern IntPtr enet_host_connect(IntPtr host, ref ENetAddress address, IntPtr channelCount, uint data);

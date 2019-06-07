@@ -31,7 +31,7 @@
 
 #define ENET_VERSION_MAJOR 2
 #define ENET_VERSION_MINOR 2
-#define ENET_VERSION_PATCH 6
+#define ENET_VERSION_PATCH 7
 #define ENET_VERSION_CREATE(major, minor, patch) (((major) << 16) | ((minor) << 8) | (patch))
 #define ENET_VERSION_GET_MAJOR(version) (((version) >> 16) & 0xFF)
 #define ENET_VERSION_GET_MINOR(version) (((version) >> 8) & 0xFF)
@@ -521,8 +521,8 @@ extern "C" {
 	} ENetPeerState;
 
 	enum {
-		ENET_HOST_RECEIVE_BUFFER_SIZE          = 256 * 1024,
-		ENET_HOST_SEND_BUFFER_SIZE             = 256 * 1024,
+		ENET_HOST_BUFFER_SIZE_MIN              = 256 * 1024,
+		ENET_HOST_BUFFER_SIZE_MAX              = 1024 * 1024,
 		ENET_HOST_BANDWIDTH_THROTTLE_INTERVAL  = 1000,
 		ENET_HOST_DEFAULT_MTU                  = 1280,
 		ENET_HOST_DEFAULT_MAXIMUM_PACKET_SIZE  = 32 * 1024 * 1024,
@@ -728,7 +728,7 @@ extern "C" {
 
 	ENET_API enet_uint32 enet_crc32(const ENetBuffer*, size_t);
 
-	ENET_API ENetHost* enet_host_create(const ENetAddress*, size_t, size_t, enet_uint32, enet_uint32);
+	ENET_API ENetHost* enet_host_create(const ENetAddress*, size_t, size_t, enet_uint32, enet_uint32, int);
 	ENET_API void enet_host_destroy(ENetHost*);
 	ENET_API void enet_host_enable_compression(ENetHost*);
 	ENET_API void enet_host_prevent_connections(ENetHost*, enet_uint8);
@@ -3695,7 +3695,7 @@ extern "C" {
 // !
 // =======================================================================//
 
-	ENetHost* enet_host_create(const ENetAddress* address, size_t peerCount, size_t channelLimit, enet_uint32 incomingBandwidth, enet_uint32 outgoingBandwidth) {
+	ENetHost* enet_host_create(const ENetAddress* address, size_t peerCount, size_t channelLimit, enet_uint32 incomingBandwidth, enet_uint32 outgoingBandwidth, int bufferSize) {
 		ENetHost* host;
 		ENetPeer* currentPeer;
 
@@ -3734,10 +3734,15 @@ extern "C" {
 			return NULL;
 		}
 
+		if (bufferSize > ENET_HOST_BUFFER_SIZE_MAX)
+			bufferSize = ENET_HOST_BUFFER_SIZE_MAX;
+		else if (bufferSize < ENET_HOST_BUFFER_SIZE_MIN)
+			bufferSize = ENET_HOST_BUFFER_SIZE_MIN;
+
 		enet_socket_set_option(host->socket, ENET_SOCKOPT_NONBLOCK, 1);
 		enet_socket_set_option(host->socket, ENET_SOCKOPT_BROADCAST, 1);
-		enet_socket_set_option(host->socket, ENET_SOCKOPT_RCVBUF, ENET_HOST_RECEIVE_BUFFER_SIZE);
-		enet_socket_set_option(host->socket, ENET_SOCKOPT_SNDBUF, ENET_HOST_SEND_BUFFER_SIZE);
+		enet_socket_set_option(host->socket, ENET_SOCKOPT_RCVBUF, bufferSize);
+		enet_socket_set_option(host->socket, ENET_SOCKOPT_SNDBUF, bufferSize);
 
 		if (address != NULL && enet_socket_get_address(host->socket, &host->address) < 0)
 			host->address = *address;

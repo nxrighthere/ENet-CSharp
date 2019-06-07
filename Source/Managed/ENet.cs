@@ -481,6 +481,10 @@ namespace ENet {
 			Create(null, peerLimit, channelLimit, incomingBandwidth, outgoingBandwidth, 0);
 		}
 
+		public void Create(Address? address, int peerLimit, int channelLimit, uint incomingBandwidth, uint outgoingBandwidth) {
+			Create(address, peerLimit, channelLimit, incomingBandwidth, outgoingBandwidth, 0);
+		}
+
 		public void Create(Address? address, int peerLimit, int channelLimit, uint incomingBandwidth, uint outgoingBandwidth, int bufferSize) {
 			if (nativeHost != IntPtr.Zero)
 				throw new InvalidOperationException("Host already created");

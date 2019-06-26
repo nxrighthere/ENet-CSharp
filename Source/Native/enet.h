@@ -31,7 +31,7 @@
 
 #define ENET_VERSION_MAJOR 2
 #define ENET_VERSION_MINOR 2
-#define ENET_VERSION_PATCH 7
+#define ENET_VERSION_PATCH 8
 #define ENET_VERSION_CREATE(major, minor, patch) (((major) << 16) | ((minor) << 8) | (patch))
 #define ENET_VERSION_GET_MAJOR(version) (((version) >> 16) & 0xFF)
 #define ENET_VERSION_GET_MINOR(version) (((version) >> 8) & 0xFF)
@@ -49,7 +49,7 @@
 #define ENET_MIN(x, y) ((x) < (y) ? (x) : (y))
 
 #define ENET_SRTT_INITIAL 1.0
-#define ENET_SRTT_PARA_G  0.125
+#define ENET_SRTT_PARA_G 0.125
 
 // =======================================================================//
 // !
@@ -63,15 +63,13 @@
 		#pragma warning(disable: 4146) /* unary minus operator applied to unsigned type */
 		#pragma warning(disable: 4244) /* 64bit to 32bit int */
 		#pragma warning(disable: 4267) /* size_t to int conversion */
+
+		#define _WINSOCK_DEPRECATED_NO_WARNINGS /* gethostbyname() and gethostbyaddr() */
 	#endif
 
 	#ifndef ENET_NO_PRAGMA_LINK
 		#pragma comment(lib, "ws2_32.lib")
 		#pragma comment(lib, "winmm.lib")
-	#endif
-
-	#if _MSC_VER
-		#define _WINSOCK_DEPRECATED_NO_WARNINGS
 	#endif
 
 	#if _MSC_VER >= 1910
@@ -169,10 +167,17 @@
 	#define ENET_BUFFER_MAXIMUM (1 + 2 * ENET_PROTOCOL_MAXIMUM_PACKET_COMMANDS)
 #endif
 
-#define ENET_HOST_ANY       in6addr_any
-#define ENET_PORT_ANY       0
-#define ENET_HOST_SIZE      1025
-#define ENET_HOST_BROADCAST 0xFFFFFFFFU
+struct in4_addr {
+	uint8_t zeros[10];
+	uint16_t ffff;
+	struct in_addr ip;
+};
+
+// Macros
+
+#define ENET_HOST_ANY in6addr_any
+#define ENET_PORT_ANY 0
+#define ENET_HOST_SIZE 1025
 
 #define ENET_HOST_TO_NET_16(value) (htons(value))
 #define ENET_HOST_TO_NET_32(value) (htonl(value))
@@ -450,9 +455,11 @@ extern "C" {
 	} ENetSocketShutdown;
 
 	typedef struct _ENetAddress {
-		struct in6_addr host;
-		enet_uint16 port;
-		enet_uint16 scope;
+		union {
+			struct in6_addr ipv6;
+			struct in4_addr ipv4;
+		};
+		uint16_t port;
 	} ENetAddress;
 
 	#define in6_equal(in6_addr_a, in6_addr_b) (memcmp(&in6_addr_a, &in6_addr_b, sizeof(struct in6_addr)) == 0)
@@ -700,6 +707,8 @@ extern "C" {
 	ENET_API int enet_initialize_with_callbacks(ENetVersion, const ENetCallbacks*);
 	ENET_API void enet_deinitialize(void);
 	ENET_API ENetVersion enet_linked_version(void);
+	ENET_API int enet_array_is_zeroed(const uint8_t*, int);
+	ENET_API size_t enet_string_copy(char*, const char*, size_t);
 	ENET_API enet_uint32 enet_time_get(void);
 
 	ENET_API ENetSocket enet_socket_create(ENetSocketType);
@@ -1014,12 +1023,45 @@ extern "C" {
 
 // =======================================================================//
 // !
-// ! Globals
+// ! Utilities
 // !
 // =======================================================================//
 
 	ENetVersion enet_linked_version(void) {
 		return ENET_VERSION;
+	}
+
+	int enet_array_is_zeroed(const uint8_t* array, int length) {
+		for (int i = 0; i < length; i++) {
+			if (array[i] != 0)
+				return -1;
+		}
+
+		return 0;
+	}
+
+	size_t enet_string_copy(char* destination, const char* source, size_t length) {
+		register char *d = destination;
+		register const char *s = source;
+		register size_t n = length;
+
+		if (n != 0 && --n != 0) {
+			do {
+				if ((*d++ = *s++) == 0)
+					break;
+			}
+
+			while (--n != 0);
+		}
+
+		if (n == 0) {
+			if (length != 0)
+				*d = '\0';
+
+			while (*s++);
+		}
+
+		return(s - source - 1);
 	}
 
 // =======================================================================//
@@ -1043,7 +1085,7 @@ extern "C" {
 				return -1;
 
 			callbacks.malloc = inits->malloc;
-			callbacks.free   = inits->free;
+			callbacks.free = inits->free;
 		}
 
 		if (inits->noMemory != NULL)
@@ -1072,16 +1114,16 @@ extern "C" {
 // =======================================================================//
 
 	void enet_list_clear(ENetList* list) {
-		list->sentinel.next     = &list->sentinel;
+		list->sentinel.next = &list->sentinel;
 		list->sentinel.previous = &list->sentinel;
 	}
 
 	ENetListIterator enet_list_insert(ENetListIterator position, void* data) {
 		ENetListIterator result = (ENetListIterator)data;
-		result->previous        = position->previous;
-		result->next            = position;
-		result->previous->next  = result;
-		position->previous      = result;
+		result->previous = position->previous;
+		result->next = position;
+		result->previous->next = result;
+		position->previous = result;
 
 		return result;
 	}
@@ -1095,13 +1137,13 @@ extern "C" {
 
 	ENetListIterator enet_list_move(ENetListIterator position, void* dataFirst, void* dataLast) {
 		ENetListIterator first = (ENetListIterator)dataFirst;
-		ENetListIterator last  = (ENetListIterator)dataLast;
-		first->previous->next  = last->next;
-		last->next->previous   = first->previous;
-		first->previous        = position->previous;
-		last->next             = position;
-		first->previous->next  = first;
-		position->previous     = last;
+		ENetListIterator last = (ENetListIterator)dataLast;
+		first->previous->next = last->next;
+		last->next->previous = first->previous;
+		first->previous = position->previous;
+		last->next = position;
+		first->previous->next = first;
+		position->previous = last;
 
 		return first;
 	}
@@ -1146,9 +1188,9 @@ extern "C" {
 		}
 
 		packet->referenceCount = 0;
-		packet->flags          = flags;
-		packet->dataLength     = dataLength;
-		packet->freeCallback   = NULL;
+		packet->flags = flags;
+		packet->dataLength = dataLength;
+		packet->freeCallback = NULL;
 
 		return packet;
 	}
@@ -1176,9 +1218,9 @@ extern "C" {
 		}
 
 		packet->referenceCount = 0;
-		packet->flags          = flags;
-		packet->dataLength     = dataLength - dataOffset;
-		packet->freeCallback   = NULL;
+		packet->flags = flags;
+		packet->dataLength = dataLength - dataOffset;
+		packet->freeCallback = NULL;
 
 		return packet;
 	}
@@ -1354,10 +1396,10 @@ extern "C" {
 		if (event != NULL) {
 			enet_protocol_change_state(host, peer, ENET_PEER_STATE_CONNECTED);
 
-			peer->totalDataSent     = 0;
+			peer->totalDataSent = 0;
 			peer->totalDataReceived = 0;
-			peer->totalPacketsSent  = 0;
-			peer->totalPacketsLost  = 0;
+			peer->totalPacketsSent = 0;
+			peer->totalPacketsLost = 0;
 			event->type = ENET_EVENT_TYPE_CONNECT;
 			event->peer = peer;
 			event->data = peer->eventData;
@@ -1469,7 +1511,7 @@ extern "C" {
 			return ENET_PROTOCOL_COMMAND_NONE;
 
 		if (channelID < peer->channelCount) {
-			ENetChannel* channel       = &peer->channels[channelID];
+			ENetChannel* channel = &peer->channels[channelID];
 			enet_uint16 reliableWindow = reliableSequenceNumber / ENET_PEER_RELIABLE_WINDOW_SIZE;
 
 			if (channel->reliableWindows[reliableWindow] > 0) {
@@ -1524,7 +1566,7 @@ extern "C" {
 			if (currentPeer->state == ENET_PEER_STATE_DISCONNECTED) {
 				if (peer == NULL)
 					peer = currentPeer;
-			} else if (currentPeer->state != ENET_PEER_STATE_CONNECTING && in6_equal(currentPeer->address.host, host->receivedAddress.host)) {
+			} else if (currentPeer->state != ENET_PEER_STATE_CONNECTING && in6_equal(currentPeer->address.ipv6, host->receivedAddress.ipv6)) {
 				if (currentPeer->address.port == host->receivedAddress.port && currentPeer->connectID == command->connect.connectID)
 					return NULL;
 
@@ -1543,17 +1585,17 @@ extern "C" {
 		if (peer->channels == NULL)
 			return NULL;
 
-		peer->channelCount               = channelCount;
-		peer->state                      = ENET_PEER_STATE_ACKNOWLEDGING_CONNECT;
-		peer->connectID                  = command->connect.connectID;
-		peer->address                    = host->receivedAddress;
-		peer->outgoingPeerID             = ENET_NET_TO_HOST_16(command->connect.outgoingPeerID);
-		peer->incomingBandwidth          = ENET_NET_TO_HOST_32(command->connect.incomingBandwidth);
-		peer->outgoingBandwidth          = ENET_NET_TO_HOST_32(command->connect.outgoingBandwidth);
-		peer->packetThrottleInterval     = ENET_NET_TO_HOST_32(command->connect.packetThrottleInterval);
+		peer->channelCount = channelCount;
+		peer->state = ENET_PEER_STATE_ACKNOWLEDGING_CONNECT;
+		peer->connectID = command->connect.connectID;
+		peer->address = host->receivedAddress;
+		peer->outgoingPeerID = ENET_NET_TO_HOST_16(command->connect.outgoingPeerID);
+		peer->incomingBandwidth = ENET_NET_TO_HOST_32(command->connect.incomingBandwidth);
+		peer->outgoingBandwidth = ENET_NET_TO_HOST_32(command->connect.outgoingBandwidth);
+		peer->packetThrottleInterval = ENET_NET_TO_HOST_32(command->connect.packetThrottleInterval);
 		peer->packetThrottleAcceleration = ENET_NET_TO_HOST_32(command->connect.packetThrottleAcceleration);
 		peer->packetThrottleDeceleration = ENET_NET_TO_HOST_32(command->connect.packetThrottleDeceleration);
-		peer->eventData                  = ENET_NET_TO_HOST_32(command->connect.data);
+		peer->eventData = ENET_NET_TO_HOST_32(command->connect.data);
 		incomingSessionID = command->connect.incomingSessionID == 0xFF ? peer->outgoingSessionID : command->connect.incomingSessionID;
 		incomingSessionID = (incomingSessionID + 1) & (ENET_PROTOCOL_HEADER_SESSION_MASK >> ENET_PROTOCOL_HEADER_SESSION_SHIFT);
 
@@ -1570,9 +1612,9 @@ extern "C" {
 		peer->incomingSessionID = outgoingSessionID;
 
 		for (channel = peer->channels; channel < &peer->channels[channelCount]; ++channel) {
-			channel->outgoingReliableSequenceNumber   = 0;
+			channel->outgoingReliableSequenceNumber = 0;
 			channel->outgoingUnreliableSequenceNumber = 0;
-			channel->incomingReliableSequenceNumber   = 0;
+			channel->incomingReliableSequenceNumber = 0;
 			channel->incomingUnreliableSequenceNumber = 0;
 
 			enet_list_clear(&channel->incomingReliableCommands);
@@ -1617,20 +1659,20 @@ extern "C" {
 		else if (windowSize > ENET_PROTOCOL_MAXIMUM_WINDOW_SIZE)
 			windowSize = ENET_PROTOCOL_MAXIMUM_WINDOW_SIZE;
 
-		verifyCommand.header.command                           = ENET_PROTOCOL_COMMAND_VERIFY_CONNECT | ENET_PROTOCOL_COMMAND_FLAG_ACKNOWLEDGE;
-		verifyCommand.header.channelID                         = 0xFF;
-		verifyCommand.verifyConnect.outgoingPeerID             = ENET_HOST_TO_NET_16(peer->incomingPeerID);
-		verifyCommand.verifyConnect.incomingSessionID          = incomingSessionID;
-		verifyCommand.verifyConnect.outgoingSessionID          = outgoingSessionID;
-		verifyCommand.verifyConnect.mtu                        = ENET_HOST_TO_NET_32(peer->mtu);
-		verifyCommand.verifyConnect.windowSize                 = ENET_HOST_TO_NET_32(windowSize);
-		verifyCommand.verifyConnect.channelCount               = ENET_HOST_TO_NET_32(channelCount);
-		verifyCommand.verifyConnect.incomingBandwidth          = ENET_HOST_TO_NET_32(host->incomingBandwidth);
-		verifyCommand.verifyConnect.outgoingBandwidth          = ENET_HOST_TO_NET_32(host->outgoingBandwidth);
-		verifyCommand.verifyConnect.packetThrottleInterval     = ENET_HOST_TO_NET_32(peer->packetThrottleInterval);
+		verifyCommand.header.command = ENET_PROTOCOL_COMMAND_VERIFY_CONNECT | ENET_PROTOCOL_COMMAND_FLAG_ACKNOWLEDGE;
+		verifyCommand.header.channelID = 0xFF;
+		verifyCommand.verifyConnect.outgoingPeerID = ENET_HOST_TO_NET_16(peer->incomingPeerID);
+		verifyCommand.verifyConnect.incomingSessionID = incomingSessionID;
+		verifyCommand.verifyConnect.outgoingSessionID = outgoingSessionID;
+		verifyCommand.verifyConnect.mtu = ENET_HOST_TO_NET_32(peer->mtu);
+		verifyCommand.verifyConnect.windowSize = ENET_HOST_TO_NET_32(windowSize);
+		verifyCommand.verifyConnect.channelCount = ENET_HOST_TO_NET_32(channelCount);
+		verifyCommand.verifyConnect.incomingBandwidth = ENET_HOST_TO_NET_32(host->incomingBandwidth);
+		verifyCommand.verifyConnect.outgoingBandwidth = ENET_HOST_TO_NET_32(host->outgoingBandwidth);
+		verifyCommand.verifyConnect.packetThrottleInterval = ENET_HOST_TO_NET_32(peer->packetThrottleInterval);
 		verifyCommand.verifyConnect.packetThrottleAcceleration = ENET_HOST_TO_NET_32(peer->packetThrottleAcceleration);
 		verifyCommand.verifyConnect.packetThrottleDeceleration = ENET_HOST_TO_NET_32(peer->packetThrottleDeceleration);
-		verifyCommand.verifyConnect.connectID                  = peer->connectID;
+		verifyCommand.verifyConnect.connectID = peer->connectID;
 
 		enet_peer_queue_outgoing_command(peer, &verifyCommand, NULL, 0, 0);
 
@@ -1643,7 +1685,7 @@ extern "C" {
 		if (command->header.channelID >= peer->channelCount || (peer->state != ENET_PEER_STATE_CONNECTED && peer->state != ENET_PEER_STATE_DISCONNECT_LATER))
 			return -1;
 
-		dataLength    = ENET_NET_TO_HOST_16(command->sendReliable.dataLength);
+		dataLength = ENET_NET_TO_HOST_16(command->sendReliable.dataLength);
 		*currentData += dataLength;
 
 		if (dataLength > host->maximumPacketSize || *currentData < host->receivedData || *currentData > &host->receivedData[host->receivedDataLength])
@@ -1662,7 +1704,7 @@ extern "C" {
 		if (command->header.channelID >= peer->channelCount || (peer->state != ENET_PEER_STATE_CONNECTED && peer->state != ENET_PEER_STATE_DISCONNECT_LATER))
 			return -1;
 
-		dataLength    = ENET_NET_TO_HOST_16(command->sendUnsequenced.dataLength);
+		dataLength = ENET_NET_TO_HOST_16(command->sendUnsequenced.dataLength);
 		*currentData += dataLength;
 
 		if (dataLength > host->maximumPacketSize || *currentData < host->receivedData || *currentData > &host->receivedData[host->receivedDataLength])
@@ -1701,7 +1743,7 @@ extern "C" {
 		if (command->header.channelID >= peer->channelCount || (peer->state != ENET_PEER_STATE_CONNECTED && peer->state != ENET_PEER_STATE_DISCONNECT_LATER))
 			return -1;
 
-		dataLength    = ENET_NET_TO_HOST_16(command->sendUnreliable.dataLength);
+		dataLength = ENET_NET_TO_HOST_16(command->sendUnreliable.dataLength);
 		*currentData += dataLength;
 
 		if (dataLength > host->maximumPacketSize || *currentData < host->receivedData || *currentData > &host->receivedData[host->receivedDataLength])
@@ -1724,15 +1766,15 @@ extern "C" {
 			return -1;
 
 		fragmentLength = ENET_NET_TO_HOST_16(command->sendFragment.dataLength);
-		*currentData  += fragmentLength;
+		*currentData += fragmentLength;
 
 		if (fragmentLength > host->maximumPacketSize || *currentData < host->receivedData || *currentData > &host->receivedData[host->receivedDataLength])
 			return -1;
 
 		channel = &peer->channels[command->header.channelID];
 		startSequenceNumber = ENET_NET_TO_HOST_16(command->sendFragment.startSequenceNumber);
-		startWindow         = startSequenceNumber / ENET_PEER_RELIABLE_WINDOW_SIZE;
-		currentWindow       = channel->incomingReliableSequenceNumber / ENET_PEER_RELIABLE_WINDOW_SIZE;
+		startWindow = startSequenceNumber / ENET_PEER_RELIABLE_WINDOW_SIZE;
+		currentWindow = channel->incomingReliableSequenceNumber / ENET_PEER_RELIABLE_WINDOW_SIZE;
 
 		if (startSequenceNumber < channel->incomingReliableSequenceNumber)
 			startWindow += ENET_PEER_RELIABLE_WINDOWS;
@@ -1741,9 +1783,9 @@ extern "C" {
 			return 0;
 
 		fragmentNumber = ENET_NET_TO_HOST_32(command->sendFragment.fragmentNumber);
-		fragmentCount  = ENET_NET_TO_HOST_32(command->sendFragment.fragmentCount);
+		fragmentCount = ENET_NET_TO_HOST_32(command->sendFragment.fragmentCount);
 		fragmentOffset = ENET_NET_TO_HOST_32(command->sendFragment.fragmentOffset);
-		totalLength    = ENET_NET_TO_HOST_32(command->sendFragment.totalLength);
+		totalLength = ENET_NET_TO_HOST_32(command->sendFragment.totalLength);
 
 		if (fragmentCount > ENET_PROTOCOL_MAXIMUM_FRAGMENT_COUNT || fragmentNumber >= fragmentCount || totalLength > host->maximumPacketSize || fragmentOffset >= totalLength || fragmentLength > totalLength - fragmentOffset)
 			return -1;
@@ -1807,16 +1849,16 @@ extern "C" {
 			return -1;
 
 		fragmentLength = ENET_NET_TO_HOST_16(command->sendFragment.dataLength);
-		*currentData  += fragmentLength;
+		*currentData += fragmentLength;
 
 		if (fragmentLength > host->maximumPacketSize || *currentData < host->receivedData || *currentData > &host->receivedData[host->receivedDataLength])
 			return -1;
 
 		channel = &peer->channels[command->header.channelID];
 		reliableSequenceNumber = command->header.reliableSequenceNumber;
-		startSequenceNumber    = ENET_NET_TO_HOST_16(command->sendFragment.startSequenceNumber);
+		startSequenceNumber = ENET_NET_TO_HOST_16(command->sendFragment.startSequenceNumber);
 		reliableWindow = reliableSequenceNumber / ENET_PEER_RELIABLE_WINDOW_SIZE;
-		currentWindow  = channel->incomingReliableSequenceNumber / ENET_PEER_RELIABLE_WINDOW_SIZE;
+		currentWindow = channel->incomingReliableSequenceNumber / ENET_PEER_RELIABLE_WINDOW_SIZE;
 
 		if (reliableSequenceNumber < channel->incomingReliableSequenceNumber)
 			reliableWindow += ENET_PEER_RELIABLE_WINDOWS;
@@ -1828,9 +1870,9 @@ extern "C" {
 			return 0;
 
 		fragmentNumber = ENET_NET_TO_HOST_32(command->sendFragment.fragmentNumber);
-		fragmentCount  = ENET_NET_TO_HOST_32(command->sendFragment.fragmentCount);
+		fragmentCount = ENET_NET_TO_HOST_32(command->sendFragment.fragmentCount);
 		fragmentOffset = ENET_NET_TO_HOST_32(command->sendFragment.fragmentOffset);
-		totalLength    = ENET_NET_TO_HOST_32(command->sendFragment.totalLength);
+		totalLength = ENET_NET_TO_HOST_32(command->sendFragment.totalLength);
 
 		if (fragmentCount > ENET_PROTOCOL_MAXIMUM_FRAGMENT_COUNT || fragmentNumber >= fragmentCount || totalLength > host->maximumPacketSize || fragmentOffset >= totalLength || fragmentLength > totalLength - fragmentOffset)
 			return -1;
@@ -1927,7 +1969,7 @@ extern "C" {
 		if (peer->state != ENET_PEER_STATE_CONNECTED && peer->state != ENET_PEER_STATE_DISCONNECT_LATER)
 			return -1;
 
-		peer->packetThrottleInterval     = ENET_NET_TO_HOST_32(command->throttleConfigure.packetThrottleInterval);
+		peer->packetThrottleInterval = ENET_NET_TO_HOST_32(command->throttleConfigure.packetThrottleInterval);
 		peer->packetThrottleAcceleration = ENET_NET_TO_HOST_32(command->throttleConfigure.packetThrottleAcceleration);
 		peer->packetThrottleDeceleration = ENET_NET_TO_HOST_32(command->throttleConfigure.packetThrottleDeceleration);
 
@@ -1966,7 +2008,7 @@ extern "C" {
 		if (peer->state == ENET_PEER_STATE_DISCONNECTED || peer->state == ENET_PEER_STATE_ZOMBIE)
 			return 0;
 
-		receivedSentTime  = ENET_NET_TO_HOST_16(command->acknowledge.receivedSentTime);
+		receivedSentTime = ENET_NET_TO_HOST_16(command->acknowledge.receivedSentTime);
 		receivedSentTime |= host->serviceTime & 0xFFFF0000;
 
 		if ((receivedSentTime & 0x8000) > (host->serviceTime & 0x8000))
@@ -1992,10 +2034,10 @@ extern "C" {
 		peer->roundTripTimeVariance -= peer->roundTripTimeVariance / 4;
 
 		if (peer->smoothedRoundTripTime >= peer->roundTripTime) {
-			peer->roundTripTime         += (peer->smoothedRoundTripTime - peer->roundTripTime) / 8;
+			peer->roundTripTime += (peer->smoothedRoundTripTime - peer->roundTripTime) / 8;
 			peer->roundTripTimeVariance += (peer->smoothedRoundTripTime - peer->roundTripTime) / 4;
 		} else {
-			peer->roundTripTime         -= (peer->roundTripTime - peer->smoothedRoundTripTime) / 8;
+			peer->roundTripTime -= (peer->roundTripTime - peer->smoothedRoundTripTime) / 8;
 			peer->roundTripTimeVariance += (peer->roundTripTime - peer->smoothedRoundTripTime) / 4;
 		}
 
@@ -2006,11 +2048,11 @@ extern "C" {
 			peer->highestRoundTripTimeVariance = peer->roundTripTimeVariance;
 
 		if (peer->packetThrottleEpoch == 0 || ENET_TIME_DIFFERENCE(host->serviceTime, peer->packetThrottleEpoch) >= peer->packetThrottleInterval) {
-			peer->lastRoundTripTime            = peer->lowestRoundTripTime;
-			peer->lastRoundTripTimeVariance    = peer->highestRoundTripTimeVariance;
-			peer->lowestRoundTripTime          = peer->roundTripTime;
+			peer->lastRoundTripTime = peer->lowestRoundTripTime;
+			peer->lastRoundTripTimeVariance = peer->highestRoundTripTimeVariance;
+			peer->lowestRoundTripTime = peer->roundTripTime;
 			peer->highestRoundTripTimeVariance = peer->roundTripTimeVariance;
-			peer->packetThrottleEpoch          = host->serviceTime;
+			peer->packetThrottleEpoch = host->serviceTime;
 		}
 
 		receivedReliableSequenceNumber = ENET_NET_TO_HOST_16(command->acknowledge.receivedReliableSequenceNumber);
@@ -2068,7 +2110,7 @@ extern "C" {
 		if (channelCount < peer->channelCount)
 			peer->channelCount = channelCount;
 
-		peer->outgoingPeerID    = ENET_NET_TO_HOST_16(command->verifyConnect.outgoingPeerID);
+		peer->outgoingPeerID = ENET_NET_TO_HOST_16(command->verifyConnect.outgoingPeerID);
 		peer->incomingSessionID = command->verifyConnect.incomingSessionID;
 		peer->outgoingSessionID = command->verifyConnect.outgoingSessionID;
 		mtu = ENET_NET_TO_HOST_32(command->verifyConnect.mtu);
@@ -2112,11 +2154,11 @@ extern "C" {
 		if (host->receivedDataLength < (size_t)&((ENetProtocolHeader*)0)->sentTime)
 			return 0;
 
-		header     = (ENetProtocolHeader*)host->receivedData;
-		peerID     = ENET_NET_TO_HOST_16(header->peerID);
-		sessionID  = (peerID & ENET_PROTOCOL_HEADER_SESSION_MASK) >> ENET_PROTOCOL_HEADER_SESSION_SHIFT;
-		flags      = peerID & ENET_PROTOCOL_HEADER_FLAG_MASK;
-		peerID    &= ~(ENET_PROTOCOL_HEADER_FLAG_MASK | ENET_PROTOCOL_HEADER_SESSION_MASK);
+		header = (ENetProtocolHeader*)host->receivedData;
+		peerID = ENET_NET_TO_HOST_16(header->peerID);
+		sessionID = (peerID & ENET_PROTOCOL_HEADER_SESSION_MASK) >> ENET_PROTOCOL_HEADER_SESSION_SHIFT;
+		flags = peerID & ENET_PROTOCOL_HEADER_FLAG_MASK;
+		peerID &= ~(ENET_PROTOCOL_HEADER_FLAG_MASK | ENET_PROTOCOL_HEADER_SESSION_MASK);
 		headerSize = (flags & ENET_PROTOCOL_HEADER_FLAG_SENT_TIME ? sizeof(ENetProtocolHeader) : (size_t)&((ENetProtocolHeader*)0)->sentTime);
 
 		if (host->checksumCallback != NULL)
@@ -2129,7 +2171,7 @@ extern "C" {
 		} else {
 			peer = &host->peers[peerID];
 
-			if (peer->state == ENET_PEER_STATE_DISCONNECTED || peer->state == ENET_PEER_STATE_ZOMBIE || ((!in6_equal(host->receivedAddress.host, peer->address.host) || host->receivedAddress.port != peer->address.port) && 1 /* No broadcast in IPv6 - !in6_equal(peer->address.host, ENET_HOST_BROADCAST) */) || (peer->outgoingPeerID < ENET_PROTOCOL_MAXIMUM_PEER_ID && sessionID != peer->incomingSessionID))
+			if (peer->state == ENET_PEER_STATE_DISCONNECTED || peer->state == ENET_PEER_STATE_ZOMBIE || ((!in6_equal(host->receivedAddress.ipv6, peer->address.ipv6) || host->receivedAddress.port != peer->address.port) && (enet_array_is_zeroed(peer->address.ipv4.zeros, sizeof(peer->address.ipv4.zeros)) == 0 && peer->address.ipv4.ffff == 0xFFFF && peer->address.ipv4.ip.s_addr != INADDR_BROADCAST)) || (peer->outgoingPeerID < ENET_PROTOCOL_MAXIMUM_PEER_ID && sessionID != peer->incomingSessionID))
 				return 0;
 		}
 
@@ -2142,7 +2184,7 @@ extern "C" {
 
 				memcpy(host->packetData[1], header, headerSize);
 
-				host->receivedData       = host->packetData[1];
+				host->receivedData = host->packetData[1];
 				host->receivedDataLength = headerSize + originalSize;
 			}
 		#endif
@@ -2152,7 +2194,7 @@ extern "C" {
 			enet_uint32 desiredChecksum = *checksum;
 			ENetBuffer buffer;
 			*checksum = peer != NULL ? peer->connectID : 0;
-			buffer.data       = host->receivedData;
+			buffer.data = host->receivedData;
 			buffer.dataLength = host->receivedDataLength;
 
 			if (host->checksumCallback(&buffer, 1) != desiredChecksum)
@@ -2160,8 +2202,8 @@ extern "C" {
 		}
 
 		if (peer != NULL) {
-			peer->address.host       = host->receivedAddress.host;
-			peer->address.port       = host->receivedAddress.port;
+			peer->address.ipv6 = host->receivedAddress.ipv6;
+			peer->address.port = host->receivedAddress.port;
 			peer->incomingDataTotal += host->receivedDataLength;
 			peer->totalDataReceived += host->receivedDataLength;
 		}
@@ -2320,9 +2362,9 @@ extern "C" {
 		for (packets = 0; packets < 256; ++packets) {
 			int receivedLength;
 			ENetBuffer buffer;
-			buffer.data       = host->packetData[0];
+			buffer.data = host->packetData[0];
 			buffer.dataLength = host->mtu;
-			receivedLength    = enet_socket_receive(host->socket, &host->receivedAddress, &buffer, 1);
+			receivedLength = enet_socket_receive(host->socket, &host->receivedAddress, &buffer, 1);
 
 			if (receivedLength == -2)
 				continue;
@@ -2333,7 +2375,7 @@ extern "C" {
 			if (receivedLength == 0)
 				return 0;
 
-			host->receivedData       = host->packetData[0];
+			host->receivedData = host->packetData[0];
 			host->receivedDataLength = receivedLength;
 			host->totalReceivedData += receivedLength;
 			host->totalReceivedPackets++;
@@ -2371,7 +2413,7 @@ extern "C" {
 
 	static void enet_protocol_send_acknowledgements(ENetHost* host, ENetPeer* peer) {
 		ENetProtocol* command = &host->commands[host->commandCount];
-		ENetBuffer* buffer    = &host->buffers[host->bufferCount];
+		ENetBuffer* buffer = &host->buffers[host->bufferCount];
 		ENetAcknowledgement* acknowledgement;
 		ENetListIterator currentAcknowledgement;
 		enet_uint16 reliableSequenceNumber;
@@ -2386,11 +2428,11 @@ extern "C" {
 
 			acknowledgement = (ENetAcknowledgement*)currentAcknowledgement;
 			currentAcknowledgement = enet_list_next(currentAcknowledgement);
-			buffer->data       = command;
+			buffer->data = command;
 			buffer->dataLength = sizeof(ENetProtocolAcknowledge);
-			host->packetSize  += buffer->dataLength;
+			host->packetSize += buffer->dataLength;
 			reliableSequenceNumber = ENET_HOST_TO_NET_16(acknowledgement->command.header.reliableSequenceNumber);
-			command->header.command   = ENET_PROTOCOL_COMMAND_ACKNOWLEDGE;
+			command->header.command = ENET_PROTOCOL_COMMAND_ACKNOWLEDGE;
 			command->header.channelID = acknowledgement->command.header.channelID;
 			command->header.reliableSequenceNumber = reliableSequenceNumber;
 			command->acknowledge.receivedReliableSequenceNumber = reliableSequenceNumber;
@@ -2407,12 +2449,12 @@ extern "C" {
 		}
 
 		host->commandCount = command - host->commands;
-		host->bufferCount  = buffer - host->buffers;
+		host->bufferCount = buffer - host->buffers;
 	}
 
 	static void enet_protocol_send_unreliable_outgoing_commands(ENetHost* host, ENetPeer* peer) {
 		ENetProtocol* command = &host->commands[host->commandCount];
-		ENetBuffer* buffer    = &host->buffers[host->bufferCount];
+		ENetBuffer* buffer = &host->buffers[host->bufferCount];
 		ENetOutgoingCommand* outgoingCommand;
 		ENetListIterator currentCommand;
 		currentCommand = enet_list_begin(&peer->outgoingUnreliableCommands);
@@ -2420,7 +2462,7 @@ extern "C" {
 		while (currentCommand != enet_list_end(&peer->outgoingUnreliableCommands)) {
 			size_t commandSize;
 			outgoingCommand = (ENetOutgoingCommand*)currentCommand;
-			commandSize     = commandSizes[outgoingCommand->command.header.command & ENET_PROTOCOL_COMMAND_MASK];
+			commandSize = commandSizes[outgoingCommand->command.header.command & ENET_PROTOCOL_COMMAND_MASK];
 
 			if (command >= &host->commands[sizeof(host->commands) / sizeof(ENetProtocol)] || buffer + 1 >= &host->buffers[sizeof(host->buffers) / sizeof(ENetBuffer)] || peer->mtu - host->packetSize < commandSize || (outgoingCommand->packet != NULL && peer->mtu - host->packetSize < commandSize + outgoingCommand->fragmentLength)) {
 				host->continueSending = 1;
@@ -2462,9 +2504,9 @@ extern "C" {
 				}
 			}
 
-			buffer->data       = command;
+			buffer->data = command;
 			buffer->dataLength = commandSize;
-			host->packetSize  += buffer->dataLength;
+			host->packetSize += buffer->dataLength;
 			*command = outgoingCommand->command;
 
 			enet_list_remove(&outgoingCommand->outgoingCommandList);
@@ -2472,7 +2514,7 @@ extern "C" {
 			if (outgoingCommand->packet != NULL) {
 				++buffer;
 
-				buffer->data       = outgoingCommand->packet->data + outgoingCommand->fragmentOffset;
+				buffer->data = outgoingCommand->packet->data + outgoingCommand->fragmentOffset;
 				buffer->dataLength = outgoingCommand->fragmentLength;
 				host->packetSize += buffer->dataLength;
 
@@ -2486,7 +2528,7 @@ extern "C" {
 		}
 
 		host->commandCount = command - host->commands;
-		host->bufferCount  = buffer - host->buffers;
+		host->bufferCount = buffer - host->buffers;
 
 		if (peer->state == ENET_PEER_STATE_DISCONNECT_LATER && enet_list_empty(&peer->outgoingReliableCommands) && enet_list_empty(&peer->outgoingUnreliableCommands) && enet_list_empty(&peer->sentReliableCommands) && enet_list_empty(&peer->sentUnreliableCommands))
 			enet_peer_disconnect(peer, peer->eventData);
@@ -2535,7 +2577,7 @@ extern "C" {
 
 	static int enet_protocol_send_reliable_outgoing_commands(ENetHost* host, ENetPeer* peer) {
 		ENetProtocol* command = &host->commands[host->commandCount];
-		ENetBuffer* buffer    = &host->buffers[host->bufferCount];
+		ENetBuffer* buffer = &host->buffers[host->bufferCount];
 		ENetOutgoingCommand* outgoingCommand;
 		ENetListIterator currentCommand;
 		ENetChannel* channel;
@@ -2594,7 +2636,7 @@ extern "C" {
 			++outgoingCommand->sendAttempts;
 
 			if (outgoingCommand->roundTripTimeout == 0) {
-				outgoingCommand->roundTripTimeout      = peer->roundTripTime + 4 * peer->roundTripTimeVariance;
+				outgoingCommand->roundTripTimeout = peer->roundTripTime + 4 * peer->roundTripTimeVariance;
 				outgoingCommand->roundTripTimeoutLimit = peer->timeoutLimit * outgoingCommand->roundTripTimeout;
 			}
 
@@ -2604,17 +2646,17 @@ extern "C" {
 			enet_list_insert(enet_list_end(&peer->sentReliableCommands), enet_list_remove(&outgoingCommand->outgoingCommandList));
 
 			outgoingCommand->sentTime = host->serviceTime;
-			buffer->data       = command;
+			buffer->data = command;
 			buffer->dataLength = commandSize;
-			host->packetSize  += buffer->dataLength;
+			host->packetSize += buffer->dataLength;
 			host->headerFlags |= ENET_PROTOCOL_HEADER_FLAG_SENT_TIME;
 			*command = outgoingCommand->command;
 
 			if (outgoingCommand->packet != NULL) {
 				++buffer;
-				buffer->data       = outgoingCommand->packet->data + outgoingCommand->fragmentOffset;
+				buffer->data = outgoingCommand->packet->data + outgoingCommand->fragmentOffset;
 				buffer->dataLength = outgoingCommand->fragmentLength;
-				host->packetSize  += outgoingCommand->fragmentLength;
+				host->packetSize += outgoingCommand->fragmentLength;
 				peer->reliableDataInTransit += outgoingCommand->fragmentLength;
 			}
 
@@ -2625,7 +2667,7 @@ extern "C" {
 		}
 
 		host->commandCount = command - host->commands;
-		host->bufferCount  = buffer - host->buffers;
+		host->bufferCount = buffer - host->buffers;
 
 		return canPing;
 	}
@@ -2646,10 +2688,10 @@ extern "C" {
 				if (currentPeer->state == ENET_PEER_STATE_DISCONNECTED || currentPeer->state == ENET_PEER_STATE_ZOMBIE)
 					continue;
 
-				host->headerFlags  = 0;
+				host->headerFlags = 0;
 				host->commandCount = 0;
-				host->bufferCount  = 1;
-				host->packetSize   = sizeof(ENetProtocolHeader);
+				host->bufferCount = 1;
+				host->packetSize = sizeof(ENetProtocolHeader);
 
 				if (!enet_list_empty(&currentPeer->acknowledgements))
 					enet_protocol_send_acknowledgements(host, currentPeer);
@@ -2695,16 +2737,16 @@ extern "C" {
 					currentPeer->packetLossVariance -= currentPeer->packetLossVariance / 4;
 
 					if (packetLoss >= currentPeer->packetLoss) {
-						currentPeer->packetLoss         += (packetLoss - currentPeer->packetLoss) / 8;
+						currentPeer->packetLoss += (packetLoss - currentPeer->packetLoss) / 8;
 						currentPeer->packetLossVariance += (packetLoss - currentPeer->packetLoss) / 4;
 					} else {
-						currentPeer->packetLoss         -= (currentPeer->packetLoss - packetLoss) / 8;
+						currentPeer->packetLoss -= (currentPeer->packetLoss - packetLoss) / 8;
 						currentPeer->packetLossVariance += (currentPeer->packetLoss - packetLoss) / 4;
 					}
 
 					currentPeer->packetLossEpoch = host->serviceTime;
-					currentPeer->packetsSent     = 0;
-					currentPeer->packetsLost     = 0;
+					currentPeer->packetsSent = 0;
+					currentPeer->packetsLost = 0;
 				}
 
 				host->buffers->data = headerData;
@@ -2739,7 +2781,7 @@ extern "C" {
 								memcpy(host->compressionBuffer + dataSize, buffers[i].data, copySize);
 
 								totalSize -= copySize;
-								dataSize  += copySize;
+								dataSize += copySize;
 							}
 						}
 
@@ -2747,7 +2789,7 @@ extern "C" {
 
 						if (compressedSize > 0 && compressedSize < originalSize) {
 							host->headerFlags |= ENET_PROTOCOL_HEADER_FLAG_COMPRESSED;
-							shouldCompress     = compressedSize;
+							shouldCompress = compressedSize;
 
 							#ifdef ENET_DEBUG
 								printf("peer %u: compressed %u->%u (%u%%)\n", currentPeer->incomingPeerID, originalSize, compressedSize, (compressedSize * 100) / originalSize);
@@ -2770,9 +2812,9 @@ extern "C" {
 
 				#ifdef ENET_LZ4
 					if (shouldCompress > 0) {
-						host->buffers[1].data       = host->packetData[1];
+						host->buffers[1].data = host->packetData[1];
 						host->buffers[1].dataLength = shouldCompress;
-						host->bufferCount           = 2;
+						host->bufferCount = 2;
 					}
 				#endif
 
@@ -2803,8 +2845,8 @@ extern "C" {
 		if (event == NULL)
 			return -1;
 
-		event->type   = ENET_EVENT_TYPE_NONE;
-		event->peer   = NULL;
+		event->type = ENET_EVENT_TYPE_NONE;
+		event->peer = NULL;
 		event->packet = NULL;
 
 		return enet_protocol_dispatch_incoming_commands(host, event);
@@ -2814,8 +2856,8 @@ extern "C" {
 		enet_uint32 waitCondition;
 
 		if (event != NULL) {
-			event->type   = ENET_EVENT_TYPE_NONE;
-			event->peer   = NULL;
+			event->type = ENET_EVENT_TYPE_NONE;
+			event->peer = NULL;
 			event->packet = NULL;
 
 			switch (enet_protocol_dispatch_incoming_commands(host, event)) {
@@ -2936,12 +2978,12 @@ extern "C" {
 
 	void enet_peer_throttle_configure(ENetPeer* peer, enet_uint32 interval, enet_uint32 acceleration, enet_uint32 deceleration) {
 		ENetProtocol command;
-		peer->packetThrottleInterval     = interval;
+		peer->packetThrottleInterval = interval;
 		peer->packetThrottleAcceleration = acceleration;
 		peer->packetThrottleDeceleration = deceleration;
-		command.header.command   = ENET_PROTOCOL_COMMAND_THROTTLE_CONFIGURE | ENET_PROTOCOL_COMMAND_FLAG_ACKNOWLEDGE;
+		command.header.command = ENET_PROTOCOL_COMMAND_THROTTLE_CONFIGURE | ENET_PROTOCOL_COMMAND_FLAG_ACKNOWLEDGE;
 		command.header.channelID = 0xFF;
-		command.throttleConfigure.packetThrottleInterval     = ENET_HOST_TO_NET_32(interval);
+		command.throttleConfigure.packetThrottleInterval = ENET_HOST_TO_NET_32(interval);
 		command.throttleConfigure.packetThrottleAcceleration = ENET_HOST_TO_NET_32(acceleration);
 		command.throttleConfigure.packetThrottleDeceleration = ENET_HOST_TO_NET_32(deceleration);
 
@@ -2994,10 +3036,10 @@ extern "C" {
 				return -1;
 
 			if ((packet->flags & (ENET_PACKET_FLAG_RELIABLE | ENET_PACKET_FLAG_UNRELIABLE_FRAGMENT)) == ENET_PACKET_FLAG_UNRELIABLE_FRAGMENT && channel->outgoingUnreliableSequenceNumber < 0xFFFF) {
-				commandNumber       = ENET_PROTOCOL_COMMAND_SEND_UNRELIABLE_FRAGMENT;
+				commandNumber = ENET_PROTOCOL_COMMAND_SEND_UNRELIABLE_FRAGMENT;
 				startSequenceNumber = ENET_HOST_TO_NET_16(channel->outgoingUnreliableSequenceNumber + 1);
 			} else {
-				commandNumber       = ENET_PROTOCOL_COMMAND_SEND_FRAGMENT | ENET_PROTOCOL_COMMAND_FLAG_ACKNOWLEDGE;
+				commandNumber = ENET_PROTOCOL_COMMAND_SEND_FRAGMENT | ENET_PROTOCOL_COMMAND_FLAG_ACKNOWLEDGE;
 				startSequenceNumber = ENET_HOST_TO_NET_16(channel->outgoingReliableSequenceNumber + 1);
 			}
 
@@ -3019,16 +3061,16 @@ extern "C" {
 					return -1;
 				}
 
-				fragment->fragmentOffset           = fragmentOffset;
-				fragment->fragmentLength           = fragmentLength;
-				fragment->packet                   = packet;
-				fragment->command.header.command   = commandNumber;
+				fragment->fragmentOffset = fragmentOffset;
+				fragment->fragmentLength = fragmentLength;
+				fragment->packet = packet;
+				fragment->command.header.command = commandNumber;
 				fragment->command.header.channelID = channelID;
 				fragment->command.sendFragment.startSequenceNumber = startSequenceNumber;
-				fragment->command.sendFragment.dataLength     = ENET_HOST_TO_NET_16(fragmentLength);
-				fragment->command.sendFragment.fragmentCount  = ENET_HOST_TO_NET_32(fragmentCount);
+				fragment->command.sendFragment.dataLength = ENET_HOST_TO_NET_16(fragmentLength);
+				fragment->command.sendFragment.fragmentCount = ENET_HOST_TO_NET_32(fragmentCount);
 				fragment->command.sendFragment.fragmentNumber = ENET_HOST_TO_NET_32(fragmentNumber);
-				fragment->command.sendFragment.totalLength    = ENET_HOST_TO_NET_32(packet->dataLength);
+				fragment->command.sendFragment.totalLength = ENET_HOST_TO_NET_32(packet->dataLength);
 				fragment->command.sendFragment.fragmentOffset = ENET_NET_TO_HOST_32(fragmentOffset);
 
 				enet_list_insert(enet_list_end(&fragments), fragment);
@@ -3161,7 +3203,7 @@ extern "C" {
 			enet_free(peer->channels);
 		}
 
-		peer->channels     = NULL;
+		peer->channels = NULL;
 		peer->channelCount = 0;
 	}
 
@@ -3186,55 +3228,56 @@ extern "C" {
 	void enet_peer_reset(ENetPeer* peer) {
 		enet_peer_on_disconnect(peer);
 
-		peer->outgoingPeerID                 = ENET_PROTOCOL_MAXIMUM_PEER_ID;
-		peer->state                          = ENET_PEER_STATE_DISCONNECTED;
-		peer->incomingBandwidth              = 0;
-		peer->outgoingBandwidth              = 0;
+		peer->outgoingPeerID = ENET_PROTOCOL_MAXIMUM_PEER_ID;
+		peer->state = ENET_PEER_STATE_DISCONNECTED;
+		peer->incomingBandwidth = 0;
+		peer->outgoingBandwidth = 0;
 		peer->incomingBandwidthThrottleEpoch = 0;
 		peer->outgoingBandwidthThrottleEpoch = 0;
-		peer->incomingDataTotal              = 0;
-		peer->totalDataReceived              = 0;
-		peer->outgoingDataTotal              = 0;
-		peer->totalDataSent                  = 0;
-		peer->lastSendTime                   = 0;
-		peer->lastReceiveTime                = 0;
-		peer->nextTimeout                    = 0;
-		peer->earliestTimeout                = 0;
-		peer->packetLossEpoch                = 0;
-		peer->packetsSent                    = 0;
-		peer->totalPacketsSent               = 0;
-		peer->packetsLost                    = 0;
-		peer->totalPacketsLost               = 0;
-		peer->packetLoss                     = 0;
-		peer->packetLossVariance             = 0;
-		peer->packetThrottle                 = ENET_PEER_DEFAULT_PACKET_THROTTLE;
-		peer->packetThrottleLimit            = ENET_PEER_PACKET_THROTTLE_SCALE;
-		peer->packetThrottleCounter          = 0;
-		peer->packetThrottleEpoch            = 0;
-		peer->packetThrottleAcceleration     = ENET_PEER_PACKET_THROTTLE_ACCELERATION;
-		peer->packetThrottleDeceleration     = ENET_PEER_PACKET_THROTTLE_DECELERATION;
-		peer->packetThrottleInterval         = ENET_PEER_PACKET_THROTTLE_INTERVAL;
-		peer->pingInterval                   = ENET_PEER_PING_INTERVAL;
-		peer->timeoutLimit                   = ENET_PEER_TIMEOUT_LIMIT;
-		peer->timeoutMinimum                 = ENET_PEER_TIMEOUT_MINIMUM;
-		peer->timeoutMaximum                 = ENET_PEER_TIMEOUT_MAXIMUM;
-		peer->smoothedRoundTripTime          = 0;
-		peer->lastRoundTripTime              = ENET_PEER_DEFAULT_ROUND_TRIP_TIME;
-		peer->lowestRoundTripTime            = ENET_PEER_DEFAULT_ROUND_TRIP_TIME;
-		peer->lastRoundTripTimeVariance      = 0;
-		peer->highestRoundTripTimeVariance   = 0;
-		peer->roundTripTime                  = ENET_PEER_DEFAULT_ROUND_TRIP_TIME;
-		peer->roundTripTimeVariance          = 0;
-		peer->mtu                            = peer->host->mtu;
-		peer->reliableDataInTransit          = 0;
+		peer->incomingDataTotal = 0;
+		peer->totalDataReceived = 0;
+		peer->outgoingDataTotal = 0;
+		peer->totalDataSent = 0;
+		peer->lastSendTime = 0;
+		peer->lastReceiveTime = 0;
+		peer->nextTimeout = 0;
+		peer->earliestTimeout = 0;
+		peer->packetLossEpoch = 0;
+		peer->packetsSent = 0;
+		peer->totalPacketsSent = 0;
+		peer->packetsLost = 0;
+		peer->totalPacketsLost = 0;
+		peer->packetLoss = 0;
+		peer->packetLossVariance = 0;
+		peer->packetThrottle = ENET_PEER_DEFAULT_PACKET_THROTTLE;
+		peer->packetThrottleLimit = ENET_PEER_PACKET_THROTTLE_SCALE;
+		peer->packetThrottleCounter = 0;
+		peer->packetThrottleEpoch = 0;
+		peer->packetThrottleAcceleration = ENET_PEER_PACKET_THROTTLE_ACCELERATION;
+		peer->packetThrottleDeceleration = ENET_PEER_PACKET_THROTTLE_DECELERATION;
+		peer->packetThrottleInterval = ENET_PEER_PACKET_THROTTLE_INTERVAL;
+		peer->pingInterval = ENET_PEER_PING_INTERVAL;
+		peer->timeoutLimit = ENET_PEER_TIMEOUT_LIMIT;
+		peer->timeoutMinimum = ENET_PEER_TIMEOUT_MINIMUM;
+		peer->timeoutMaximum = ENET_PEER_TIMEOUT_MAXIMUM;
+		peer->smoothedRoundTripTime = 0;
+		peer->lastRoundTripTime = ENET_PEER_DEFAULT_ROUND_TRIP_TIME;
+		peer->lowestRoundTripTime = ENET_PEER_DEFAULT_ROUND_TRIP_TIME;
+		peer->lastRoundTripTimeVariance = 0;
+		peer->highestRoundTripTimeVariance = 0;
+		peer->roundTripTime = ENET_PEER_DEFAULT_ROUND_TRIP_TIME;
+		peer->roundTripTimeVariance = 0;
+		peer->mtu = peer->host->mtu;
+		peer->reliableDataInTransit = 0;
 		peer->outgoingReliableSequenceNumber = 0;
-		peer->windowSize                     = ENET_PROTOCOL_MAXIMUM_WINDOW_SIZE;
-		peer->incomingUnsequencedGroup       = 0;
-		peer->outgoingUnsequencedGroup       = 0;
-		peer->eventData                      = 0;
-		peer->totalWaitingData               = 0;
+		peer->windowSize = ENET_PROTOCOL_MAXIMUM_WINDOW_SIZE;
+		peer->incomingUnsequencedGroup = 0;
+		peer->outgoingUnsequencedGroup = 0;
+		peer->eventData = 0;
+		peer->totalWaitingData = 0;
 
 		memset(peer->unsequencedWindow, 0, sizeof(peer->unsequencedWindow));
+
 		enet_peer_reset_queues(peer);
 	}
 
@@ -3244,7 +3287,7 @@ extern "C" {
 		if (peer->state != ENET_PEER_STATE_CONNECTED)
 			return;
 
-		command.header.command   = ENET_PROTOCOL_COMMAND_PING | ENET_PROTOCOL_COMMAND_FLAG_ACKNOWLEDGE;
+		command.header.command = ENET_PROTOCOL_COMMAND_PING | ENET_PROTOCOL_COMMAND_FLAG_ACKNOWLEDGE;
 		command.header.channelID = 0xFF;
 
 		enet_peer_queue_outgoing_command(peer, &command, NULL, 0, 0);
@@ -3255,7 +3298,7 @@ extern "C" {
 	}
 
 	void enet_peer_timeout(ENetPeer* peer, enet_uint32 timeoutLimit, enet_uint32 timeoutMinimum, enet_uint32 timeoutMaximum) {
-		peer->timeoutLimit   = timeoutLimit ? timeoutLimit : ENET_PEER_TIMEOUT_LIMIT;
+		peer->timeoutLimit = timeoutLimit ? timeoutLimit : ENET_PEER_TIMEOUT_LIMIT;
 		peer->timeoutMinimum = timeoutMinimum ? timeoutMinimum : ENET_PEER_TIMEOUT_MINIMUM;
 		peer->timeoutMaximum = timeoutMaximum ? timeoutMaximum : ENET_PEER_TIMEOUT_MAXIMUM;
 	}
@@ -3269,9 +3312,9 @@ extern "C" {
 		if (peer->state != ENET_PEER_STATE_ZOMBIE && peer->state != ENET_PEER_STATE_DISCONNECTING) {
 			enet_peer_reset_queues(peer);
 
-			command.header.command   = ENET_PROTOCOL_COMMAND_DISCONNECT | ENET_PROTOCOL_COMMAND_FLAG_UNSEQUENCED;
+			command.header.command = ENET_PROTOCOL_COMMAND_DISCONNECT | ENET_PROTOCOL_COMMAND_FLAG_UNSEQUENCED;
 			command.header.channelID = 0xFF;
-			command.disconnect.data  = ENET_HOST_TO_NET_32(data);
+			command.disconnect.data = ENET_HOST_TO_NET_32(data);
 
 			enet_peer_queue_outgoing_command(peer, &command, NULL, 0, 0);
 			enet_host_flush(peer->host);
@@ -3288,9 +3331,9 @@ extern "C" {
 
 		enet_peer_reset_queues(peer);
 
-		command.header.command   = ENET_PROTOCOL_COMMAND_DISCONNECT;
+		command.header.command = ENET_PROTOCOL_COMMAND_DISCONNECT;
 		command.header.channelID = 0xFF;
-		command.disconnect.data  = ENET_HOST_TO_NET_32(data);
+		command.disconnect.data = ENET_HOST_TO_NET_32(data);
 
 		if (peer->state == ENET_PEER_STATE_CONNECTED || peer->state == ENET_PEER_STATE_DISCONNECT_LATER)
 			command.header.command |= ENET_PROTOCOL_COMMAND_FLAG_ACKNOWLEDGE;
@@ -3311,7 +3354,7 @@ extern "C" {
 
 	void enet_peer_disconnect_later(ENetPeer* peer, enet_uint32 data) {
 		if ((peer->state == ENET_PEER_STATE_CONNECTED || peer->state == ENET_PEER_STATE_DISCONNECT_LATER) && !(enet_list_empty(&peer->outgoingReliableCommands) && enet_list_empty(&peer->outgoingUnreliableCommands) && enet_list_empty(&peer->sentReliableCommands))) {
-			peer->state     = ENET_PEER_STATE_DISCONNECT_LATER;
+			peer->state = ENET_PEER_STATE_DISCONNECT_LATER;
 			peer->eventData = data;
 		} else {
 			enet_peer_disconnect(peer, data);
@@ -3322,9 +3365,9 @@ extern "C" {
 		ENetAcknowledgement* acknowledgement;
 
 		if (command->header.channelID < peer->channelCount) {
-			ENetChannel* channel       = &peer->channels[command->header.channelID];
+			ENetChannel* channel = &peer->channels[command->header.channelID];
 			enet_uint16 reliableWindow = command->header.reliableSequenceNumber / ENET_PEER_RELIABLE_WINDOW_SIZE;
-			enet_uint16 currentWindow  = channel->incomingReliableSequenceNumber / ENET_PEER_RELIABLE_WINDOW_SIZE;
+			enet_uint16 currentWindow = channel->incomingReliableSequenceNumber / ENET_PEER_RELIABLE_WINDOW_SIZE;
 
 			if (command->header.reliableSequenceNumber < channel->incomingReliableSequenceNumber)
 				reliableWindow += ENET_PEER_RELIABLE_WINDOWS;
@@ -3338,9 +3381,9 @@ extern "C" {
 		if (acknowledgement == NULL)
 			return NULL;
 
-		peer->outgoingDataTotal  += sizeof(ENetProtocolAcknowledge);
+		peer->outgoingDataTotal += sizeof(ENetProtocolAcknowledge);
 		acknowledgement->sentTime = sentTime;
-		acknowledgement->command  = *command;
+		acknowledgement->command = *command;
 
 		enet_list_insert(enet_list_end(&peer->acknowledgements), acknowledgement);
 
@@ -3353,28 +3396,28 @@ extern "C" {
 
 		if (outgoingCommand->command.header.channelID == 0xFF) {
 			++peer->outgoingReliableSequenceNumber;
-			outgoingCommand->reliableSequenceNumber   = peer->outgoingReliableSequenceNumber;
+			outgoingCommand->reliableSequenceNumber = peer->outgoingReliableSequenceNumber;
 			outgoingCommand->unreliableSequenceNumber = 0;
 		} else if (outgoingCommand->command.header.command & ENET_PROTOCOL_COMMAND_FLAG_ACKNOWLEDGE) {
 			++channel->outgoingReliableSequenceNumber;
 			channel->outgoingUnreliableSequenceNumber = 0;
-			outgoingCommand->reliableSequenceNumber   = channel->outgoingReliableSequenceNumber;
+			outgoingCommand->reliableSequenceNumber = channel->outgoingReliableSequenceNumber;
 			outgoingCommand->unreliableSequenceNumber = 0;
 		} else if (outgoingCommand->command.header.command & ENET_PROTOCOL_COMMAND_FLAG_UNSEQUENCED) {
 			++peer->outgoingUnsequencedGroup;
-			outgoingCommand->reliableSequenceNumber   = 0;
+			outgoingCommand->reliableSequenceNumber = 0;
 			outgoingCommand->unreliableSequenceNumber = 0;
 		} else {
 			if (outgoingCommand->fragmentOffset == 0)
 				++channel->outgoingUnreliableSequenceNumber;
 
-			outgoingCommand->reliableSequenceNumber   = channel->outgoingReliableSequenceNumber;
+			outgoingCommand->reliableSequenceNumber = channel->outgoingReliableSequenceNumber;
 			outgoingCommand->unreliableSequenceNumber = channel->outgoingUnreliableSequenceNumber;
 		}
 
-		outgoingCommand->sendAttempts          = 0;
-		outgoingCommand->sentTime              = 0;
-		outgoingCommand->roundTripTimeout      = 0;
+		outgoingCommand->sendAttempts = 0;
+		outgoingCommand->sentTime = 0;
+		outgoingCommand->roundTripTimeout = 0;
 		outgoingCommand->roundTripTimeoutLimit = 0;
 		outgoingCommand->command.header.reliableSequenceNumber = ENET_HOST_TO_NET_16(outgoingCommand->reliableSequenceNumber);
 
@@ -3405,10 +3448,10 @@ extern "C" {
 		if (outgoingCommand == NULL)
 			return NULL;
 
-		outgoingCommand->command        = *command;
+		outgoingCommand->command = *command;
 		outgoingCommand->fragmentOffset = offset;
 		outgoingCommand->fragmentLength = length;
-		outgoingCommand->packet         = packet;
+		outgoingCommand->packet = packet;
 
 		if (packet != NULL)
 			++packet->referenceCount;
@@ -3448,7 +3491,7 @@ extern "C" {
 				droppedCommand = enet_list_previous(currentCommand);
 			} else {
 				enet_uint16 reliableWindow = incomingCommand->reliableSequenceNumber / ENET_PEER_RELIABLE_WINDOW_SIZE;
-				enet_uint16 currentWindow  = channel->incomingReliableSequenceNumber / ENET_PEER_RELIABLE_WINDOW_SIZE;
+				enet_uint16 currentWindow = channel->incomingReliableSequenceNumber / ENET_PEER_RELIABLE_WINDOW_SIZE;
 
 				if (incomingCommand->reliableSequenceNumber < channel->incomingReliableSequenceNumber)
 					reliableWindow += ENET_PEER_RELIABLE_WINDOWS;
@@ -3535,7 +3578,7 @@ extern "C" {
 		if ((command->header.command & ENET_PROTOCOL_COMMAND_MASK) != ENET_PROTOCOL_COMMAND_SEND_UNSEQUENCED) {
 			reliableSequenceNumber = command->header.reliableSequenceNumber;
 			reliableWindow = reliableSequenceNumber / ENET_PEER_RELIABLE_WINDOW_SIZE;
-			currentWindow  = channel->incomingReliableSequenceNumber / ENET_PEER_RELIABLE_WINDOW_SIZE;
+			currentWindow = channel->incomingReliableSequenceNumber / ENET_PEER_RELIABLE_WINDOW_SIZE;
 
 			if (reliableSequenceNumber < channel->incomingReliableSequenceNumber)
 				reliableWindow += ENET_PEER_RELIABLE_WINDOWS;
@@ -3628,13 +3671,13 @@ extern "C" {
 		if (incomingCommand == NULL)
 			goto notifyError;
 
-		incomingCommand->reliableSequenceNumber   = command->header.reliableSequenceNumber;
+		incomingCommand->reliableSequenceNumber = command->header.reliableSequenceNumber;
 		incomingCommand->unreliableSequenceNumber = unreliableSequenceNumber & 0xFFFF;
-		incomingCommand->command                  = *command;
-		incomingCommand->fragmentCount            = fragmentCount;
-		incomingCommand->fragmentsRemaining       = fragmentCount;
-		incomingCommand->packet                   = packet;
-		incomingCommand->fragments                = NULL;
+		incomingCommand->command = *command;
+		incomingCommand->fragmentCount = fragmentCount;
+		incomingCommand->fragmentsRemaining = fragmentCount;
+		incomingCommand->packet = packet;
+		incomingCommand->fragments = NULL;
 
 		if (fragmentCount > 0) {
 			if (fragmentCount <= ENET_PROTOCOL_MAXIMUM_FRAGMENT_COUNT)
@@ -3752,42 +3795,42 @@ extern "C" {
 		else if (channelLimit < ENET_PROTOCOL_MINIMUM_CHANNEL_COUNT)
 			channelLimit = ENET_PROTOCOL_MINIMUM_CHANNEL_COUNT;
 
-		host->randomSeed                 = (enet_uint32)(size_t)host;
-		host->randomSeed                += enet_host_random_seed();
-		host->randomSeed                 = (host->randomSeed << 16) | (host->randomSeed >> 16);
-		host->channelLimit               = channelLimit;
-		host->incomingBandwidth          = incomingBandwidth;
-		host->outgoingBandwidth          = outgoingBandwidth;
-		host->bandwidthThrottleEpoch     = 0;
+		host->randomSeed = (enet_uint32)(size_t)host;
+		host->randomSeed += enet_host_random_seed();
+		host->randomSeed = (host->randomSeed << 16) | (host->randomSeed >> 16);
+		host->channelLimit = channelLimit;
+		host->incomingBandwidth = incomingBandwidth;
+		host->outgoingBandwidth = outgoingBandwidth;
+		host->bandwidthThrottleEpoch = 0;
 		host->recalculateBandwidthLimits = 0;
-		host->preventConnections         = 0;
-		host->mtu                        = ENET_HOST_DEFAULT_MTU;
-		host->peerCount                  = peerCount;
-		host->commandCount               = 0;
-		host->bufferCount                = 0;
-		host->compression                = 0;
-		host->compressionBufferSize      = 0;
-		host->checksumCallback           = NULL;
-		host->receivedAddress.host       = ENET_HOST_ANY;
-		host->receivedAddress.port       = 0;
-		host->receivedData               = NULL;
-		host->receivedDataLength         = 0;
-		host->totalSentData              = 0;
-		host->totalSentPackets           = 0;
-		host->totalReceivedData          = 0;
-		host->totalReceivedPackets       = 0;
-		host->connectedPeers             = 0;
-		host->bandwidthLimitedPeers      = 0;
-		host->duplicatePeers             = ENET_PROTOCOL_MAXIMUM_PEER_ID;
-		host->maximumPacketSize          = ENET_HOST_DEFAULT_MAXIMUM_PACKET_SIZE;
-		host->maximumWaitingData         = ENET_HOST_DEFAULT_MAXIMUM_WAITING_DATA;
-		host->interceptCallback          = NULL;
+		host->preventConnections = 0;
+		host->mtu = ENET_HOST_DEFAULT_MTU;
+		host->peerCount = peerCount;
+		host->commandCount = 0;
+		host->bufferCount = 0;
+		host->compression = 0;
+		host->compressionBufferSize = 0;
+		host->checksumCallback = NULL;
+		host->receivedAddress.ipv6 = ENET_HOST_ANY;
+		host->receivedAddress.port = 0;
+		host->receivedData = NULL;
+		host->receivedDataLength = 0;
+		host->totalSentData = 0;
+		host->totalSentPackets = 0;
+		host->totalReceivedData = 0;
+		host->totalReceivedPackets = 0;
+		host->connectedPeers = 0;
+		host->bandwidthLimitedPeers = 0;
+		host->duplicatePeers = ENET_PROTOCOL_MAXIMUM_PEER_ID;
+		host->maximumPacketSize = ENET_HOST_DEFAULT_MAXIMUM_PACKET_SIZE;
+		host->maximumWaitingData = ENET_HOST_DEFAULT_MAXIMUM_WAITING_DATA;
+		host->interceptCallback = NULL;
 
 		enet_list_clear(&host->dispatchQueue);
 
 		for (currentPeer = host->peers; currentPeer < &host->peers[host->peerCount]; ++currentPeer) {
 			currentPeer->host = host;
-			currentPeer->incomingPeerID    = currentPeer - host->peers;
+			currentPeer->incomingPeerID = currentPeer - host->peers;
 			currentPeer->outgoingSessionID = currentPeer->incomingSessionID = 0xFF;
 			currentPeer->data = NULL;
 
@@ -3858,9 +3901,9 @@ extern "C" {
 			return NULL;
 
 		currentPeer->channelCount = channelCount;
-		currentPeer->state        = ENET_PEER_STATE_CONNECTING;
-		currentPeer->address      = *address;
-		currentPeer->connectID    = ++host->randomSeed;
+		currentPeer->state = ENET_PEER_STATE_CONNECTING;
+		currentPeer->address = *address;
+		currentPeer->connectID = ++host->randomSeed;
 
 		if (host->outgoingBandwidth == 0)
 			currentPeer->windowSize = ENET_PROTOCOL_MAXIMUM_WINDOW_SIZE;
@@ -3873,9 +3916,9 @@ extern "C" {
 			currentPeer->windowSize = ENET_PROTOCOL_MAXIMUM_WINDOW_SIZE;
 
 		for (channel = currentPeer->channels; channel < &currentPeer->channels[channelCount]; ++channel) {
-			channel->outgoingReliableSequenceNumber   = 0;
+			channel->outgoingReliableSequenceNumber = 0;
 			channel->outgoingUnreliableSequenceNumber = 0;
-			channel->incomingReliableSequenceNumber   = 0;
+			channel->incomingReliableSequenceNumber = 0;
 			channel->incomingUnreliableSequenceNumber = 0;
 
 			enet_list_clear(&channel->incomingReliableCommands);
@@ -3886,21 +3929,21 @@ extern "C" {
 			memset(channel->reliableWindows, 0, sizeof(channel->reliableWindows));
 		}
 
-		command.header.command                     = ENET_PROTOCOL_COMMAND_CONNECT | ENET_PROTOCOL_COMMAND_FLAG_ACKNOWLEDGE;
-		command.header.channelID                   = 0xFF;
-		command.connect.outgoingPeerID             = ENET_HOST_TO_NET_16(currentPeer->incomingPeerID);
-		command.connect.incomingSessionID          = currentPeer->incomingSessionID;
-		command.connect.outgoingSessionID          = currentPeer->outgoingSessionID;
-		command.connect.mtu                        = ENET_HOST_TO_NET_32(currentPeer->mtu);
-		command.connect.windowSize                 = ENET_HOST_TO_NET_32(currentPeer->windowSize);
-		command.connect.channelCount               = ENET_HOST_TO_NET_32(channelCount);
-		command.connect.incomingBandwidth          = ENET_HOST_TO_NET_32(host->incomingBandwidth);
-		command.connect.outgoingBandwidth          = ENET_HOST_TO_NET_32(host->outgoingBandwidth);
-		command.connect.packetThrottleInterval     = ENET_HOST_TO_NET_32(currentPeer->packetThrottleInterval);
+		command.header.command = ENET_PROTOCOL_COMMAND_CONNECT | ENET_PROTOCOL_COMMAND_FLAG_ACKNOWLEDGE;
+		command.header.channelID = 0xFF;
+		command.connect.outgoingPeerID = ENET_HOST_TO_NET_16(currentPeer->incomingPeerID);
+		command.connect.incomingSessionID = currentPeer->incomingSessionID;
+		command.connect.outgoingSessionID = currentPeer->outgoingSessionID;
+		command.connect.mtu = ENET_HOST_TO_NET_32(currentPeer->mtu);
+		command.connect.windowSize = ENET_HOST_TO_NET_32(currentPeer->windowSize);
+		command.connect.channelCount = ENET_HOST_TO_NET_32(channelCount);
+		command.connect.incomingBandwidth = ENET_HOST_TO_NET_32(host->incomingBandwidth);
+		command.connect.outgoingBandwidth = ENET_HOST_TO_NET_32(host->outgoingBandwidth);
+		command.connect.packetThrottleInterval = ENET_HOST_TO_NET_32(currentPeer->packetThrottleInterval);
 		command.connect.packetThrottleAcceleration = ENET_HOST_TO_NET_32(currentPeer->packetThrottleAcceleration);
 		command.connect.packetThrottleDeceleration = ENET_HOST_TO_NET_32(currentPeer->packetThrottleDeceleration);
-		command.connect.connectID                  = currentPeer->connectID;
-		command.connect.data                       = ENET_HOST_TO_NET_32(data);
+		command.connect.connectID = currentPeer->connectID;
+		command.connect.data = ENET_HOST_TO_NET_32(data);
 
 		enet_peer_queue_outgoing_command(currentPeer, &command, NULL, 0, 0);
 
@@ -3971,12 +4014,12 @@ extern "C" {
 	}
 
 	void enet_host_bandwidth_throttle(ENetHost* host) {
-		enet_uint32 timeCurrent    = enet_time_get();
-		enet_uint32 elapsedTime    = timeCurrent - host->bandwidthThrottleEpoch;
+		enet_uint32 timeCurrent = enet_time_get();
+		enet_uint32 elapsedTime = timeCurrent - host->bandwidthThrottleEpoch;
 		enet_uint32 peersRemaining = (enet_uint32)host->connectedPeers;
-		enet_uint32 dataTotal      = ~0;
-		enet_uint32 bandwidth      = ~0;
-		enet_uint32 throttle       = 0;
+		enet_uint32 dataTotal = ~0;
+		enet_uint32 bandwidth = ~0;
+		enet_uint32 throttle = 0;
 		enet_uint32 bandwidthLimit = 0;
 
 		int needsAdjustment = host->bandwidthLimitedPeers > 0 ? 1 : 0;
@@ -4065,8 +4108,8 @@ extern "C" {
 
 		if (host->recalculateBandwidthLimits) {
 			host->recalculateBandwidthLimits = 0;
-			peersRemaining  = (enet_uint32)host->connectedPeers;
-			bandwidth       = host->incomingBandwidth;
+			peersRemaining = (enet_uint32)host->connectedPeers;
+			bandwidth = host->incomingBandwidth;
 			needsAdjustment = 1;
 
 			if (bandwidth == 0) {
@@ -4074,7 +4117,7 @@ extern "C" {
 			} else {
 				while (peersRemaining > 0 && needsAdjustment != 0) {
 					needsAdjustment = 0;
-					bandwidthLimit  = bandwidth / peersRemaining;
+					bandwidthLimit = bandwidth / peersRemaining;
 
 					for (peer = host->peers; peer < &host->peers[host->peerCount]; ++peer) {
 						if ((peer->state != ENET_PEER_STATE_CONNECTED && peer->state != ENET_PEER_STATE_DISCONNECT_LATER) || peer->incomingBandwidthThrottleEpoch == timeCurrent)
@@ -4095,7 +4138,7 @@ extern "C" {
 				if (peer->state != ENET_PEER_STATE_CONNECTED && peer->state != ENET_PEER_STATE_DISCONNECT_LATER)
 					continue;
 
-				command.header.command   = ENET_PROTOCOL_COMMAND_BANDWIDTH_LIMIT | ENET_PROTOCOL_COMMAND_FLAG_ACKNOWLEDGE;
+				command.header.command = ENET_PROTOCOL_COMMAND_BANDWIDTH_LIMIT | ENET_PROTOCOL_COMMAND_FLAG_ACKNOWLEDGE;
 				command.header.channelID = 0xFF;
 				command.bandwidthLimit.outgoingBandwidth = ENET_HOST_TO_NET_32(host->outgoingBandwidth);
 
@@ -4350,8 +4393,17 @@ extern "C" {
 			return (timeVal.tv_sec * 1000) ^ (timeVal.tv_usec / 1000);
 		}
 
-		int enet_address_set_host_ip(ENetAddress* address, const char* name) {
-			if (!inet_pton(AF_INET6, name, &address->host))
+		int enet_address_set_host_ip(ENetAddress* address, const char* ip) {
+			int type = AF_INET6;
+			void* destination = &address->ipv6;
+
+			if (strchr(ip, ':') == NULL) {
+				type = AF_INET;
+				address->ipv4.ffff = 0xFFFF;
+				destination = &address->ipv4.ip;
+			}
+
+			if (!inet_pton(type, ip, destination))
 				return -1;
 
 			return 0;
@@ -4372,10 +4424,10 @@ extern "C" {
 					if (result->ai_family == AF_INET) {
 						struct sockaddr_in* sin = (struct sockaddr_in*)result->ai_addr;
 
-						((enet_uint32*)&address->host.s6_addr)[0] = 0;
-						((enet_uint32*)&address->host.s6_addr)[1] = 0;
-						((enet_uint32*)&address->host.s6_addr)[2] = ENET_HOST_TO_NET_32(0xFFFF);
-						((enet_uint32*)&address->host.s6_addr)[3] = sin->sin_addr.s_addr;
+						((enet_uint32*)&address->ipv6.s6_addr)[0] = 0;
+						((enet_uint32*)&address->ipv6.s6_addr)[1] = 0;
+						((enet_uint32*)&address->ipv6.s6_addr)[2] = ENET_HOST_TO_NET_32(0xFFFF);
+						((enet_uint32*)&address->ipv6.s6_addr)[3] = sin->sin_addr.s_addr;
 
 						freeaddrinfo(resultList);
 
@@ -4383,8 +4435,7 @@ extern "C" {
 					} else if (result->ai_family == AF_INET6) {
 						struct sockaddr_in6* sin = (struct sockaddr_in6*)result->ai_addr;
 
-						address->host  = sin->sin6_addr;
-						address->scope = sin->sin6_scope_id;
+						address->ipv6 = sin->sin6_addr;
 
 						freeaddrinfo(resultList);
 
@@ -4399,9 +4450,12 @@ extern "C" {
 			return enet_address_set_host_ip(address, name);
 		}
 
-		int enet_address_get_host_ip(const ENetAddress* address, char* name, size_t nameLength) {
-			if (inet_ntop(AF_INET6, &address->host, name, nameLength) == NULL)
+		int enet_address_get_host_ip(const ENetAddress* address, char* ip, size_t ipLength) {
+			if (inet_ntop(AF_INET6, &address->ipv6, ip, ipLength) == NULL)
 				return -1;
+
+			if (enet_array_is_zeroed(address->ipv4.zeros, sizeof(address->ipv4.zeros)) == 0 && address->ipv4.ffff == 0xFFFF)
+				enet_string_copy(ip, ip + 7, ipLength);
 
 			return 0;
 		}
@@ -4412,10 +4466,9 @@ extern "C" {
 
 			memset(&sin, 0, sizeof(struct sockaddr_in6));
 
-			sin.sin6_family   = AF_INET6;
-			sin.sin6_port     = ENET_HOST_TO_NET_16(address->port);
-			sin.sin6_addr     = address->host;
-			sin.sin6_scope_id = address->scope;
+			sin.sin6_family = AF_INET6;
+			sin.sin6_port = ENET_HOST_TO_NET_16(address->port);
+			sin.sin6_addr = address->ipv6;
 
 			err = getnameinfo((struct sockaddr*)&sin, sizeof(sin), name, nameLength, NULL, 0, NI_NAMEREQD);
 
@@ -4440,13 +4493,11 @@ extern "C" {
 			sin.sin6_family = AF_INET6;
 
 			if (address != NULL) {
-				sin.sin6_port     = ENET_HOST_TO_NET_16(address->port);
-				sin.sin6_addr     = address->host;
-				sin.sin6_scope_id = address->scope;
+				sin.sin6_port = ENET_HOST_TO_NET_16(address->port);
+				sin.sin6_addr = address->ipv6;
 			} else {
-				sin.sin6_port     = 0;
-				sin.sin6_addr     = ENET_HOST_ANY;
-				sin.sin6_scope_id = 0;
+				sin.sin6_port = 0;
+				sin.sin6_addr = ENET_HOST_ANY;
 			}
 
 			return bind(socket, (struct sockaddr*)&sin, sizeof(struct sockaddr_in6));
@@ -4460,9 +4511,8 @@ extern "C" {
 			if (getsockname(socket, (struct sockaddr*)&sin, &sinLength) == -1)
 				return -1;
 
-			address->host  = sin.sin6_addr;
-			address->port  = ENET_NET_TO_HOST_16(sin.sin6_port);
-			address->scope = sin.sin6_scope_id;
+			address->ipv6 = sin.sin6_addr;
+			address->port = ENET_NET_TO_HOST_16(sin.sin6_port);
 
 			return 0;
 		}
@@ -4507,7 +4557,7 @@ extern "C" {
 				case ENET_SOCKOPT_RCVTIMEO: {
 					struct timeval timeVal;
 
-					timeVal.tv_sec  = value / 1000;
+					timeVal.tv_sec = value / 1000;
 					timeVal.tv_usec = (value % 1000) * 1000;
 					result = setsockopt(socket, SOL_SOCKET, SO_RCVTIMEO, (char*)&timeVal, sizeof(struct timeval));
 
@@ -4517,7 +4567,7 @@ extern "C" {
 				case ENET_SOCKOPT_SNDTIMEO: {
 					struct timeval timeVal;
 
-					timeVal.tv_sec  = value / 1000;
+					timeVal.tv_sec = value / 1000;
 					timeVal.tv_usec = (value % 1000) * 1000;
 					result = setsockopt(socket, SOL_SOCKET, SO_SNDTIMEO, (char*)&timeVal, sizeof(struct timeval));
 
@@ -4547,7 +4597,7 @@ extern "C" {
 
 			switch (option) {
 				case ENET_SOCKOPT_ERROR:
-					len    = sizeof(int);
+					len = sizeof(int);
 					result = getsockopt(socket, SOL_SOCKET, SO_ERROR, value, &len);
 
 					break;
@@ -4565,10 +4615,10 @@ extern "C" {
 
 			memset(&sin, 0, sizeof(struct sockaddr_in6));
 
-			sin.sin6_family   = AF_INET6;
-			sin.sin6_port     = ENET_HOST_TO_NET_16(address->port);
-			sin.sin6_addr     = address->host;
-			sin.sin6_scope_id = address->scope;
+			sin.sin6_family = AF_INET6;
+			sin.sin6_port = ENET_HOST_TO_NET_16(address->port);
+			sin.sin6_addr = address->ipv6;
+
 			result = connect(socket, (struct sockaddr*)&sin, sizeof(struct sockaddr_in6));
 
 			if (result == -1 && errno == EINPROGRESS)
@@ -4588,9 +4638,8 @@ extern "C" {
 				return ENET_SOCKET_NULL;
 
 			if (address != NULL) {
-				address->host  = sin.sin6_addr;
-				address->port  = ENET_NET_TO_HOST_16(sin.sin6_port);
-				address->scope = sin.sin6_scope_id;
+				address->ipv6 = sin.sin6_addr;
+				address->port = ENET_NET_TO_HOST_16(sin.sin6_port);
 			}
 
 			return result;
@@ -4615,17 +4664,16 @@ extern "C" {
 			if (address != NULL) {
 				memset(&sin, 0, sizeof(struct sockaddr_in6));
 
-				sin.sin6_family    = AF_INET6;
-				sin.sin6_port      = ENET_HOST_TO_NET_16(address->port);
-				sin.sin6_addr      = address->host;
-				sin.sin6_scope_id  = address->scope;
-				msgHdr.msg_name    = &sin;
+				sin.sin6_family = AF_INET6;
+				sin.sin6_port = ENET_HOST_TO_NET_16(address->port);
+				sin.sin6_addr = address->ipv6;
+				msgHdr.msg_name = &sin;
 				msgHdr.msg_namelen = sizeof(struct sockaddr_in6);
 			}
 
-			msgHdr.msg_iov    = (struct iovec*)buffers;
+			msgHdr.msg_iov = (struct iovec*)buffers;
 			msgHdr.msg_iovlen = bufferCount;
-			sentLength        = sendmsg(socket, &msgHdr, MSG_NOSIGNAL);
+			sentLength = sendmsg(socket, &msgHdr, MSG_NOSIGNAL);
 
 			if (sentLength == -1) {
 				if (errno == EWOULDBLOCK)
@@ -4645,13 +4693,13 @@ extern "C" {
 			memset(&msgHdr, 0, sizeof(struct msghdr));
 
 			if (address != NULL) {
-				msgHdr.msg_name    = &sin;
+				msgHdr.msg_name = &sin;
 				msgHdr.msg_namelen = sizeof(struct sockaddr_in6);
 			}
 
-			msgHdr.msg_iov    = (struct iovec*)buffers;
+			msgHdr.msg_iov = (struct iovec*)buffers;
 			msgHdr.msg_iovlen = bufferCount;
-			recvLength        = recvmsg(socket, &msgHdr, MSG_NOSIGNAL);
+			recvLength = recvmsg(socket, &msgHdr, MSG_NOSIGNAL);
 
 			if (recvLength == -1) {
 				if (errno == EWOULDBLOCK)
@@ -4664,9 +4712,8 @@ extern "C" {
 				return -1;
 
 			if (address != NULL) {
-				address->host  = sin.sin6_addr;
-				address->port  = ENET_NET_TO_HOST_16(sin.sin6_port);
-				address->scope = sin.sin6_scope_id;
+				address->ipv6 = sin.sin6_addr;
+				address->port = ENET_NET_TO_HOST_16(sin.sin6_port);
 			}
 
 			return recvLength;
@@ -4675,7 +4722,7 @@ extern "C" {
 		int enet_socket_set_select(ENetSocket maxSocket, ENetSocketSet* readSet, ENetSocketSet* writeSet, enet_uint32 timeout) {
 			struct timeval timeVal;
 
-			timeVal.tv_sec  = timeout / 1000;
+			timeVal.tv_sec = timeout / 1000;
 			timeVal.tv_usec = (timeout % 1000) * 1000;
 
 			return select(maxSocket + 1, readSet, writeSet, NULL, &timeVal);
@@ -4685,7 +4732,7 @@ extern "C" {
 			struct pollfd pollSocket;
 			int pollCount;
 
-			pollSocket.fd     = socket;
+			pollSocket.fd = socket;
 			pollSocket.events = 0;
 
 			if (*condition & ENET_SOCKET_WAIT_SEND)
@@ -4755,66 +4802,53 @@ extern "C" {
 			return (enet_uint64)timeGetTime();
 		}
 
-		int enet_address_set_host_ip(ENetAddress* address, const char* name) {
-			enet_uint8 vals[4] = { 0, 0, 0, 0 };
-			int i;
+		int enet_address_set_host_ip(ENetAddress* address, const char* ip) {
+			int type = AF_INET6;
+			void* destination = &address->ipv6;
 
-			for (i = 0; i < 4; ++i) {
-				const char* next = name + 1;
-
-				if (*name != '0') {
-					long val = strtol(name, (char**)&next, 10);
-
-					if (val < 0 || val > 255 || next == name || next - name > 3)
-						return -1;
-
-					vals[i] = (enet_uint8)val;
-				}
-
-				if (*next != (i < 3 ? '.' : '\0'))
-					return -1;
-
-				name = next + 1;
+			if (strchr(ip, ':') == NULL) {
+				type = AF_INET;
+				address->ipv4.ffff = 0xFFFF;
+				destination = &address->ipv4.ip;
 			}
 
-			memcpy(&address->host, vals, sizeof(enet_uint32));
-
-			return 0;
-		}
-
-		int enet_address_set_host(ENetAddress* address, const char* name) {
-			struct hostent* hostEntry = NULL;
-
-			hostEntry = gethostbyname(name);
-
-			if (hostEntry == NULL || hostEntry->h_addrtype != AF_INET) {
-				if (!inet_pton(AF_INET6, name, &address->host))
-					return -1;
-
-				return 0;
-			}
-
-			((enet_uint32*)&address->host.s6_addr)[0] = 0;
-			((enet_uint32*)&address->host.s6_addr)[1] = 0;
-			((enet_uint32*)&address->host.s6_addr)[2] = ENET_HOST_TO_NET_32(0xFFFF);
-			((enet_uint32*)&address->host.s6_addr)[3] = *(enet_uint32*)hostEntry->h_addr_list[0];
-
-			return 0;
-		}
-
-		int enet_address_get_host_ip(const ENetAddress* address, char* name, size_t nameLength) {
-			if (inet_ntop(AF_INET6, (PVOID)&address->host, name, nameLength) == NULL)
+			if (!inet_pton(type, ip, (PVOID)destination))
 				return -1;
 
 			return 0;
 		}
 
-		int enet_address_get_host(const ENetAddress* address, char* name, size_t nameLength) {
-			struct in6_addr in;
-			struct hostent* hostEntry = NULL;
+		int enet_address_set_host(ENetAddress* address, const char* name) {
+			struct hostent* hostEntry = gethostbyname(name);
 
-			in = address->host;
-			hostEntry = gethostbyaddr((char*)&in, sizeof(struct in6_addr), AF_INET6);
+			if (hostEntry == NULL || hostEntry->h_addrtype != AF_INET) {
+				if (!inet_pton(AF_INET6, name, &address->ipv6))
+					return -1;
+
+				return 0;
+			}
+
+			((enet_uint32*)&address->ipv6.s6_addr)[0] = 0;
+			((enet_uint32*)&address->ipv6.s6_addr)[1] = 0;
+			((enet_uint32*)&address->ipv6.s6_addr)[2] = ENET_HOST_TO_NET_32(0xFFFF);
+			((enet_uint32*)&address->ipv6.s6_addr)[3] = *(enet_uint32*)hostEntry->h_addr_list[0];
+
+			return 0;
+		}
+
+		int enet_address_get_host_ip(const ENetAddress* address, char* ip, size_t ipLength) {
+			if (inet_ntop(AF_INET6, (PVOID)&address->ipv6, ip, ipLength) == NULL)
+				return -1;
+
+			if (enet_array_is_zeroed(address->ipv4.zeros, sizeof(address->ipv4.zeros)) == 0 && address->ipv4.ffff == 0xFFFF)
+				enet_string_copy(ip, ip + 7, ipLength);
+
+			return 0;
+		}
+
+		int enet_address_get_host(const ENetAddress* address, char* name, size_t nameLength) {
+			struct in6_addr in = address->ipv6;
+			struct hostent* hostEntry = gethostbyaddr((char*)&in, sizeof(struct in6_addr), AF_INET6);
 
 			if (hostEntry == NULL) {
 				return enet_address_get_host_ip(address, name, nameLength);
@@ -4832,18 +4866,17 @@ extern "C" {
 
 		int enet_socket_bind(ENetSocket socket, const ENetAddress* address) {
 			struct sockaddr_in6 sin;
+
 			memset(&sin, 0, sizeof(struct sockaddr_in6));
 
 			sin.sin6_family = AF_INET6;
 
 			if (address != NULL) {
-				sin.sin6_port     = ENET_HOST_TO_NET_16(address->port);
-				sin.sin6_addr     = address->host;
-				sin.sin6_scope_id = address->scope;
+				sin.sin6_port = ENET_HOST_TO_NET_16(address->port);
+				sin.sin6_addr = address->ipv6;
 			} else {
-				sin.sin6_port     = 0;
-				sin.sin6_addr     = in6addr_any;
-				sin.sin6_scope_id = 0;
+				sin.sin6_port = 0;
+				sin.sin6_addr = in6addr_any;
 			}
 
 			return bind(socket, (struct sockaddr*)&sin, sizeof(struct sockaddr_in6)) == SOCKET_ERROR ? -1 : 0;
@@ -4856,9 +4889,8 @@ extern "C" {
 			if (getsockname(socket, (struct sockaddr*)&sin, &sinLength) == -1)
 				return -1;
 
-			address->host  = sin.sin6_addr;
-			address->port  = ENET_NET_TO_HOST_16(sin.sin6_port);
-			address->scope = sin.sin6_scope_id;
+			address->ipv6 = sin.sin6_addr;
+			address->port = ENET_NET_TO_HOST_16(sin.sin6_port);
 
 			return 0;
 		}
@@ -4935,7 +4967,7 @@ extern "C" {
 
 			switch (option) {
 				case ENET_SOCKOPT_ERROR:
-					len    = sizeof(int);
+					len = sizeof(int);
 					result = getsockopt(socket, SOL_SOCKET, SO_ERROR, (char*)value, &len);
 
 					break;
@@ -4953,10 +4985,9 @@ extern "C" {
 
 			memset(&sin, 0, sizeof(struct sockaddr_in6));
 
-			sin.sin6_family   = AF_INET6;
-			sin.sin6_port     = ENET_HOST_TO_NET_16(address->port);
-			sin.sin6_addr     = address->host;
-			sin.sin6_scope_id = address->scope;
+			sin.sin6_family = AF_INET6;
+			sin.sin6_port = ENET_HOST_TO_NET_16(address->port);
+			sin.sin6_addr = address->ipv6;
 			result = connect(socket, (struct sockaddr*)&sin, sizeof(struct sockaddr_in6));
 
 			if (result == SOCKET_ERROR && WSAGetLastError() != WSAEWOULDBLOCK)
@@ -4976,9 +5007,8 @@ extern "C" {
 				return ENET_SOCKET_NULL;
 
 			if (address != NULL) {
-				address->host  = sin.sin6_addr;
-				address->port  = ENET_NET_TO_HOST_16(sin.sin6_port);
-				address->scope = sin.sin6_scope_id;
+				address->ipv6 = sin.sin6_addr;
+				address->port = ENET_NET_TO_HOST_16(sin.sin6_port);
 			}
 
 			return result;
@@ -5000,10 +5030,9 @@ extern "C" {
 			if (address != NULL) {
 				memset(&sin, 0, sizeof(struct sockaddr_in6));
 
-				sin.sin6_family   = AF_INET6;
-				sin.sin6_port     = ENET_HOST_TO_NET_16(address->port);
-				sin.sin6_addr     = address->host;
-				sin.sin6_scope_id = address->scope;
+				sin.sin6_family = AF_INET6;
+				sin.sin6_port = ENET_HOST_TO_NET_16(address->port);
+				sin.sin6_addr = address->ipv6;
 			}
 
 			if (WSASendTo(socket, (LPWSABUF)buffers, (DWORD)bufferCount, &sentLength, 0, address != NULL ? (struct sockaddr*)&sin : NULL, address != NULL ? sizeof(struct sockaddr_in6) : 0, NULL, NULL) == SOCKET_ERROR)
@@ -5014,7 +5043,7 @@ extern "C" {
 
 		int enet_socket_receive(ENetSocket socket, ENetAddress* address, ENetBuffer* buffers, size_t bufferCount) {
 			INT sinLength = sizeof(struct sockaddr_in6);
-			DWORD flags   = 0, recvLength;
+			DWORD flags = 0, recvLength;
 			struct sockaddr_in6 sin;
 
 			if (WSARecvFrom(socket, (LPWSABUF)buffers, (DWORD)bufferCount, &recvLength, &flags, address != NULL ? (struct sockaddr*)&sin : NULL, address != NULL ? &sinLength : NULL, NULL, NULL) == SOCKET_ERROR) {
@@ -5031,9 +5060,8 @@ extern "C" {
 				return -1;
 
 			if (address != NULL) {
-				address->host  = sin.sin6_addr;
-				address->port  = ENET_NET_TO_HOST_16(sin.sin6_port);
-				address->scope = sin.sin6_scope_id;
+				address->ipv6 = sin.sin6_addr;
+				address->port = ENET_NET_TO_HOST_16(sin.sin6_port);
 			}
 
 			return (int)recvLength;
@@ -5042,7 +5070,7 @@ extern "C" {
 		int enet_socket_set_select(ENetSocket maxSocket, ENetSocketSet* readSet, ENetSocketSet* writeSet, enet_uint32 timeout) {
 			struct timeval timeVal;
 
-			timeVal.tv_sec  = timeout / 1000;
+			timeVal.tv_sec = timeout / 1000;
 			timeVal.tv_usec = (timeout % 1000) * 1000;
 
 			return select(maxSocket + 1, readSet, writeSet, NULL, &timeVal);
@@ -5053,7 +5081,7 @@ extern "C" {
 			struct timeval timeVal;
 			int selectCount;
 
-			timeVal.tv_sec  = timeout / 1000;
+			timeVal.tv_sec = timeout / 1000;
 			timeVal.tv_usec = (timeout % 1000) * 1000;
 
 			FD_ZERO(&readSet);

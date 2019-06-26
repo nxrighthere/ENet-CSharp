@@ -89,7 +89,7 @@ static char *inet_ntop4(const u_char * src, char *dst, socklen_t size)
     if (l <= 0 || (socklen_t) l >= size) {
         return (NULL);
     }
-//      strlcpy(dst, tmp, size);
+    /* strlcpy(dst, tmp, size); */
     memcpy(dst, tmp, size);
     dst[size] = '\0';
     return (dst);

@@ -465,12 +465,12 @@ extern "C" {
 	#define in6_equal(in6_addr_a, in6_addr_b) (memcmp(&in6_addr_a, &in6_addr_b, sizeof(struct in6_addr)) == 0)
 
 	typedef enum _ENetPacketFlag {
-		ENET_PACKET_FLAG_NONE                = 0,
-		ENET_PACKET_FLAG_RELIABLE            = (1 << 0),
-		ENET_PACKET_FLAG_UNSEQUENCED         = (1 << 1),
-		ENET_PACKET_FLAG_NO_ALLOCATE         = (1 << 2),
-		ENET_PACKET_FLAG_UNRELIABLE_FRAGMENT = (1 << 3),
-		ENET_PACKET_FLAG_SENT                = (1 << 8)
+		ENET_PACKET_FLAG_NONE                  = 0,
+		ENET_PACKET_FLAG_RELIABLE              = (1 << 0),
+		ENET_PACKET_FLAG_UNSEQUENCED           = (1 << 1),
+		ENET_PACKET_FLAG_NO_ALLOCATE           = (1 << 2),
+		ENET_PACKET_FLAG_UNRELIABLE_FRAGMENTED = (1 << 3),
+		ENET_PACKET_FLAG_SENT                  = (1 << 8)
 	} ENetPacketFlag;
 
 	typedef void (ENET_CALLBACK *ENetPacketFreeCallback)(void*);
@@ -1908,7 +1908,7 @@ extern "C" {
 
 			if (startCommand == NULL) {
 				startCommand = enet_peer_queue_incoming_command(peer, command, NULL, totalLength,
-				ENET_PACKET_FLAG_UNRELIABLE_FRAGMENT, fragmentCount);
+				ENET_PACKET_FLAG_UNRELIABLE_FRAGMENTED, fragmentCount);
 
 				if (startCommand == NULL)
 					return -1;
@@ -3035,7 +3035,7 @@ extern "C" {
 			if (fragmentCount > ENET_PROTOCOL_MAXIMUM_FRAGMENT_COUNT)
 				return -1;
 
-			if ((packet->flags & (ENET_PACKET_FLAG_RELIABLE | ENET_PACKET_FLAG_UNRELIABLE_FRAGMENT)) == ENET_PACKET_FLAG_UNRELIABLE_FRAGMENT && channel->outgoingUnreliableSequenceNumber < 0xFFFF) {
+			if ((packet->flags & (ENET_PACKET_FLAG_RELIABLE | ENET_PACKET_FLAG_UNRELIABLE_FRAGMENTED)) == ENET_PACKET_FLAG_UNRELIABLE_FRAGMENTED && channel->outgoingUnreliableSequenceNumber < 0xFFFF) {
 				commandNumber = ENET_PROTOCOL_COMMAND_SEND_UNRELIABLE_FRAGMENT;
 				startSequenceNumber = ENET_HOST_TO_NET_16(channel->outgoingUnreliableSequenceNumber + 1);
 			} else {

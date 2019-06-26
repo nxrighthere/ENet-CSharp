@@ -279,7 +279,7 @@ Contains marshalled structure with host data and port number.
 
 `Address.GetIP()` get an IP address.
 
-`Address.SetIP(string ip)` set an IP address.
+`Address.SetIP(string ip)` set an IP address. To use IPv4 broadcast in the local network the address can be set to _255.255.255.255_.
 
 `Address.GetHost()` attempts to do a reverse lookup from the address. Returns a string with a resolved name or an IP address.
 

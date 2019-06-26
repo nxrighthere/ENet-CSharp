@@ -776,10 +776,10 @@ namespace ENet {
 				throw new InvalidOperationException("Peer not created");
 		}
 
-		public void ConfigureThrottle(uint interval, uint acceleration, uint deceleration) {
+		public void ConfigureThrottle(uint interval, uint acceleration, uint deceleration, uint threshold) {
 			CheckCreated();
 
-			Native.enet_peer_throttle_configure(nativePeer, interval, acceleration, deceleration);
+			Native.enet_peer_throttle_configure(nativePeer, interval, acceleration, deceleration, threshold);
 		}
 
 		public bool Send(byte channelID, ref Packet packet) {
@@ -1011,7 +1011,7 @@ namespace ENet {
 		internal static extern void enet_host_prevent_connections(IntPtr host, byte state);
 
 		[DllImport(nativeLibrary, CallingConvention = CallingConvention.Cdecl)]
-		internal static extern void enet_peer_throttle_configure(IntPtr peer, uint interval, uint acceleration, uint deceleration);
+		internal static extern void enet_peer_throttle_configure(IntPtr peer, uint interval, uint acceleration, uint deceleration, uint threshold);
 
 		[DllImport(nativeLibrary, CallingConvention = CallingConvention.Cdecl)]
 		internal static extern uint enet_peer_get_id(IntPtr peer);

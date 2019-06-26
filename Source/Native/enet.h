@@ -600,6 +600,7 @@ extern "C" {
 		enet_uint32 packetLoss;
 		enet_uint32 packetLossVariance;
 		enet_uint32 packetThrottle;
+		enet_uint32 packetThrottleThreshold;
 		enet_uint32 packetThrottleLimit;
 		enet_uint32 packetThrottleCounter;
 		enet_uint32 packetThrottleEpoch;
@@ -760,7 +761,7 @@ extern "C" {
 	ENET_API void enet_peer_disconnect(ENetPeer*, enet_uint32);
 	ENET_API void enet_peer_disconnect_now(ENetPeer*, enet_uint32);
 	ENET_API void enet_peer_disconnect_later(ENetPeer*, enet_uint32);
-	ENET_API void enet_peer_throttle_configure(ENetPeer*, enet_uint32, enet_uint32, enet_uint32);
+	ENET_API void enet_peer_throttle_configure(ENetPeer*, enet_uint32, enet_uint32, enet_uint32, enet_uint32);
 
 	/* Extended API for easier binding in other programming languages */
 	ENET_API void* enet_packet_get_data(const ENetPacket*);
@@ -2976,8 +2977,9 @@ extern "C" {
 // !
 // =======================================================================//
 
-	void enet_peer_throttle_configure(ENetPeer* peer, enet_uint32 interval, enet_uint32 acceleration, enet_uint32 deceleration) {
+	void enet_peer_throttle_configure(ENetPeer* peer, enet_uint32 interval, enet_uint32 acceleration, enet_uint32 deceleration, enet_uint32 threshold) {
 		ENetProtocol command;
+		peer->packetThrottleThreshold = threshold;
 		peer->packetThrottleInterval = interval;
 		peer->packetThrottleAcceleration = acceleration;
 		peer->packetThrottleDeceleration = deceleration;
@@ -3000,7 +3002,7 @@ extern "C" {
 				peer->packetThrottle = peer->packetThrottleLimit;
 
 			return 1;
-		} else if (rtt > peer->lastRoundTripTime + 2 * peer->lastRoundTripTimeVariance) {
+		} else if (rtt > peer->lastRoundTripTime + peer->packetThrottleThreshold + 2 * peer->lastRoundTripTimeVariance) {
 			if (peer->packetThrottle > peer->packetThrottleDeceleration)
 				peer->packetThrottle -= peer->packetThrottleDeceleration;
 			else

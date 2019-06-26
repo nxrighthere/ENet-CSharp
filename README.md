@@ -226,7 +226,7 @@ Definitions of a flags for `Peer.Send()` function:
 
 `PacketFlags.NoAllocate` a packet will not allocate data, and the user must supply it instead.
 
-`PacketFlags.UnreliableFragment` a packet will be unreliably fragmented if it exceeds the MTU. By default packets larger than MTU fragmented reliably.
+`PacketFlags.UnreliableFragmented` a packet will be unreliably fragmented if it exceeds the MTU. By default packets larger than MTU fragmented reliably.
 
 #### EventType
 Definitions of event types for `Event.Type` property:
@@ -283,7 +283,7 @@ Contains marshalled structure with host data and port number.
 
 `Address.GetHost()` attempts to do a reverse lookup from the address. Returns a string with a resolved name or an IP address.
 
-`Address.SetHost(string hostName)` set host name or an IP address (IPv4/IPv6). Should be used for binding to a network interface or for connection to a foreign host. Returns true on success or false on failure.
+`Address.SetHost(string hostName)` set host name or an IP address. Should be used for binding to a network interface or for connection to a foreign host. Returns true on success or false on failure.
 
 #### Event
 Contains marshalled structure with the event type, managed pointer to the peer, channel ID, user-supplied data, and managed pointer to the packet.

@@ -169,12 +169,6 @@
 	#define ENET_BUFFER_MAXIMUM (1 + 2 * ENET_PROTOCOL_MAXIMUM_PACKET_COMMANDS)
 #endif
 
-struct in4_addr {
-	uint8_t zeros[10];
-	uint16_t ffff;
-	struct in_addr ip;
-};
-
 /* Macros */
 
 #define ENET_HOST_ANY in6addr_any
@@ -189,6 +183,17 @@ struct in4_addr {
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+	#ifndef IN4ADDR
+	#define IN4ADDR
+
+	struct in4_addr {
+		uint8_t zeros[10];
+		uint16_t ffff;
+		struct in_addr ip;
+	};
+
+	#endif
 
 /*
 =======================================================================

@@ -169,8 +169,6 @@
 	#define ENET_BUFFER_MAXIMUM (1 + 2 * ENET_PROTOCOL_MAXIMUM_PACKET_COMMANDS)
 #endif
 
-/* Macros */
-
 #define ENET_HOST_ANY in6addr_any
 #define ENET_PORT_ANY 0
 #define ENET_HOST_SIZE 1025
@@ -477,7 +475,7 @@ extern "C" {
 		uint16_t port;
 	} ENetAddress;
 
-	#define in6_equal(in6_addr_a, in6_addr_b) (memcmp(&in6_addr_a, &in6_addr_b, sizeof(struct in6_addr)) == 0)
+	#define in6_equal(a, b) (memcmp(&a, &b, sizeof(struct in6_addr)) == 0)
 
 	typedef enum _ENetPacketFlag {
 		ENET_PACKET_FLAG_NONE                  = 0,

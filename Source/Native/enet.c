@@ -22,5 +22,4 @@
  */
 
 #define ENET_IMPLEMENTATION
-#define ENET_DLL
 #include "enet.h"

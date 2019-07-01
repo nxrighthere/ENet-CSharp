@@ -4461,7 +4461,13 @@ extern "C" {
 		}
 
 		ENetSocket enet_socket_create(ENetSocketType type) {
-			return socket(PF_INET6, (type == ENET_SOCKET_TYPE_DATAGRAM ? SOCK_DGRAM : SOCK_STREAM) | SOCK_CLOEXEC, 0);
+			#ifdef __APPLE__
+				int cloexec = 0;
+			#else
+				int cloexec = SOCK_CLOEXEC;
+			#endif
+
+			return socket(PF_INET6, (type == ENET_SOCKET_TYPE_DATAGRAM ? SOCK_DGRAM : SOCK_STREAM) | cloexec, 0);
 		}
 
 		int enet_socket_set_option(ENetSocket socket, ENetSocketOption option, int value) {

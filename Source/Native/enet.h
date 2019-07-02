@@ -178,17 +178,6 @@
 extern "C" {
 #endif
 
-	#ifndef IN4ADDR
-	#define IN4ADDR
-
-	struct in4_addr {
-		uint8_t zeros[10];
-		uint16_t ffff;
-		struct in_addr ip;
-	};
-
-	#endif
-
 /*
 =======================================================================
 
@@ -239,6 +228,17 @@ extern "C" {
 	#define enet_list_previous(iterator) ((iterator)->previous)
 	#define enet_list_front(list) ((void*)(list)->sentinel.next)
 	#define enet_list_back(list) ((void*)(list)->sentinel.previous)
+
+	#ifndef IN4ADDR
+	#define IN4ADDR
+
+	struct in4_addr {
+		uint8_t zeros[10];
+		uint16_t ffff;
+		struct in_addr ip;
+	};
+
+	#endif
 
 /*
 =======================================================================
@@ -4341,10 +4341,10 @@ extern "C" {
 				if (result->ai_family == AF_INET) {
 					struct sockaddr_in* sin = (struct sockaddr_in*)result->ai_addr;
 
-					((enet_uint32*)&address->ipv6.s6_addr)[0] = 0;
-					((enet_uint32*)&address->ipv6.s6_addr)[1] = 0;
-					((enet_uint32*)&address->ipv6.s6_addr)[2] = ENET_HOST_TO_NET_32(0xFFFF);
-					((enet_uint32*)&address->ipv6.s6_addr)[3] = sin->sin_addr.s_addr;
+					memset(address, 0, sizeof(address->ipv4.zeros));
+
+					address->ipv4.ffff = 0xFFFF;
+					address->ipv4.ip.s_addr = sin->sin_addr.s_addr;
 
 					freeaddrinfo(resultList);
 

@@ -122,7 +122,7 @@ namespace ENet {
 			}
 		}
 
-		public Address(ENetAddress address) {
+		internal Address(ENetAddress address) {
 			nativeAddress = address;
 		}
 
@@ -182,7 +182,7 @@ namespace ENet {
 			}
 		}
 
-		public Event(ENetEvent @event) {
+		internal Event(ENetEvent @event) {
 			nativeEvent = @event;
 		}
 
@@ -250,7 +250,7 @@ namespace ENet {
 			}
 		}
 
-		public Packet(IntPtr packet) {
+		internal Packet(IntPtr packet) {
 			nativePacket = packet;
 		}
 
@@ -649,7 +649,7 @@ namespace ENet {
 			}
 		}
 
-		public Peer(IntPtr peer) {
+		internal Peer(IntPtr peer) {
 			nativePeer = peer;
 			nativeID = nativePeer != IntPtr.Zero ? Native.enet_peer_get_id(nativePeer) : 0;
 		}

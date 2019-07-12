@@ -20,6 +20,7 @@ if (ENET_STATIC)
 
     if (WIN32)
         target_link_libraries(enet_static winmm ws2_32)
+        SET_TARGET_PROPERTIES(enet_static PROPERTIES PREFIX "")
     endif()
 endif()
 
@@ -29,5 +30,6 @@ if (ENET_SHARED)
 
     if (WIN32)
         target_link_libraries(enet winmm ws2_32)
+        SET_TARGET_PROPERTIES(enet PROPERTIES PREFIX "")
     endif()
 endif()

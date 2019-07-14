@@ -61,14 +61,14 @@ namespace ENet {
 	}
 
 	[StructLayout(LayoutKind.Sequential)]
-	public struct ENetAddress {
+	internal struct ENetAddress {
 		[MarshalAs(UnmanagedType.ByValArray, SizeConst = 16)]
 		public byte[] ip;
 		public ushort port;
 	}
 
 	[StructLayout(LayoutKind.Sequential)]
-	public struct ENetEvent {
+	internal struct ENetEvent {
 		public EventType type;
 		public IntPtr peer;
 		public byte channelID;
@@ -77,7 +77,7 @@ namespace ENet {
 	}
 
 	[StructLayout(LayoutKind.Sequential)]
-	public struct ENetCallbacks {
+	internal struct ENetCallbacks {
 		public AllocCallback malloc;
 		public FreeCallback free;
 		public NoMemoryCallback noMemory;

@@ -1387,7 +1387,11 @@ extern "C" {
 				memcpy(packet->data, data, dataLength);
 		}
 
-		packet->referenceCount = 0;
+		if (flags & ENET_PACKET_FLAG_INSTANT)
+			packet->referenceCount = 1;
+		else
+			packet->referenceCount = 0;
+
 		packet->flags = flags;
 		packet->dataLength = dataLength;
 		packet->freeCallback = NULL;
@@ -1417,7 +1421,11 @@ extern "C" {
 				memcpy(packet->data, (char*)data + dataOffset, dataLength - dataOffset);
 		}
 
-		packet->referenceCount = 0;
+		if (flags & ENET_PACKET_FLAG_INSTANT)
+			packet->referenceCount = 1;
+		else
+			packet->referenceCount = 0;
+
 		packet->flags = flags;
 		packet->dataLength = dataLength - dataOffset;
 		packet->freeCallback = NULL;
@@ -4114,7 +4122,10 @@ extern "C" {
 			enet_peer_send(currentPeer, channelID, packet);
 		}
 
-		if (!(packet->flags & ENET_PACKET_FLAG_INSTANT) && packet->referenceCount == 0)
+		if (packet->flags & ENET_PACKET_FLAG_INSTANT)
+			--packet->referenceCount;
+
+		if (packet->referenceCount == 0)
 			enet_packet_destroy(packet);
 	}
 
@@ -4128,7 +4139,10 @@ extern "C" {
 			enet_peer_send(currentPeer, channelID, packet);
 		}
 
-		if (!(packet->flags & ENET_PACKET_FLAG_INSTANT) && packet->referenceCount == 0)
+		if (packet->flags & ENET_PACKET_FLAG_INSTANT)
+			--packet->referenceCount;
+
+		if (packet->referenceCount == 0)
 			enet_packet_destroy(packet);
 	}
 
@@ -4148,7 +4162,10 @@ extern "C" {
 			enet_peer_send(currentPeer, channelID, packet);
 		}
 
-		if (!(packet->flags & ENET_PACKET_FLAG_INSTANT) && packet->referenceCount == 0)
+		if (packet->flags & ENET_PACKET_FLAG_INSTANT)
+			--packet->referenceCount;
+
+		if (packet->referenceCount == 0)
 			enet_packet_destroy(packet);
 	}
 

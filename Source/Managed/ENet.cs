@@ -35,7 +35,8 @@ namespace ENet {
 		Reliable = 1 << 0,
 		Unsequenced = 1 << 1,
 		NoAllocate = 1 << 2,
-		UnreliableFragmented = 1 << 3
+		UnreliableFragmented = 1 << 3,
+		Instant = 1 << 4
 	}
 
 	public enum EventType {
@@ -873,7 +874,7 @@ namespace ENet {
 		public const uint timeoutLimit = 32;
 		public const uint timeoutMinimum = 5000;
 		public const uint timeoutMaximum = 30000;
-		public const uint version = (2 << 16) | (2 << 8) | (9);
+		public const uint version = (2 << 16) | (3 << 8) | (0);
 
 		public static bool Initialize() {
 			return Native.enet_initialize() == 0;

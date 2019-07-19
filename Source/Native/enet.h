@@ -30,8 +30,8 @@
 #include <time.h>
 
 #define ENET_VERSION_MAJOR 2
-#define ENET_VERSION_MINOR 2
-#define ENET_VERSION_PATCH 9
+#define ENET_VERSION_MINOR 3
+#define ENET_VERSION_PATCH 0
 #define ENET_VERSION_CREATE(major, minor, patch) (((major) << 16) | ((minor) << 8) | (patch))
 #define ENET_VERSION_GET_MAJOR(version) (((version) >> 16) & 0xFF)
 #define ENET_VERSION_GET_MINOR(version) (((version) >> 8) & 0xFF)
@@ -470,6 +470,7 @@ extern "C" {
 		ENET_PACKET_FLAG_UNSEQUENCED           = (1 << 1),
 		ENET_PACKET_FLAG_NO_ALLOCATE           = (1 << 2),
 		ENET_PACKET_FLAG_UNRELIABLE_FRAGMENTED = (1 << 3),
+		ENET_PACKET_FLAG_INSTANT               = (1 << 4),
 		ENET_PACKET_FLAG_SENT                  = (1 << 8)
 	} ENetPacketFlag;
 
@@ -1150,9 +1151,9 @@ extern "C" {
 	}
 
 	size_t enet_string_copy(char* destination, const char* source, size_t length) {
-		register char *d = destination;
-		register const char *s = source;
-		register size_t n = length;
+		char *d = destination;
+		const char *s = source;
+		size_t n = length;
 
 		if (n != 0 && --n != 0) {
 			do {
@@ -3250,6 +3251,9 @@ extern "C" {
 
 		if (enet_peer_queue_outgoing_command(peer, &command, packet, 0, packet->dataLength) == NULL)
 			return -1;
+
+		if (packet->flags & ENET_PACKET_FLAG_INSTANT)
+			enet_host_flush(peer->host);
 
 		return 0;
 	}

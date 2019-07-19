@@ -740,7 +740,7 @@ extern "C" {
 	ENET_API int enet_host_service(ENetHost*, ENetEvent*, enet_uint32);
 	ENET_API void enet_host_flush(ENetHost*);
 	ENET_API void enet_host_broadcast(ENetHost*, enet_uint8, ENetPacket*);
-	ENET_API void enet_host_broadcast_excluding(ENetHost*, enet_uint8, ENetPacket*, ENetPeer*);
+	ENET_API void enet_host_broadcast_exclude(ENetHost*, enet_uint8, ENetPacket*, ENetPeer*);
 	ENET_API void enet_host_broadcast_selective(ENetHost*, enet_uint8, ENetPacket*, ENetPeer**, size_t);
 	ENET_API void enet_host_channel_limit(ENetHost*, size_t);
 	ENET_API void enet_host_bandwidth_limit(ENetHost*, enet_uint32, enet_uint32);
@@ -4114,11 +4114,11 @@ extern "C" {
 			enet_peer_send(currentPeer, channelID, packet);
 		}
 
-		if (packet->referenceCount == 0)
+		if (!(packet->flags & ENET_PACKET_FLAG_INSTANT) && packet->referenceCount == 0)
 			enet_packet_destroy(packet);
 	}
 
-	void enet_host_broadcast_excluding(ENetHost* host, enet_uint8 channelID, ENetPacket* packet, ENetPeer* excludedPeer) {
+	void enet_host_broadcast_exclude(ENetHost* host, enet_uint8 channelID, ENetPacket* packet, ENetPeer* excludedPeer) {
 		ENetPeer* currentPeer;
 
 		for (currentPeer = host->peers; currentPeer < &host->peers[host->peerCount]; ++currentPeer) {
@@ -4128,8 +4128,8 @@ extern "C" {
 			enet_peer_send(currentPeer, channelID, packet);
 		}
 
-		if (packet->referenceCount == 0)
-			enet_packet_destroy(packet);		
+		if (!(packet->flags & ENET_PACKET_FLAG_INSTANT) && packet->referenceCount == 0)
+			enet_packet_destroy(packet);
 	}
 
 	void enet_host_broadcast_selective(ENetHost* host, enet_uint8 channelID, ENetPacket* packet, ENetPeer** peers, size_t length) {
@@ -4148,7 +4148,7 @@ extern "C" {
 			enet_peer_send(currentPeer, channelID, packet);
 		}
 
-		if (packet->referenceCount == 0)
+		if (!(packet->flags & ENET_PACKET_FLAG_INSTANT) && packet->referenceCount == 0)
 			enet_packet_destroy(packet);
 	}
 

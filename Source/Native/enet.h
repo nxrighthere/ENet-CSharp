@@ -1387,11 +1387,7 @@ extern "C" {
 				memcpy(packet->data, data, dataLength);
 		}
 
-		if (flags & ENET_PACKET_FLAG_INSTANT)
-			packet->referenceCount = 1;
-		else
-			packet->referenceCount = 0;
-
+		packet->referenceCount = 0;
 		packet->flags = flags;
 		packet->dataLength = dataLength;
 		packet->freeCallback = NULL;
@@ -1421,11 +1417,7 @@ extern "C" {
 				memcpy(packet->data, (char*)data + dataOffset, dataLength - dataOffset);
 		}
 
-		if (flags & ENET_PACKET_FLAG_INSTANT)
-			packet->referenceCount = 1;
-		else
-			packet->referenceCount = 0;
-
+		packet->referenceCount = 0;
 		packet->flags = flags;
 		packet->dataLength = dataLength - dataOffset;
 		packet->freeCallback = NULL;
@@ -4115,6 +4107,9 @@ extern "C" {
 	void enet_host_broadcast(ENetHost* host, enet_uint8 channelID, ENetPacket* packet) {
 		ENetPeer* currentPeer;
 
+		if (packet->flags & ENET_PACKET_FLAG_INSTANT)
+			++packet->referenceCount;
+
 		for (currentPeer = host->peers; currentPeer < &host->peers[host->peerCount]; ++currentPeer) {
 			if (currentPeer->state != ENET_PEER_STATE_CONNECTED)
 				continue;
@@ -4131,6 +4126,9 @@ extern "C" {
 
 	void enet_host_broadcast_exclude(ENetHost* host, enet_uint8 channelID, ENetPacket* packet, ENetPeer* excludedPeer) {
 		ENetPeer* currentPeer;
+
+		if (packet->flags & ENET_PACKET_FLAG_INSTANT)
+			++packet->referenceCount;
 
 		for (currentPeer = host->peers; currentPeer < &host->peers[host->peerCount]; ++currentPeer) {
 			if (currentPeer->state != ENET_PEER_STATE_CONNECTED || currentPeer == excludedPeer)
@@ -4152,6 +4150,9 @@ extern "C" {
 
 		if (host == NULL)
 			return;
+
+		if (packet->flags & ENET_PACKET_FLAG_INSTANT)
+			++packet->referenceCount;
 
 		for (i = 0; i < length; i++) {
 			currentPeer = peers[i];

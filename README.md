@@ -49,7 +49,12 @@ You can grab compiled libraries from the [release](https://github.com/nxrighther
 
 `ENet-Unity` contains script with native libraries for the Unity.
 
-These packages are provided only for traditional platforms: Windows, Linux, and MacOS (x64).
+These packages are provided only for traditional platforms: Windows, Linux, and macOS (x64).
+
+Supported OS versions:
+- Windows 7 or higher
+- Linux 4.4 or higher
+- macOS 10.12 or higher
 
 Usage
 --------

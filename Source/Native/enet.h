@@ -240,6 +240,8 @@ extern "C" {
 
 	#endif
 
+	#define enet_in6_equal(a, b) (memcmp(&a, &b, sizeof(struct in6_addr)) == 0)
+
 /*
 =======================================================================
 
@@ -461,8 +463,6 @@ extern "C" {
 		};
 		uint16_t port;
 	} ENetAddress;
-
-	#define in6_equal(a, b) (memcmp(&a, &b, sizeof(struct in6_addr)) == 0)
 
 	typedef enum _ENetPacketFlag {
 		ENET_PACKET_FLAG_NONE                  = 0,
@@ -1709,7 +1709,7 @@ extern "C" {
 			if (currentPeer->state == ENET_PEER_STATE_DISCONNECTED) {
 				if (peer == NULL)
 					peer = currentPeer;
-			} else if (currentPeer->state != ENET_PEER_STATE_CONNECTING && in6_equal(currentPeer->address.ipv6, host->receivedAddress.ipv6)) {
+			} else if (currentPeer->state != ENET_PEER_STATE_CONNECTING && enet_in6_equal(currentPeer->address.ipv6, host->receivedAddress.ipv6)) {
 				if (currentPeer->address.port == host->receivedAddress.port && currentPeer->connectID == command->connect.connectID)
 					return NULL;
 
@@ -1871,7 +1871,7 @@ extern "C" {
 		} else if (peer->unsequencedWindow[index / 32] & (1 << (index % 32))) {
 			return 0;
 		}
-		
+
 		if (enet_peer_queue_incoming_command(peer, command, (const enet_uint8*)command + sizeof(ENetProtocolSendUnsequenced), dataLength, ENET_PACKET_FLAG_UNSEQUENCED, 0) == NULL)
 			return -1;
 
@@ -2314,7 +2314,7 @@ extern "C" {
 		} else {
 			peer = &host->peers[peerID];
 
-			if (peer->state == ENET_PEER_STATE_DISCONNECTED || peer->state == ENET_PEER_STATE_ZOMBIE || ((!in6_equal(host->receivedAddress.ipv6, peer->address.ipv6) || host->receivedAddress.port != peer->address.port) && peer->address.ipv4.ip.s_addr != INADDR_BROADCAST) || (peer->outgoingPeerID < ENET_PROTOCOL_MAXIMUM_PEER_ID && sessionID != peer->incomingSessionID))
+			if (peer->state == ENET_PEER_STATE_DISCONNECTED || peer->state == ENET_PEER_STATE_ZOMBIE || ((!enet_in6_equal(host->receivedAddress.ipv6, peer->address.ipv6) || host->receivedAddress.port != peer->address.port) && peer->address.ipv4.ip.s_addr != INADDR_BROADCAST) || (peer->outgoingPeerID < ENET_PROTOCOL_MAXIMUM_PEER_ID && sessionID != peer->incomingSessionID))
 				return 0;
 		}
 
@@ -2665,7 +2665,7 @@ extern "C" {
 			} else {
 				enet_free(outgoingCommand);
 			}
-			
+
 			++command;
 			++buffer;
 		}
@@ -3626,18 +3626,19 @@ extern "C" {
 					continue;
 				}
 
-			if (startCommand != currentCommand) {
-				enet_list_move(enet_list_end(&peer->dispatchedCommands), startCommand, enet_list_previous(currentCommand));
+				if (startCommand != currentCommand) {
+					enet_list_move(enet_list_end(&peer->dispatchedCommands), startCommand, enet_list_previous(currentCommand));
 
-				if (!peer->needsDispatch) {
-					enet_list_insert(enet_list_end(&peer->host->dispatchQueue), &peer->dispatchList);
+					if (!peer->needsDispatch) {
+						enet_list_insert(enet_list_end(&peer->host->dispatchQueue), &peer->dispatchList);
 
-					peer->needsDispatch = 1;
+						peer->needsDispatch = 1;
+					}
+
+					droppedCommand = currentCommand;
+				} else if (droppedCommand != currentCommand) {
+					droppedCommand = enet_list_previous(currentCommand);
 				}
-
-				droppedCommand = currentCommand;
-			} else if (droppedCommand != currentCommand)
-				droppedCommand = enet_list_previous(currentCommand);
 			} else {
 				enet_uint16 reliableWindow = incomingCommand->reliableSequenceNumber / ENET_PEER_RELIABLE_WINDOW_SIZE;
 				enet_uint16 currentWindow = channel->incomingReliableSequenceNumber / ENET_PEER_RELIABLE_WINDOW_SIZE;
@@ -3921,7 +3922,7 @@ extern "C" {
 		if (host->socket == ENET_SOCKET_NULL || (address != NULL && enet_socket_bind(host->socket, address) < 0)) {
 			if (host->socket != ENET_SOCKET_NULL)
 				enet_socket_destroy(host->socket);
-			
+
 			enet_free(host->peers);
 			enet_free(host);
 

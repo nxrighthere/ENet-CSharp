@@ -229,17 +229,6 @@ extern "C" {
 	#define enet_list_front(list) ((void*)(list)->sentinel.next)
 	#define enet_list_back(list) ((void*)(list)->sentinel.previous)
 
-	#ifndef IN4ADDR
-	#define IN4ADDR
-
-	struct in4_addr {
-		uint8_t zeros[10];
-		uint16_t ffff;
-		struct in_addr ip;
-	};
-
-	#endif
-
 	#define enet_in6_equal(a, b) (memcmp(&a, &b, sizeof(struct in6_addr)) == 0)
 
 /*
@@ -459,7 +448,11 @@ extern "C" {
 	typedef struct _ENetAddress {
 		union {
 			struct in6_addr ipv6;
-			struct in4_addr ipv4;
+			struct {
+				uint8_t zeros[10];
+				uint16_t ffff;
+				struct in_addr ip;
+			} ipv4;
 		};
 		uint16_t port;
 	} ENetAddress;

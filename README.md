@@ -282,15 +282,15 @@ Provides per packet events.
 #### Address
 Contains marshalled structure with host data and port number.
 
-`Address.Port` set or get a port number.
+`Address.Port` sets or gets a port number.
 
-`Address.GetIP()` get an IP address.
+`Address.GetIP()` gets an IP address.
 
-`Address.SetIP(string ip)` set an IP address. To use IPv4 broadcast in the local network the address can be set to _255.255.255.255_ for a client. ENet will automatically respond to the broadcast and update the address to a server's actual IP. 
+`Address.SetIP(string ip)` sets an IP address. To use IPv4 broadcast in the local network the address can be set to _255.255.255.255_ for a client. ENet will automatically respond to the broadcast and update the address to a server's actual IP. 
 
 `Address.GetHost()` attempts to do a reverse lookup from the address. Returns a string with a resolved name or an IP address.
 
-`Address.SetHost(string hostName)` set host name or an IP address. Should be used for binding to a network interface or for connection to a foreign host. Returns true on success or false on failure.
+`Address.SetHost(string hostName)` sets host name or an IP address. Should be used for binding to a network interface or for connection to a foreign host. Returns true on success or false on failure.
 
 #### Event
 Contains marshalled structure with the event type, managed pointer to the peer, channel ID, user-supplied data, and managed pointer to the packet.

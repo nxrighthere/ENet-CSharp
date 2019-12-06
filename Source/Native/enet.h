@@ -4329,6 +4329,9 @@ extern "C" {
 
 		if (strchr(ip, ':') == NULL) {
 			type = AF_INET;
+
+			memset(address, 0, sizeof(address->ipv4.zeros));
+
 			address->ipv4.ffff = 0xFFFF;
 			destination = &address->ipv4.ip;
 		}

@@ -31,7 +31,7 @@
 
 #define ENET_VERSION_MAJOR 2
 #define ENET_VERSION_MINOR 3
-#define ENET_VERSION_PATCH 2
+#define ENET_VERSION_PATCH 3
 #define ENET_VERSION_CREATE(major, minor, patch) (((major) << 16) | ((minor) << 8) | (patch))
 #define ENET_VERSION_GET_MAJOR(version) (((version) >> 16) & 0xFF)
 #define ENET_VERSION_GET_MINOR(version) (((version) >> 8) & 0xFF)
@@ -4460,14 +4460,26 @@ extern "C" {
 		}
 
 		int enet_socket_get_address(ENetSocket socket, ENetAddress* address) {
-			struct sockaddr_in6 sin;
-			socklen_t sinLength = sizeof(struct sockaddr_in6);
+			struct sockaddr_storage sa;
+			socklen_t saLength = sizeof(sa);
 
-			if (getsockname(socket, (struct sockaddr*)&sin, &sinLength) == -1)
+			if (getsockname(socket, (struct sockaddr*)&sa, &saLength) == -1)
 				return -1;
 
-			address->ipv6 = sin.sin6_addr;
-			address->port = ENET_NET_TO_HOST_16(sin.sin6_port);
+			if (sa.ss_family == AF_INET) {
+				struct sockaddr_in* sin = (struct sockaddr_in*)&sa;
+
+				memset(address, 0, sizeof(address->ipv4.zeros));
+
+				address->ipv4.ffff = 0xFFFF;
+				address->ipv4.ip = sin->sin_addr;
+				address->port = ENET_NET_TO_HOST_16(sin->sin_port);
+			} else if (sa.ss_family == AF_INET6) {
+				struct sockaddr_in6* sin = (struct sockaddr_in6*)&sa;
+
+				address->ipv6 = sin->sin6_addr;
+				address->port = ENET_NET_TO_HOST_16(sin->sin6_port);
+			}
 
 			return 0;
 		}
@@ -4784,14 +4796,26 @@ extern "C" {
 		}
 
 		int enet_socket_get_address(ENetSocket socket, ENetAddress* address) {
-			struct sockaddr_in6 sin;
-			int sinLength = sizeof(struct sockaddr_in6);
+			struct sockaddr_storage sa;
+			int saLength = sizeof(sa);
 
-			if (getsockname(socket, (struct sockaddr*)&sin, &sinLength) == -1)
+			if (getsockname(socket, (struct sockaddr*)&sa, &saLength) == -1)
 				return -1;
 
-			address->ipv6 = sin.sin6_addr;
-			address->port = ENET_NET_TO_HOST_16(sin.sin6_port);
+			if (sa.ss_family == AF_INET) {
+				struct sockaddr_in* sin = (struct sockaddr_in*)&sa;
+
+				memset(address, 0, sizeof(address->ipv4.zeros));
+
+				address->ipv4.ffff = 0xFFFF;
+				address->ipv4.ip = sin->sin_addr;
+				address->port = ENET_NET_TO_HOST_16(sin->sin_port);
+			} else if (sa.ss_family == AF_INET6) {
+				struct sockaddr_in6* sin = (struct sockaddr_in6*)&sa;
+
+				address->ipv6 = sin->sin6_addr;
+				address->port = ENET_NET_TO_HOST_16(sin->sin6_port);
+			}
 
 			return 0;
 		}

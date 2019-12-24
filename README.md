@@ -280,7 +280,7 @@ Provides per packet events.
 
 ### Structures
 #### Address
-Contains marshalled structure with host data and port number.
+Contains structure with anonymous host data and port number.
 
 `Address.Port` sets or gets a port number.
 
@@ -293,7 +293,7 @@ Contains marshalled structure with host data and port number.
 `Address.SetHost(string hostName)` sets host name or an IP address. Should be used for binding to a network interface or for connection to a foreign host. Returns true on success or false on failure.
 
 #### Event
-Contains marshalled structure with the event type, managed pointer to the peer, channel ID, user-supplied data, and managed pointer to the packet.
+Contains structure with the event type, managed pointer to the peer, channel ID, user-supplied data, and managed pointer to the packet.
 
 `Event.Type` returns a type of the event.
 

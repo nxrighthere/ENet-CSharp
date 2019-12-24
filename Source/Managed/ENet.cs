@@ -61,10 +61,9 @@ namespace ENet {
 		Zombie = 9
 	}
 
-	[StructLayout(LayoutKind.Sequential)]
+	[StructLayout(LayoutKind.Explicit, Size = 18)]
 	internal struct ENetAddress {
-		[MarshalAs(UnmanagedType.ByValArray, SizeConst = 16)]
-		public byte[] ip;
+		[FieldOffset(16)]
 		public ushort port;
 	}
 

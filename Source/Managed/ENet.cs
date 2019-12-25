@@ -139,7 +139,7 @@ namespace ENet {
 		public string GetIP() {
 			StringBuilder ip = new StringBuilder(1025);
 
-			if (Native.enet_address_get_ip(nativeAddress, ip, (IntPtr)ip.Capacity) != 0)
+			if (Native.enet_address_get_ip(ref nativeAddress, ip, (IntPtr)ip.Capacity) != 0)
 				return String.Empty;
 
 			return ip.ToString();
@@ -155,7 +155,7 @@ namespace ENet {
 		public string GetHost() {
 			StringBuilder hostName = new StringBuilder(1025);
 
-			if (Native.enet_address_get_hostname(nativeAddress, hostName, (IntPtr)hostName.Capacity) != 0)
+			if (Native.enet_address_get_hostname(ref nativeAddress, hostName, (IntPtr)hostName.Capacity) != 0)
 				return String.Empty;
 
 			return hostName.ToString();
@@ -873,14 +873,16 @@ namespace ENet {
 		public const uint timeoutLimit = 32;
 		public const uint timeoutMinimum = 5000;
 		public const uint timeoutMaximum = 30000;
-		public const uint version = (2 << 16) | (3 << 8) | (3);
+		public const uint version = (2 << 16) | (3 << 8) | (4);
 
 		public static bool Initialize() {
 			return Native.enet_initialize() == 0;
 		}
 
-		public static bool Initialize(Callbacks inits) {
-			return Native.enet_initialize_with_callbacks(version, inits.NativeData) == 0;
+		public static bool Initialize(Callbacks callbacks) {
+			ENetCallbacks nativeCallbacks = callbacks.NativeData;
+
+			return Native.enet_initialize_with_callbacks(version, ref nativeCallbacks) == 0;
 		}
 
 		public static void Deinitialize() {
@@ -906,7 +908,7 @@ namespace ENet {
 		internal static extern int enet_initialize();
 
 		[DllImport(nativeLibrary, CallingConvention = CallingConvention.Cdecl)]
-		internal static extern int enet_initialize_with_callbacks(uint version, ENetCallbacks inits);
+		internal static extern int enet_initialize_with_callbacks(uint version, ref ENetCallbacks inits);
 
 		[DllImport(nativeLibrary, CallingConvention = CallingConvention.Cdecl)]
 		internal static extern void enet_deinitialize();
@@ -921,10 +923,10 @@ namespace ENet {
 		internal static extern int enet_address_set_hostname(ref ENetAddress address, string hostName);
 
 		[DllImport(nativeLibrary, CallingConvention = CallingConvention.Cdecl)]
-		internal static extern int enet_address_get_ip(ENetAddress address, StringBuilder ip, IntPtr ipLength);
+		internal static extern int enet_address_get_ip(ref ENetAddress address, StringBuilder ip, IntPtr ipLength);
 
 		[DllImport(nativeLibrary, CallingConvention = CallingConvention.Cdecl)]
-		internal static extern int enet_address_get_hostname(ENetAddress address, StringBuilder hostName, IntPtr nameLength);
+		internal static extern int enet_address_get_hostname(ref ENetAddress address, StringBuilder hostName, IntPtr nameLength);
 
 		[DllImport(nativeLibrary, CallingConvention = CallingConvention.Cdecl)]
 		internal static extern IntPtr enet_packet_create(byte[] data, IntPtr dataLength, PacketFlags flags);

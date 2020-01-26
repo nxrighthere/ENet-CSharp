@@ -31,7 +31,7 @@
 
 #define ENET_VERSION_MAJOR 2
 #define ENET_VERSION_MINOR 3
-#define ENET_VERSION_PATCH 4
+#define ENET_VERSION_PATCH 5
 #define ENET_VERSION_CREATE(major, minor, patch) (((major) << 16) | ((minor) << 8) | (patch))
 #define ENET_VERSION_GET_MAJOR(version) (((version) >> 16) & 0xFF)
 #define ENET_VERSION_GET_MINOR(version) (((version) >> 8) & 0xFF)
@@ -530,6 +530,7 @@ extern "C" {
 		ENET_HOST_DEFAULT_MAXIMUM_WAITING_DATA = 32 * 1024 * 1024,
 		ENET_PEER_DEFAULT_ROUND_TRIP_TIME      = 500,
 		ENET_PEER_DEFAULT_PACKET_THROTTLE      = 32,
+		ENET_PEER_PACKET_THROTTLE_THRESHOLD    = 20,
 		ENET_PEER_PACKET_THROTTLE_SCALE        = 32,
 		ENET_PEER_PACKET_THROTTLE_COUNTER      = 7,
 		ENET_PEER_PACKET_THROTTLE_ACCELERATION = 2,
@@ -3392,6 +3393,7 @@ extern "C" {
 		peer->packetLoss = 0;
 		peer->packetLossVariance = 0;
 		peer->packetThrottle = ENET_PEER_DEFAULT_PACKET_THROTTLE;
+		peer->packetThrottleThreshold = ENET_PEER_PACKET_THROTTLE_THRESHOLD;
 		peer->packetThrottleLimit = ENET_PEER_PACKET_THROTTLE_SCALE;
 		peer->packetThrottleCounter = 0;
 		peer->packetThrottleEpoch = 0;

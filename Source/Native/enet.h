@@ -778,6 +778,10 @@ extern "C" {
 	ENET_API enet_uint32 enet_peer_get_mtu(const ENetPeer*);
 	ENET_API ENetPeerState enet_peer_get_state(const ENetPeer*);
 	ENET_API enet_uint32 enet_peer_get_rtt(const ENetPeer*);
+	ENET_API enet_uint32 enet_peer_get_smoothed_rtt(const ENetPeer*);
+	ENET_API enet_uint32 enet_peer_get_last_rtt(const ENetPeer*);
+	ENET_API enet_uint32 enet_peer_get_rtt_variance(const ENetPeer*);
+	ENET_API enet_uint32 enet_peer_get_last_rtt_variance(const ENetPeer*);
 	ENET_API enet_uint32 enet_peer_get_lastsendtime(const ENetPeer*);
 	ENET_API enet_uint32 enet_peer_get_lastreceivetime(const ENetPeer*);
 	ENET_API enet_uint64 enet_peer_get_packets_sent(const ENetPeer*);
@@ -5109,8 +5113,24 @@ extern "C" {
 		return peer->state;
 	}
 
-	enet_uint32 enet_peer_get_rtt(const ENetPeer* peer) {
+	enet_uint32 enet_peer_get_smoothed_rtt(const ENetPeer* peer) {
 		return peer->smoothedRoundTripTime;
+	}
+
+	enet_uint32 enet_peer_get_rtt(const ENetPeer* peer) {
+		return peer->roundTripTime;
+	}
+
+	enet_uint32 enet_peer_get_last_rtt(const ENetPeer* peer) {
+		return peer->lastRoundTripTime;
+	}
+
+	enet_uint32 enet_peer_get_rtt_variance(const ENetPeer* peer) {
+		return peer->roundTripTimeVariance;
+	}
+
+	enet_uint32 enet_peer_get_last_rtt_variance(const ENetPeer* peer) {
+		return peer->lastRoundTripTimeVariance;
 	}
 
 	enet_uint32 enet_peer_get_lastsendtime(const ENetPeer* peer) {

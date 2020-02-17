@@ -709,6 +709,46 @@ namespace ENet {
 			}
 		}
 
+		public uint SmoothedRoundTripTime
+		{
+			get
+			{
+				CheckCreated();
+
+				return Native.enet_peer_get_smoothed_rtt(nativePeer);
+			}
+		}
+
+		public uint LastRoundTripTime
+		{
+			get
+			{
+				CheckCreated();
+
+				return Native.enet_peer_get_last_rtt(nativePeer);
+			}
+		}
+
+		public uint RoundTripTimeVariance
+		{
+			get
+			{
+				CheckCreated();
+
+				return Native.enet_peer_get_rtt_variance(nativePeer);
+			}
+		}
+
+		public uint LastRoundTripTimeVariance
+		{
+			get
+			{
+				CheckCreated();
+
+				return Native.enet_peer_get_last_rtt_variance(nativePeer);
+			}
+		}
+
 		public uint LastSendTime {
 			get {
 				CheckCreated();
@@ -1033,6 +1073,18 @@ namespace ENet {
 
 		[DllImport(nativeLibrary, CallingConvention = CallingConvention.Cdecl)]
 		internal static extern uint enet_peer_get_rtt(IntPtr peer);
+
+		[DllImport(nativeLibrary, CallingConvention = CallingConvention.Cdecl)]
+		internal static extern uint enet_peer_get_smoothed_rtt(IntPtr peer);
+
+		[DllImport(nativeLibrary, CallingConvention = CallingConvention.Cdecl)]
+		internal static extern uint enet_peer_get_last_rtt(IntPtr peer);
+
+		[DllImport(nativeLibrary, CallingConvention = CallingConvention.Cdecl)]
+		internal static extern uint enet_peer_get_rtt_variance(IntPtr peer);
+
+		[DllImport(nativeLibrary, CallingConvention = CallingConvention.Cdecl)]
+		internal static extern uint enet_peer_get_last_rtt_variance(IntPtr peer);
 
 		[DllImport(nativeLibrary, CallingConvention = CallingConvention.Cdecl)]
 		internal static extern uint enet_peer_get_lastsendtime(IntPtr peer);

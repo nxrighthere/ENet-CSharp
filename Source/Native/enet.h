@@ -60,11 +60,6 @@
 */
 
 #ifdef _WIN32
-	#if defined(_MSC_VER) && defined(ENET_IMPLEMENTATION)
-		#pragma warning(disable: 4244) /* 64-bit to 32-bit integer conversion */
-		#pragma warning(disable: 4267) /* size_t to integer conversion */
-	#endif
-
 	#ifndef ENET_NO_PRAGMA_LINK
 		#pragma comment(lib, "ws2_32.lib")
 		#pragma comment(lib, "winmm.lib")
@@ -825,6 +820,12 @@ extern "C" {
 	#ifdef __MINGW32__
 		#include "mingw/inet_ntop.c"
 		#include "mingw/inet_pton.c"
+	#endif
+
+	#ifdef _MSC_VER
+		#pragma warning(push)
+		#pragma warning(disable: 4244) /* 64-bit to 32-bit integer conversion */
+		#pragma warning(disable: 4267) /* size_t to integer conversion */
 	#endif
 
 /*
@@ -5144,6 +5145,10 @@ extern "C" {
 	void enet_peer_set_data(ENetPeer* peer, const void* data) {
 		peer->data = (enet_uint32*)data;
 	}
+
+	#ifdef _MSC_VER
+		#pragma warning(pop)
+	#endif
 
 #endif // ENET_IMPLEMENTATION
 

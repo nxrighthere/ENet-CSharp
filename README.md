@@ -20,7 +20,6 @@ Features:
 - Channels
 - Reliability
 - Fragmentation and reassembly
-- Compression
 - Aggregation
 - Adaptability
 - Portability
@@ -36,8 +35,6 @@ For desktop platforms [CMake](https://cmake.org/download/) with GNU Make or Visu
 For mobile platforms [NDK](https://developer.android.com/ndk/downloads/) for Android and [Xcode](https://developer.apple.com/xcode/) for iOS. Make sure that all compiled libraries are assigned to appropriate platforms and CPU architectures.
 
 To build the library for Nintendo Switch, follow [this](https://pastebin.com/raw/rbjLgMV2) guide.
-
-Define `ENET_LZ4` to build the library with support for an optional packet-level compression.
 
 A managed assembly can be built using any available compiling platform that supports C# 3.0 or higher.
 
@@ -235,14 +232,18 @@ Definitions of a flags for `Peer.Send()` function:
 
 `PacketFlags.Instant` a packet will not be bundled with other packets at a next service iteration and sent instantly instead. This delivery type trades multiplexing efficiency in favor of latency. The same packet can't be used for multiple `Peer.Send()` calls.
 
+`PacketFlags.Crucial` a packet should not be dropped due to throttling and must be delivered if possible.
+
+`PacketFlags.Sent` a packet was sent from all queues it has entered.
+
 #### EventType
 Definitions of event types for `Event.Type` property:
 
 `EventType.None` no event occurred within the specified time limit.
 
-`EventType.Connect` a connection request initiated by `Peer.Connect()` function has completed. `Event.Peer` returns a peer which successfully connected. `Event.Data` returns user-supplied data describing the connection or 0 if none is available.
+`EventType.Connect` a connection request initiated by `Peer.Connect()` function has completed. `Event.Peer` returns a peer which successfully connected. `Event.Data` returns the user-supplied data describing the connection or 0 if none is available.
 
-`EventType.Disconnect` a peer has disconnected. This event is generated on a successful completion of a disconnect initiated by `Peer.Disconnect`. `Event.Peer` returns a peer which disconnected. `Event.Data` returns user-supplied data describing the disconnection or 0 if none is available.
+`EventType.Disconnect` a peer has disconnected. This event is generated on a successful completion of a disconnect initiated by `Peer.Disconnect`. `Event.Peer` returns a peer which disconnected. `Event.Data` returns the user-supplied data describing the disconnection or 0 if none is available.
 
 `EventType.Receive` a packet has been received from a peer. `Event.Peer` returns a peer which sent the packet. `Event.ChannelID` specifies the channel number upon which the packet was received. `Event.Packet` returns a packet that was received, and this packet must be destroyed using `Event.Packet.Dispose()` function after use.
 
@@ -282,7 +283,7 @@ Provides per packet events.
 #### Address
 Contains structure with anonymous host data and port number.
 
-`Address.Port` sets or gets a port number.
+`Address.Port` gets or sets a port number.
 
 `Address.GetIP()` gets an IP address.
 
@@ -293,7 +294,7 @@ Contains structure with anonymous host data and port number.
 `Address.SetHost(string hostName)` sets host name or an IP address. Should be used for binding to a network interface or for connection to a foreign host. Returns true on success or false on failure.
 
 #### Event
-Contains structure with the event type, managed pointer to the peer, channel ID, user-supplied data, and managed pointer to the packet.
+Contains structure with the event type, managed pointer to the peer, channel ID, the user-supplied data, and managed pointer to the packet.
 
 `Event.Type` returns a type of the event.
 
@@ -301,7 +302,7 @@ Contains structure with the event type, managed pointer to the peer, channel ID,
 
 `Event.ChannelID` returns a channel ID on the peer that generated the event, if appropriate.
 
-`Event.Data` returns user-supplied data, if appropriate.
+`Event.Data` returns the user-supplied data, if appropriate.
 
 `Event.Packet` returns a packet associated with the event, if appropriate.
 
@@ -313,6 +314,8 @@ Contains a managed pointer to the packet.
 `Packet.IsSet` returns a state of the managed pointer.
 
 `Packet.Data` returns a managed pointer to the packet data.
+
+`Packet.UserData` gets or sets the user-supplied data.
 
 `Packet.Length` returns a length of payload in the packet.
 
@@ -395,15 +398,13 @@ Contains a managed pointer to the host.
 
 `Host.Create(Address? address, int peerLimit, int channelLimit, uint incomingBandwidth, uint outgoingBandwidth, int bufferSize)` creates a host for communicating with peers. The bandwidth parameters determine the window size of a connection which limits the number of reliable packets that may be in transit at any given time. ENet will strategically drop packets on specific sides of a connection between hosts to ensure the host's bandwidth is not overwhelmed. The buffer size parameter is used to set the socket buffer size for sending and receiving datagrams. All the parameters are optional except the address and peer limit in cases where the function is used to create a host which will listen for incoming connections.
 
-`Host.EnableCompression()` enables packet-level compression.
-
 `Host.PreventConnections(bool state)` prevents access to the host for new incoming connections. This function makes the host completely invisible from outside, any peer that attempts to connect to it will be timed out.
 
 `Host.Broadcast(byte channelID, ref Packet packet, Peer[] peers)` queues a packet to be sent to a range of peers or to all peers associated with the host if the optional peers parameter is not used. Any zeroed `Peer` structure in an array will be excluded from the broadcast. Instead of an array, a single `Peer` can be passed to function which will be excluded from the broadcast.
 
 `Host.CheckEvents(out Event @event)` checks for any queued events on the host and dispatches one if available. Returns > 0 if an event was dispatched, 0 if no events are available, < 0 on failure.
 
-`Host.Connect(Address address, int channelLimit, uint data)` initiates a connection to a foreign host. Returns a peer representing the foreign host on success or throws an exception on failure. The peer returned will not have completed the connection until `Host.Service()` notifies of an `EventType.Connect` event. The channel limit and user-supplied data parameters are optional.
+`Host.Connect(Address address, int channelLimit, uint data)` initiates a connection to a foreign host. Returns a peer representing the foreign host on success or throws an exception on failure. The peer returned will not have completed the connection until `Host.Service()` notifies of an `EventType.Connect` event. The channel limit and the user-supplied data parameters are optional.
 
 `Host.Service(int timeout, out Event @event)` waits for events on the specified host and shuttles packets between the host and its peers. ENet uses a polled event model to notify the user of significant events. ENet hosts are polled for events with this function, where an optional timeout value in milliseconds may be specified to control how long ENet will poll. If a timeout of 0 is specified, this function will return immediately if there are no events to dispatch. Otherwise, it will return 1 if an event was dispatched within the specified timeout. This function should be regularly called to ensure packets are sent and received, otherwise, traffic spikes will occur leading to increased latency. The timeout parameter set to 0 means non-blocking which required for cases where the function is called in a game loop.
 

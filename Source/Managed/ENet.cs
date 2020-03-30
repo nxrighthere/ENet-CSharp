@@ -36,7 +36,9 @@ namespace ENet {
 		Unsequenced = 1 << 1,
 		NoAllocate = 1 << 2,
 		UnreliableFragmented = 1 << 3,
-		Instant = 1 << 4
+		Instant = 1 << 4,
+		Crucial = 1 << 5,
+		Sent =  1 << 8
 	}
 
 	public enum EventType {
@@ -275,6 +277,20 @@ namespace ENet {
 			}
 		}
 
+		public IntPtr UserData {
+			get {
+				CheckCreated();
+
+				return Native.enet_packet_get_user_data(nativePacket);
+			}
+
+			set {
+				CheckCreated();
+
+				Native.enet_packet_set_user_data(nativePacket, value);
+			}
+		}
+
 		public int Length {
 			get {
 				CheckCreated();
@@ -503,12 +519,6 @@ namespace ENet {
 
 			if (nativeHost == IntPtr.Zero)
 				throw new InvalidOperationException("Host creation call failed");
-		}
-
-		public void EnableCompression() {
-			CheckCreated();
-
-			Native.enet_host_enable_compression(nativeHost);
 		}
 
 		public void PreventConnections(bool state) {
@@ -874,7 +884,7 @@ namespace ENet {
 		public const uint timeoutLimit = 32;
 		public const uint timeoutMinimum = 5000;
 		public const uint timeoutMaximum = 30000;
-		public const uint version = (2 << 16) | (3 << 8) | (5);
+		public const uint version = (2 << 16) | (3 << 8) | (6);
 
 		public static bool Initialize() {
 			return Native.enet_initialize() == 0;
@@ -948,6 +958,12 @@ namespace ENet {
 		internal static extern IntPtr enet_packet_get_data(IntPtr packet);
 
 		[DllImport(nativeLibrary, CallingConvention = CallingConvention.Cdecl)]
+		internal static extern IntPtr enet_packet_get_user_data(IntPtr packet);
+
+		[DllImport(nativeLibrary, CallingConvention = CallingConvention.Cdecl)]
+		internal static extern IntPtr enet_packet_set_user_data(IntPtr packet, IntPtr userData);
+
+		[DllImport(nativeLibrary, CallingConvention = CallingConvention.Cdecl)]
 		internal static extern int enet_packet_get_length(IntPtr packet);
 
 		[DllImport(nativeLibrary, CallingConvention = CallingConvention.Cdecl)]
@@ -1006,9 +1022,6 @@ namespace ENet {
 
 		[DllImport(nativeLibrary, CallingConvention = CallingConvention.Cdecl)]
 		internal static extern void enet_host_destroy(IntPtr host);
-
-		[DllImport(nativeLibrary, CallingConvention = CallingConvention.Cdecl)]
-		internal static extern void enet_host_enable_compression(IntPtr host);
 
 		[DllImport(nativeLibrary, CallingConvention = CallingConvention.Cdecl)]
 		internal static extern void enet_host_prevent_connections(IntPtr host, byte state);

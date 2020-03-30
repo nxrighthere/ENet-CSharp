@@ -6,7 +6,7 @@ language: c
 compiler: clang
 
 script:
-  - cmake ./Source/Native/ -DCMAKE_BUILD_TYPE=Release -DENET_SHARED=1 -DENET_LZ4=1
+  - cmake ./Source/Native/ -DCMAKE_BUILD_TYPE=Release -DENET_SHARED=1
   - cmake --build .
 
 deploy:

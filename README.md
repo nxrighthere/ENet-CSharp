@@ -344,6 +344,8 @@ Contains a managed pointer to the peer and cached ID.
 
 `Peer.RoundTripTime` returns a round trip time in milliseconds.
 
+`Peer.LastRoundTripTime` returns a round trip time since the last acknowledgment in milliseconds.
+
 `Peer.LastSendTime` returns a last packet send time in milliseconds.
 
 `Peer.LastReceiveTime` returns a last packet receive time in milliseconds.

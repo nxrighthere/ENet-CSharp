@@ -2,7 +2,7 @@ LOCAL_PATH := $(call my-dir)
 include $(CLEAR_VARS)
 
 LOCAL_MODULE    := libenet
-LOCAL_SRC_FILES := ..\enet.c
+LOCAL_SRC_FILES := ../enet.c
 
 ifdef ENET_DEBUG
 	LOCAL_CFLAGS += -DENET_DEBUG

@@ -232,7 +232,7 @@ Definitions of a flags for `Peer.Send()` function:
 
 `PacketFlags.Instant` a packet will not be bundled with other packets at a next service iteration and sent instantly instead. This delivery type trades multiplexing efficiency in favor of latency. The same packet can't be used for multiple `Peer.Send()` calls.
 
-`PacketFlags.Crucial` a packet that was sent unreliably should not be dropped due to throttling and must be delivered if possible.
+`PacketFlags.Crucial` a packet that was enqueued for sending unreliably should not be dropped due to throttling and sent if possible.
 
 `PacketFlags.Sent` a packet was sent from all queues it has entered.
 

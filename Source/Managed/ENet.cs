@@ -473,7 +473,7 @@ namespace ENet {
 				throw new InvalidOperationException("Host not created");
 		}
 
-		private static void IsChannelLimited(int channelLimit) {
+		private static void IsChannelsLimited(int channelLimit) {
 			if (channelLimit < 0 || channelLimit > Library.maxChannelCount)
 				throw new ArgumentOutOfRangeException("channelLimit");
 		}
@@ -513,7 +513,7 @@ namespace ENet {
 			if (peerLimit < 0 || peerLimit > Library.maxPeers)
 				throw new ArgumentOutOfRangeException("peerLimit");
 
-			IsChannelLimited(channelLimit);
+			IsChannelsLimited(channelLimit);
 
 			if (address != null) {
 				var nativeAddress = address.Value.NativeData;
@@ -602,7 +602,7 @@ namespace ENet {
 
 		public Peer Connect(Address address, int channelLimit, uint data) {
 			IsCreated();
-			IsChannelLimited(channelLimit);
+			IsChannelsLimited(channelLimit);
 
 			var nativeAddress = address.NativeData;
 			var peer = new Peer(Native.enet_host_connect(nativeHost, ref nativeAddress, (IntPtr)channelLimit, data));
@@ -642,7 +642,7 @@ namespace ENet {
 
 		public void SetChannelLimit(int channelLimit) {
 			IsCreated();
-			IsChannelLimited(channelLimit);
+			IsChannelsLimited(channelLimit);
 
 			Native.enet_host_channel_limit(nativeHost, (IntPtr)channelLimit);
 		}

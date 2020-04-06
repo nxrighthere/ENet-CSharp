@@ -4,9 +4,7 @@
 
 [![GitHub release](https://img.shields.io/github/release/nxrighthere/ENet-CSharp.svg)](https://github.com/nxrighthere/ENet-CSharp/releases) [![NuGet](https://img.shields.io/nuget/v/ENet-CSharp.svg)](https://www.nuget.org/packages/ENet-CSharp/) [![PayPal](https://github.com/Rageware/Shields/blob/master/paypal.svg)](https://www.paypal.me/nxrighthere) [![Bountysource](https://github.com/Rageware/Shields/blob/master/bountysource.svg)](https://salt.bountysource.com/checkout/amount?team=nxrighthere) [![Coinbase](https://github.com/Rageware/Shields/blob/master/coinbase.svg)](https://commerce.coinbase.com/checkout/03e11816-b6fc-4e14-b974-29a1d0886697)
 
-_The library is no longer in active public development, all futher work moved to private, this repository turned into read-only mode for historical reference. Thanks to all supporters and contributors._
-
-This project is based on collaborative work with [@inlife](https://github.com/inlife) and inherited all features of the custom [fork](https://github.com/zpl-c/enet) where the native library was heavily modified. You can find the most notable changes [here](https://github.com/nxrighthere/ENet-CSharp/issues/22#issuecomment-432982154). This version is extended, optimized, and involves new features that were not available before to boost the development process and run safely in the managed .NET environment with the highest possible performance.
+This project is based on collaborative work with [@inlife](https://github.com/inlife) and inherited all features of the custom [fork](https://github.com/zpl-c/enet) where the native library was heavily modified. You can find the most notable changes [here](https://github.com/nxrighthere/ENet-CSharp/blob/master/CHANGES.md). This version is extended, optimized, and involves new features that were not available before to boost the development process and run safely in the managed .NET environment with the highest possible performance.
 
 Although the project is called ENet-CSharp, this is not just a C# wrapper for the native C library, but an independent fork which is incompatible with any other ENet implementation including the [original](https://github.com/lsalzman/enet) since 2.0.0 version. Programmers who are using C/C++ languages can utilize this fork as well in any projects such as [NetDynamics](https://github.com/nxrighthere/NetDynamics).
 
@@ -24,7 +22,7 @@ Features:
 - Adaptability
 - Portability
 
-Please, read [common mistakes](https://github.com/nxrighthere/ENet-CSharp/issues/45) during integration and check [this](https://github.com/nxrighthere/ENet-CSharp/issues?q=is%3Aissue+is%3Aclosed) section before opening a new issue.
+Please, read [common mistakes](https://github.com/nxrighthere/ENet-CSharp/blob/master/COMMON-MISTAKES.md) to get an idea what can go wrong.
 
 Building
 --------

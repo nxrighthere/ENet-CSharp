@@ -11,4 +11,4 @@ The most notable changes that were made before 2.0.0 version
 - Combined code base into a single header
 - Cleaned and reorganized code base
 
-For other changes, check the [releas section](https://github.com/nxrighthere/ENet-CSharp/releases).
+For other changes, check the [release section](https://github.com/nxrighthere/ENet-CSharp/releases).

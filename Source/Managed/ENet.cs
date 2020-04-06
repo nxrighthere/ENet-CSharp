@@ -344,7 +344,7 @@ namespace ENet {
 				throw new ArgumentNullException("data");
 
 			if (length < 0 || length > data.Length)
-				throw new ArgumentOutOfRangeException();
+				throw new ArgumentOutOfRangeException("length");
 
 			nativePacket = Native.enet_packet_create(data, (IntPtr)length, flags);
 		}
@@ -354,7 +354,7 @@ namespace ENet {
 				throw new ArgumentNullException("data");
 
 			if (length < 0)
-				throw new ArgumentOutOfRangeException();
+				throw new ArgumentOutOfRangeException("length");
 
 			nativePacket = Native.enet_packet_create(data, (IntPtr)length, flags);
 		}
@@ -363,8 +363,11 @@ namespace ENet {
 			if (data == null)
 				throw new ArgumentNullException("data");
 
-			if (offset < 0 || length < 0 || length > data.Length)
-				throw new ArgumentOutOfRangeException();
+			if (offset < 0)
+				throw new ArgumentOutOfRangeException("offset");
+
+			if (length < 0 || length > data.Length)
+				throw new ArgumentOutOfRangeException("length");
 
 			nativePacket = Native.enet_packet_create_offset(data, (IntPtr)length, (IntPtr)offset, flags);
 		}
@@ -373,8 +376,11 @@ namespace ENet {
 			if (data == IntPtr.Zero)
 				throw new ArgumentNullException("data");
 
-			if (offset < 0 || length < 0)
-				throw new ArgumentOutOfRangeException();
+			if (offset < 0)
+				throw new ArgumentOutOfRangeException("offset");
+
+			if (length < 0)
+				throw new ArgumentOutOfRangeException("length");
 
 			nativePacket = Native.enet_packet_create_offset(data, (IntPtr)length, (IntPtr)offset, flags);
 		}
@@ -467,7 +473,7 @@ namespace ENet {
 				throw new InvalidOperationException("Host not created");
 		}
 
-		private void IsChannelLimited(int channelLimit) {
+		private static void IsChannelLimited(int channelLimit) {
 			if (channelLimit < 0 || channelLimit > Library.maxChannelCount)
 				throw new ArgumentOutOfRangeException("channelLimit");
 		}
@@ -544,6 +550,9 @@ namespace ENet {
 		}
 
 		public void Broadcast(byte channelID, ref Packet packet, Peer[] peers) {
+			if (peers == null)
+				throw new ArgumentNullException("peers");
+
 			IsCreated();
 
 			packet.IsCreated();
@@ -899,6 +908,9 @@ namespace ENet {
 		}
 
 		public static bool Initialize(Callbacks callbacks) {
+			if (callbacks == null)
+				throw new ArgumentNullException("callbacks");
+
 			ENetCallbacks nativeCallbacks = callbacks.NativeData;
 
 			return Native.enet_initialize_with_callbacks(version, ref nativeCallbacks) == 0;

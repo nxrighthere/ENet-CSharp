@@ -15,7 +15,7 @@ Always make sure that the channel limit set to the same value at the endpoints u
 
 4. Round-trip time is unstable even on localhost.
 
-This is the first indication that the `Host.Service()` is not called [often enough](https://github.com/nxrighthere/ENet-CSharp/issues/40#issuecomment-454958843). Make sure that the service and events are processed [continuously](https://github.com/nxrighthere/ENet-CSharp/issues/40#issuecomment-460059631) and nothing prevents the ENet to shuttle packets across peers.
+This is the first indication that the `Host.Service()` is not called often enough. Make sure that the service and events are processed continuously and nothing prevents the ENet to shuttle packets across peers.
 
 5. Latency gets higher relatively to a count of concurrent connections.
 
@@ -23,7 +23,7 @@ Make sure that only the actual payload is sent and not a whole buffer, a packet 
 
 6. A host is unable to accept multiple connections or degrades with many packets.
 
-Make sure that the service is processing as many events as possible and not only one event per frame/iteration. Put the service [into a loop](https://github.com/nxrighthere/ENet-CSharp/issues/40#issuecomment-460059631) even within a game loop (but without a timeout to avoid blocking). If nothing helps, you can try to increase the socket buffer size of the host up to one megabyte using the appropriate parameter at both ends.
+Make sure that the service is processing as many events as possible and not only one event per frame/iteration. Put the service into a loop even within a game loop (but without a timeout to avoid blocking). If nothing helps, you can try to increase the socket buffer size of the host up to one megabyte using the appropriate parameter at both ends.
 
 7. A host is not flushed after the service is no longer in a loop.
 

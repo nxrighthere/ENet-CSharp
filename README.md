@@ -432,3 +432,8 @@ Contains constant fields.
 `Library.Deinitialize()` deinitializes the native library. Should be called after the work is done.
 
 `Library.Time` returns a current local monotonic time in milliseconds. It never reset while the application remains alive.
+
+Supporters
+--------
+This project is sponsored by [Flying Squirrel Entertainment](https://www.fsegames.eu).<br/>
+<a href="https://www.fsegames.eu"><img src="https://i.imgur.com/or0fHGM.png" alt="Flying Squirrel Entertainment"></a>

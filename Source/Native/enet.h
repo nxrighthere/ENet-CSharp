@@ -2494,7 +2494,7 @@ extern "C" {
 			}
 		}
 
-		return -1;
+		return 0;
 	}
 
 	static void enet_protocol_send_acknowledgements(ENetHost* host, ENetPeer* peer) {

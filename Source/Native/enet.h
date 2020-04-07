@@ -31,7 +31,7 @@
 
 #define ENET_VERSION_MAJOR 2
 #define ENET_VERSION_MINOR 3
-#define ENET_VERSION_PATCH 7
+#define ENET_VERSION_PATCH 8
 #define ENET_VERSION_CREATE(major, minor, patch) (((major) << 16) | ((minor) << 8) | (patch))
 #define ENET_VERSION_GET_MAJOR(version) (((version) >> 16) & 0xFF)
 #define ENET_VERSION_GET_MINOR(version) (((version) >> 8) & 0xFF)
@@ -4571,7 +4571,7 @@ extern "C" {
 			}
 
 			if (msgHdr.msg_flags & MSG_TRUNC)
-				return -1;
+				return -2;
 
 			if (address != NULL) {
 				address->ipv6 = sin.sin6_addr;
@@ -4839,7 +4839,7 @@ extern "C" {
 
 		int enet_socket_send(ENetSocket socket, const ENetAddress* address, const ENetBuffer* buffers, size_t bufferCount) {
 			struct sockaddr_in6 sin;
-			DWORD sentLength;
+			DWORD sentLength = 0;
 
 			if (address != NULL) {
 				memset(&sin, 0, sizeof(struct sockaddr_in6));
@@ -4857,7 +4857,7 @@ extern "C" {
 
 		int enet_socket_receive(ENetSocket socket, ENetAddress* address, ENetBuffer* buffers, size_t bufferCount) {
 			INT sinLength = sizeof(struct sockaddr_in6);
-			DWORD flags = 0, recvLength;
+			DWORD flags = 0, recvLength = 0;
 			struct sockaddr_in6 sin;
 
 			if (WSARecvFrom(socket, (LPWSABUF)buffers, (DWORD)bufferCount, &recvLength, &flags, address != NULL ? (struct sockaddr*)&sin : NULL, address != NULL ? &sinLength : NULL, NULL, NULL) == SOCKET_ERROR) {
@@ -4871,7 +4871,7 @@ extern "C" {
 			}
 
 			if (flags & MSG_PARTIAL)
-				return -1;
+				return -2;
 
 			if (address != NULL) {
 				address->ipv6 = sin.sin6_addr;

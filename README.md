@@ -350,7 +350,7 @@ Contains a managed pointer to the peer and cached ID.
 
 `Peer.PacketsSent` returns a total number of packets sent during the connection.
 
-`Peer.PacketsLost` returns a total number of lost packets during the connection.
+`Peer.PacketsLost` returns a total number of packets that considered lost during the connection based on retransmission logic.
 
 `Peer.BytesSent` returns a total number of bytes sent during the connection.
 

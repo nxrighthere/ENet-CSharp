@@ -66,7 +66,7 @@
 		/* It looks like there were changes as of Visual Studio 2017 and there are no 32/64 bit
 		versions of _InterlockedExchange[operation], only InterlockedExchange[operation]
 		(without leading underscore), so we have to distinguish between compiler versions */
-		#define NOT_UNDERSCORED_INTERLOCKED_EXCHANGE
+		#define ENET_NOT_UNDERSCORED_INTERLOCKED_EXCHANGE
 	#endif
 
 	#include <winsock2.h>
@@ -824,14 +824,14 @@ extern "C" {
 					return _InterlockedExchangeAdd16((volatile SHORT*)ptr, 0);
 
 				case 4:
-					#ifdef NOT_UNDERSCORED_INTERLOCKED_EXCHANGE
+					#ifdef ENET_NOT_UNDERSCORED_INTERLOCKED_EXCHANGE
 						return InterlockedExchangeAdd((volatile LONG*)ptr, 0);
 					#else
 						return _InterlockedExchangeAdd((volatile LONG*)ptr, 0);
 					#endif
 
 				case 8:
-					#ifdef NOT_UNDERSCORED_INTERLOCKED_EXCHANGE
+					#ifdef ENET_NOT_UNDERSCORED_INTERLOCKED_EXCHANGE
 						return InterlockedExchangeAdd64((volatile LONGLONG*)ptr, 0);
 					#else
 						return _InterlockedExchangeAdd64((volatile LONGLONG*)ptr, 0);
@@ -851,14 +851,14 @@ extern "C" {
 					return _InterlockedExchange16((volatile SHORT*)ptr, (SHORT)value);
 
 				case 4:
-					#ifdef NOT_UNDERSCORED_INTERLOCKED_EXCHANGE
+					#ifdef ENET_NOT_UNDERSCORED_INTERLOCKED_EXCHANGE
 						return InterlockedExchange((volatile LONG*)ptr, (LONG)value);
 					#else
 						return _InterlockedExchange((volatile LONG*)ptr, (LONG)value);
 					#endif
 
 				case 8:
-					#ifdef NOT_UNDERSCORED_INTERLOCKED_EXCHANGE
+					#ifdef ENET_NOT_UNDERSCORED_INTERLOCKED_EXCHANGE
 						return InterlockedExchange64((volatile LONGLONG*)ptr, (LONGLONG)value);
 					#else
 						return _InterlockedExchange64((volatile LONGLONG*)ptr, (LONGLONG)value);
@@ -878,14 +878,14 @@ extern "C" {
 					return _InterlockedCompareExchange16((volatile SHORT*)ptr, (SHORT)new_val, (SHORT)old_val);
 
 				case 4:
-					#ifdef NOT_UNDERSCORED_INTERLOCKED_EXCHANGE
+					#ifdef ENET_NOT_UNDERSCORED_INTERLOCKED_EXCHANGE
 						return InterlockedCompareExchange((volatile LONG*)ptr, (LONG)new_val, (LONG)old_val);
 					#else
 						return _InterlockedCompareExchange((volatile LONG*)ptr, (LONG)new_val, (LONG)old_val);
 					#endif
 
 				case 8:
-					#ifdef NOT_UNDERSCORED_INTERLOCKED_EXCHANGE
+					#ifdef ENET_NOT_UNDERSCORED_INTERLOCKED_EXCHANGE
 						return InterlockedCompareExchange64((volatile LONGLONG*)ptr, (LONGLONG)new_val, (LONGLONG)old_val);
 					#else
 						return _InterlockedCompareExchange64((volatile LONGLONG*)ptr, (LONGLONG)new_val, (LONGLONG)old_val);
@@ -905,14 +905,14 @@ extern "C" {
 					return _InterlockedExchangeAdd16((volatile SHORT*)ptr, (SHORT)delta);
 
 				case 4:
-					#ifdef NOT_UNDERSCORED_INTERLOCKED_EXCHANGE
+					#ifdef ENET_NOT_UNDERSCORED_INTERLOCKED_EXCHANGE
 						return InterlockedExchangeAdd((volatile LONG*)ptr, (LONG)delta);
 					#else
 						return _InterlockedExchangeAdd((volatile LONG*)ptr, (LONG)delta);
 					#endif
 
 				case 8:
-					#ifdef NOT_UNDERSCORED_INTERLOCKED_EXCHANGE
+					#ifdef ENET_NOT_UNDERSCORED_INTERLOCKED_EXCHANGE
 						return InterlockedExchangeAdd64((volatile LONGLONG*)ptr, (LONGLONG)delta);
 					#else
 						return _InterlockedExchangeAdd64((volatile LONGLONG*)ptr, (LONGLONG)delta);

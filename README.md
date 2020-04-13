@@ -224,7 +224,7 @@ Definitions of a flags for `Peer.Send()` function:
 
 `PacketFlags.Unsequenced` a packet will not be sequenced with other packets and may be delivered out of order. This flag makes delivery unreliable.
 
-`PacketFlags.NoAllocate` a packet will not allocate data, and the user must supply it instead.
+`PacketFlags.NoAllocate` a packet will not allocate data, and the user must supply it instead. Packet lifetime should be tracked using the appropriate callback.
 
 `PacketFlags.UnreliableFragmented` a packet will be unreliably fragmented if it exceeds the MTU. By default packets larger than MTU fragmented reliably.
 

@@ -955,12 +955,12 @@ extern "C" {
 			/* clang_analyzer doesn't know that CAS writes to memory so it complains about
 			potentially lost data. Replace the code with the equivalent non-sync code. */
 			#ifdef __clang_analyzer__
-				#define ENET_ATOMIC_CAS(ptr, old_value, new_value)                                                                   \
-					({                                                                                                               \
-						typeof(*(ptr)) ENET_ATOMIC_CAS_old_actual_ = (*(ptr));                                                       \
-						if (ATOMIC_CAS_old_actual_ == (old_value))                                                                   \
-							*(ptr) = new_value;                                                                                      \
-						ENET_ATOMIC_CAS_old_actual_;                                                                                 \
+				#define ENET_ATOMIC_CAS(ptr, old_value, new_value)\
+					({\
+						typeof(*(ptr)) ENET_ATOMIC_CAS_old_actual_ = (*(ptr));\
+						if (ATOMIC_CAS_old_actual_ == (old_value))\
+							*(ptr) = new_value;\
+						ENET_ATOMIC_CAS_old_actual_;\
 					})
 				#else
 				/* Could use __auto_type instead of typeof but that shouldn't work in C++.
@@ -969,12 +969,12 @@ extern "C" {
 
 				TODO We should return bool here instead of the old value to avoid the ABA
 				problem. */
-				#define ENET_ATOMIC_CAS(ptr, old_value, new_value)                                                                   \
-					({                                                                                                               \
-						typeof(*(ptr)) ENET_ATOMIC_CAS_expected_ = (old_value);                                                      \
-						__atomic_compare_exchange_n((ptr), &ENET_ATOMIC_CAS_expected_, (new_value), false,                           \
-						__ATOMIC_ACQ_REL, __ATOMIC_ACQUIRE);                                                                         \
-						ENET_ATOMIC_CAS_expected_;                                                                                   \
+				#define ENET_ATOMIC_CAS(ptr, old_value, new_value)\
+					({\
+						typeof(*(ptr)) ENET_ATOMIC_CAS_expected_ = (old_value);\
+						__atomic_compare_exchange_n((ptr), &ENET_ATOMIC_CAS_expected_, (new_value), false,\
+						__ATOMIC_ACQ_REL, __ATOMIC_ACQUIRE);\
+						ENET_ATOMIC_CAS_expected_;\
 					})
 				#endif
 

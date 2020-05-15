@@ -328,7 +328,7 @@ Contains a managed pointer to the peer and cached ID.
 
 `Peer.IsSet` returns a state of the managed pointer.
 
-`Peer.ID` returns a peer ID.
+`Peer.ID` returns a peer ID. It's always zero on the client side.
 
 `Peer.IP` returns an IP address in a printable form.
 

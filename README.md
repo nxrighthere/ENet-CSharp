@@ -42,6 +42,8 @@ You can grab compiled libraries from the [release](https://github.com/nxrighther
 
 `ENet-Unity` contains script with native libraries for the Unity.
 
+It's highly recommended to delete a folder with binaries instead of replacing it to upgrade.
+
 These packages are provided only for traditional platforms: Windows, Linux, and macOS (x64).
 
 Supported OS versions:

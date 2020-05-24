@@ -266,16 +266,16 @@ Definitions of peer states for `Peer.State` property:
 #### Memory callbacks
 Provides per application events.
 
-`AllocCallback(IntPtr size)` notifies when a memory is requested for allocation. Expects pointer to the newly allocated memory.
+`AllocCallback(IntPtr size)` notifies when a memory is requested for allocation. Expects pointer to the newly allocated memory. A reference to the delegate should be preserved from being garbage collected.
 
-`FreeCallback(IntPtr memory)` notifies when the memory can be freed.
+`FreeCallback(IntPtr memory)` notifies when the memory can be freed. A reference to the delegate should be preserved from being garbage collected.
 
-`NoMemoryCallback()` notifies when memory is not enough.
+`NoMemoryCallback()` notifies when memory is not enough. A reference to the delegate should be preserved from being garbage collected.
 
 #### Packet callbacks
 Provides per packet events.
 
-`PacketFreeCallback(Packet packet)` notifies when a packet is being destroyed.
+`PacketFreeCallback(Packet packet)` notifies when a packet is being destroyed. A reference to the delegate should be preserved from being garbage collected.
 
 ### Structures
 #### Address

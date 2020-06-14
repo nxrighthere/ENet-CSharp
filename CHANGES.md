@@ -1,4 +1,4 @@
-The most notable changes that were made before 2.0.0 version
+The most notable changes that were made before 2.0.3 version
 --------
 
 - Added functionality for easier bindings

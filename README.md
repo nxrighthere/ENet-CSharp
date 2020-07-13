@@ -226,7 +226,7 @@ Definitions of a flags for `Peer.Send()` function:
 
 `PacketFlags.NoAllocate` a packet will not allocate data, and the user must supply it instead. Packet lifetime should be tracked using the appropriate callback.
 
-`PacketFlags.UnreliableFragmented` a packet will be unreliably fragmented if it exceeds the MTU. By default packets larger than MTU fragmented reliably.
+`PacketFlags.UnreliableFragmented` a packet will be unreliably fragmented if it exceeds the MTU. By default, unreliable packets that exceed the MTU are fragmented and transmitted reliably. This flag should be used to explicitly indicate packets that should remain unreliable.
 
 `PacketFlags.Instant` a packet will not be bundled with other packets at a next service iteration and sent instantly instead. This delivery type trades multiplexing efficiency in favor of latency. The same packet can't be used for multiple `Peer.Send()` calls.
 

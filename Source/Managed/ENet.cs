@@ -647,6 +647,12 @@ namespace ENet {
 			Native.enet_host_channel_limit(nativeHost, (IntPtr)channelLimit);
 		}
 
+		public void SetMaxDuplicatePeers(ushort number) {
+			IsCreated();
+
+			Native.enet_host_set_max_duplicate_peers(nativeHost, number);
+		}
+
 		public void Flush() {
 			IsCreated();
 
@@ -1036,6 +1042,9 @@ namespace ENet {
 
 		[DllImport(nativeLibrary, CallingConvention = CallingConvention.Cdecl)]
 		internal static extern uint enet_host_get_bytes_received(IntPtr host);
+
+		[DllImport(nativeLibrary, CallingConvention = CallingConvention.Cdecl)]
+		internal static extern void enet_host_set_max_duplicate_peers(IntPtr host, ushort number);
 
 		[DllImport(nativeLibrary, CallingConvention = CallingConvention.Cdecl)]
 		internal static extern void enet_host_flush(IntPtr host);

@@ -747,6 +747,7 @@ extern "C" {
 	ENET_API uint32_t enet_host_get_packets_received(const ENetHost*);
 	ENET_API uint32_t enet_host_get_bytes_sent(const ENetHost*);
 	ENET_API uint32_t enet_host_get_bytes_received(const ENetHost*);
+	ENET_API void enet_host_set_max_duplicate_peers(ENetHost*, uint16_t);
 
 	ENET_API uint32_t enet_peer_get_id(const ENetPeer*);
 	ENET_API int enet_peer_get_ip(const ENetPeer*, char*, size_t);
@@ -4939,6 +4940,16 @@ extern "C" {
 
 	uint32_t enet_host_get_bytes_received(const ENetHost* host) {
 		return host->totalReceivedData;
+	}
+
+	void enet_host_set_max_duplicate_peers(ENetHost* host, uint16_t number) {
+		if (number < 1)
+			number = 1;
+
+		if (number > ENET_PROTOCOL_MAXIMUM_PEER_ID)
+			number = ENET_PROTOCOL_MAXIMUM_PEER_ID;
+
+		host->duplicatePeers = number;
 	}
 
 	uint32_t enet_peer_get_id(const ENetPeer* peer) {

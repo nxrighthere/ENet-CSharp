@@ -438,7 +438,7 @@ Supporters
 This project is sponsored by:
 
 [Flying Squirrel Entertainment](https://www.fsegames.eu)<br/>
-<a href="https://www.fsegames.eu"><img src="https://i.imgur.com/or0fHGM.png" alt="Flying Squirrel Entertainment"></a>
+<a href="https://www.fsegames.eu"><img src="https://i.imgur.com/i89ckRS.png" alt="Flying Squirrel Entertainment"></a>
 
 [Square Root Studios](https://titanreach.com)<br/>
 <a href="https://titanreach.com"><img src="https://i.imgur.com/LkC7sNv.png" alt="Square Root Studios"></a>

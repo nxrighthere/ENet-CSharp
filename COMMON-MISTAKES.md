@@ -23,11 +23,11 @@ Make sure that only the actual payload is sent and not a whole buffer, a packet 
 
 6. A host is unable to accept multiple connections or degrades with many packets.
 
-Make sure that the service is processing as many events as possible and not only one event per frame/iteration. Put the service into a loop even within a game loop (but without a timeout to avoid blocking). If nothing helps, you can try to increase the socket buffer size of the host up to one megabyte using the appropriate parameter at both ends.
+Make sure that the service is processing as many events as possible and not only one event per frame/iteration. Put the service into a loop even within a game loop (but without a timeout to avoid blocking). If nothing helps, you can try to increase the socket buffer size of the [host](https://github.com/nxrighthere/ENet-CSharp#host) at creation up to one megabyte using the appropriate parameter at both ends.
 
 7. A host is not flushed after the service is no longer in a loop.
 
-Always flush the host before the end of a session to ensure that all queued packets and protocol commands were sent to its designated peers.
+Always flush the host before the end of a session to ensure that all enqueued packets and protocol commands were sent to its designated peers.
 
 8. Unreliable packets are dropped significantly under simulation of latency.
 

@@ -8,7 +8,7 @@ The most notable changes that were made before 2.0.3 version
 - Improved transmission statistics
 - Eliminated unnecessary memory allocations
 - Removed/replaced legacy functionality
-- Combined code base into a single header
+- Amalgamated code base into a single header
 - Cleaned and reorganized code base
 
 For other changes, check the [release section](https://github.com/nxrighthere/ENet-CSharp/releases).

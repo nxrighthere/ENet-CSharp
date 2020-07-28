@@ -1,0 +1,103 @@
+{
+  "format": 1,
+  "restore": {
+    "/Users/kirillheyworks/Desktop/sources/Hollywood/Client/Hollywood.Client/Assets/Scripts/ENet-CSharp/Source/Managed/ENet-CSharp.csproj": {}
+  },
+  "projects": {
+    "/Users/kirillheyworks/Desktop/sources/Hollywood/Client/Hollywood.Client/Assets/Scripts/ENet-CSharp/Source/Managed/ENet-CSharp.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "/Users/kirillheyworks/Desktop/sources/Hollywood/Client/Hollywood.Client/Assets/Scripts/ENet-CSharp/Source/Managed/ENet-CSharp.csproj",
+        "projectName": "ENet-CSharp",
+        "projectPath": "/Users/kirillheyworks/Desktop/sources/Hollywood/Client/Hollywood.Client/Assets/Scripts/ENet-CSharp/Source/Managed/ENet-CSharp.csproj",
+        "packagesPath": "/Users/kirillheyworks/.nuget/packages/",
+        "outputPath": "/Users/kirillheyworks/Desktop/sources/Hollywood/Client/Hollywood.Client/Assets/Scripts/ENet-CSharp/Source/Managed/.obj/",
+        "projectStyle": "PackageReference",
+        "crossTargeting": true,
+        "configFilePaths": [
+          "/Users/kirillheyworks/.nuget/NuGet/NuGet.Config"
+        ],
+        "originalTargetFrameworks": [
+          "netcoreapp2.0",
+          "netstandard2.0"
+        ],
+        "sources": {
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "netcoreapp2.0": {
+            "projectReferences": {}
+          },
+          "netstandard2.0": {
+            "projectReferences": {}
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        }
+      },
+      "frameworks": {
+        "netcoreapp2.0": {
+          "dependencies": {
+            "Microsoft.NETCore.App": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[2.0.0, )",
+              "autoReferenced": true
+            },
+            "StyleCop.Analyzers": {
+              "target": "Package",
+              "version": "[1.1.118, )"
+            },
+            "Unofficial.System.Except": {
+              "target": "Package",
+              "version": "[1.1.1, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/3.1.302/RuntimeIdentifierGraph.json"
+        },
+        "netstandard2.0": {
+          "dependencies": {
+            "NETStandard.Library": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[2.0.3, )",
+              "autoReferenced": true
+            },
+            "StyleCop.Analyzers": {
+              "target": "Package",
+              "version": "[1.1.118, )"
+            },
+            "Unofficial.System.Except": {
+              "target": "Package",
+              "version": "[1.1.1, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/3.1.302/RuntimeIdentifierGraph.json"
+        }
+      }
+    }
+  }
+}

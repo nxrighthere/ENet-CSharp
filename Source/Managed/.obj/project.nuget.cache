@@ -1,0 +1,19 @@
+{
+  "version": 2,
+  "dgSpecHash": "boAPk0I5oDTGnLWCgDDmm7XOtm3X8LEDJzhC5HXxRZMDhex261IGtKMWPyHBnjKWkQOOtOYH6oDFi+aksRCkzw==",
+  "success": true,
+  "projectFilePath": "/Users/kirillheyworks/Desktop/sources/Hollywood/Client/Hollywood.Client/Assets/Scripts/ENet-CSharp/Source/Managed/ENet-CSharp.csproj",
+  "expectedPackageFiles": [
+    "/Users/kirillheyworks/.nuget/packages/microsoft.netcore.app/2.0.0/microsoft.netcore.app.2.0.0.nupkg.sha512",
+    "/Users/kirillheyworks/.nuget/packages/microsoft.netcore.dotnetapphost/2.0.0/microsoft.netcore.dotnetapphost.2.0.0.nupkg.sha512",
+    "/Users/kirillheyworks/.nuget/packages/microsoft.netcore.dotnethostpolicy/2.0.0/microsoft.netcore.dotnethostpolicy.2.0.0.nupkg.sha512",
+    "/Users/kirillheyworks/.nuget/packages/microsoft.netcore.dotnethostresolver/2.0.0/microsoft.netcore.dotnethostresolver.2.0.0.nupkg.sha512",
+    "/Users/kirillheyworks/.nuget/packages/microsoft.netcore.platforms/1.1.0/microsoft.netcore.platforms.1.1.0.nupkg.sha512",
+    "/Users/kirillheyworks/.nuget/packages/microsoft.netcore.platforms/2.0.0/microsoft.netcore.platforms.2.0.0.nupkg.sha512",
+    "/Users/kirillheyworks/.nuget/packages/netstandard.library/2.0.0/netstandard.library.2.0.0.nupkg.sha512",
+    "/Users/kirillheyworks/.nuget/packages/netstandard.library/2.0.3/netstandard.library.2.0.3.nupkg.sha512",
+    "/Users/kirillheyworks/.nuget/packages/stylecop.analyzers/1.1.118/stylecop.analyzers.1.1.118.nupkg.sha512",
+    "/Users/kirillheyworks/.nuget/packages/unofficial.system.except/1.1.1/unofficial.system.except.1.1.1.nupkg.sha512"
+  ],
+  "logs": []
+}

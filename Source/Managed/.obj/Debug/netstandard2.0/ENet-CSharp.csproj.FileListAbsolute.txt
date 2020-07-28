@@ -1,0 +1,9 @@
+/Users/kirillheyworks/Desktop/sources/Hollywood/Client/Hollywood.Client/Assets/Scripts/ENet-CSharp/Source/Managed/.bin/Debug/netstandard2.0/ENet-CSharp.deps.json
+/Users/kirillheyworks/Desktop/sources/Hollywood/Client/Hollywood.Client/Assets/Scripts/ENet-CSharp/Source/Managed/.bin/Debug/netstandard2.0/ENet-CSharp.dll
+/Users/kirillheyworks/Desktop/sources/Hollywood/Client/Hollywood.Client/Assets/Scripts/ENet-CSharp/Source/Managed/.bin/Debug/netstandard2.0/ENet-CSharp.pdb
+/Users/kirillheyworks/Desktop/sources/Hollywood/Client/Hollywood.Client/Assets/Scripts/ENet-CSharp/Source/Managed/.obj/Debug/netstandard2.0/ENet-CSharp.AssemblyInfoInputs.cache
+/Users/kirillheyworks/Desktop/sources/Hollywood/Client/Hollywood.Client/Assets/Scripts/ENet-CSharp/Source/Managed/.obj/Debug/netstandard2.0/ENet-CSharp.AssemblyInfo.cs
+/Users/kirillheyworks/Desktop/sources/Hollywood/Client/Hollywood.Client/Assets/Scripts/ENet-CSharp/Source/Managed/.obj/Debug/netstandard2.0/ENet-CSharp.csproj.CoreCompileInputs.cache
+/Users/kirillheyworks/Desktop/sources/Hollywood/Client/Hollywood.Client/Assets/Scripts/ENet-CSharp/Source/Managed/.obj/Debug/netstandard2.0/ENet-CSharp.dll
+/Users/kirillheyworks/Desktop/sources/Hollywood/Client/Hollywood.Client/Assets/Scripts/ENet-CSharp/Source/Managed/.obj/Debug/netstandard2.0/ENet-CSharp.pdb
+/Users/kirillheyworks/Desktop/sources/Hollywood/Client/Hollywood.Client/Assets/Scripts/ENet-CSharp/Source/Managed/.obj/Debug/netstandard2.0/ENet-CSharp.csprojAssemblyReference.cache

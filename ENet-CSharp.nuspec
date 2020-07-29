@@ -22,7 +22,7 @@
     <file src="lib\netstandard2.0\ENet-CSharp.dll" target="lib\netstandard2.0\ENet-CSharp.dll" />
     <file src="license\license.txt" target="license\license.txt" />
     <file src="runtimes\linux\native\libenet.so" target="runtimes\linux\native\libenet.so" />
-    <file src="runtimes\osx\native\enet.dylib" target="runtimes\osx\native\enet.dylib" />
+    <file src="runtimes\osx\native\libenet.dylib" target="runtimes\osx\native\libenet.dylib" />
     <file src="runtimes\win\native\enet.dll" target="runtimes\win\native\enet.dll" />
   </files>
 </package>

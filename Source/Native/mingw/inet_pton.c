@@ -36,9 +36,11 @@ __FBSDID("$FreeBSD: stable/9/sys/libkern/inet_pton.c 213103 2010-09-24 15:01:45Z
 #include <stdio.h>
 #include <string.h>
 
-#if !defined(_WIN32) && __FreeBSD_version < 700000
-#define strchr index
-#endif
+/*
+* #if !defined(_WIN32) && __FreeBSD_version < 700000
+* #define strchr index
+* #endif
+*/
 
 /*%
  * WARNING: Don't even consider trying to compile this on a system where

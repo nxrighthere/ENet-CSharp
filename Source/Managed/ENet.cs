@@ -907,15 +907,21 @@ namespace ENet {
 		public const uint timeoutLimit = 32;
 		public const uint timeoutMinimum = 5000;
 		public const uint timeoutMaximum = 30000;
-		public const uint version = (2 << 16) | (3 << 8) | (9);
+		public const uint version = (2 << 16) | (4 << 8) | (0);
 
 		public static bool Initialize() {
+			if (Native.enet_linked_version() != version)
+				throw new InvalidOperationException("Incompatatible version");
+
 			return Native.enet_initialize() == 0;
 		}
 
 		public static bool Initialize(Callbacks callbacks) {
 			if (callbacks == null)
 				throw new ArgumentNullException("callbacks");
+
+			if (Native.enet_linked_version() != version)
+				throw new InvalidOperationException("Incompatatible version");
 
 			ENetCallbacks nativeCallbacks = callbacks.NativeData;
 
@@ -949,6 +955,9 @@ namespace ENet {
 
 		[DllImport(nativeLibrary, CallingConvention = CallingConvention.Cdecl)]
 		internal static extern void enet_deinitialize();
+
+		[DllImport(nativeLibrary, CallingConvention = CallingConvention.Cdecl)]
+		internal static extern uint enet_linked_version();
 
 		[DllImport(nativeLibrary, CallingConvention = CallingConvention.Cdecl)]
 		internal static extern uint enet_time_get();

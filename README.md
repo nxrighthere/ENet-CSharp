@@ -352,6 +352,8 @@ Contains a managed pointer to the peer and cached ID.
 
 `Peer.PacketsLost` returns a total number of packets that considered lost during the connection based on retransmission logic.
 
+`Peer.PacketsThrottle` return a ratio of packets throttle depending on conditions of the connection to the peer.
+
 `Peer.BytesSent` returns a total number of bytes sent during the connection.
 
 `Peer.BytesReceived` returns a total number of bytes received during the connection.

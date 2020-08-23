@@ -2952,7 +2952,7 @@ extern "C" {
 	int enet_peer_throttle(ENetPeer* peer, uint32_t rtt) {
 		if (peer->lastRoundTripTime <= peer->lastRoundTripTimeVariance) {
 			peer->packetThrottle = peer->packetThrottleLimit;
-		} else if (rtt < peer->lastRoundTripTime) {
+		} else if (rtt < peer->lastRoundTripTime + (peer -> lastRoundTripTimeVariance + 1) / 2) {
 			peer->packetThrottle += peer->packetThrottleAcceleration;
 
 			if (peer->packetThrottle > peer->packetThrottleLimit)

@@ -776,8 +776,8 @@ extern "C" {
 	extern ENetOutgoingCommand* enet_peer_queue_outgoing_command(ENetPeer*, const ENetProtocol*, ENetPacket*, uint32_t, uint16_t);
 	extern ENetIncomingCommand* enet_peer_queue_incoming_command(ENetPeer*, const ENetProtocol*, const void*, size_t, uint32_t, uint32_t);
 	extern ENetAcknowledgement* enet_peer_queue_acknowledgement(ENetPeer*, const ENetProtocol*, uint16_t);
-	extern void enet_peer_dispatch_incoming_unreliable_commands(ENetPeer*, ENetChannel*);
-	extern void enet_peer_dispatch_incoming_reliable_commands(ENetPeer*, ENetChannel*);
+	extern void enet_peer_dispatch_incoming_unreliable_commands(ENetPeer*, ENetChannel*, ENetIncomingCommand*);
+	extern void enet_peer_dispatch_incoming_reliable_commands(ENetPeer*, ENetChannel*, ENetIncomingCommand*);
 	extern void enet_peer_on_connect(ENetPeer*);
 	extern void enet_peer_on_disconnect(ENetPeer*);
 
@@ -1916,7 +1916,7 @@ extern "C" {
 			memcpy(startCommand->packet->data + fragmentOffset, (uint8_t*)command + sizeof(ENetProtocolSendFragment), fragmentLength);
 
 			if (startCommand->fragmentsRemaining <= 0)
-				enet_peer_dispatch_incoming_reliable_commands(peer, channel);
+				enet_peer_dispatch_incoming_reliable_commands(peer, channel, NULL);
 		}
 
 		return 0;
@@ -2007,7 +2007,7 @@ extern "C" {
 			memcpy(startCommand->packet->data + fragmentOffset, (uint8_t*)command + sizeof(ENetProtocolSendFragment), fragmentLength);
 
 			if (startCommand->fragmentsRemaining <= 0)
-				enet_peer_dispatch_incoming_unreliable_commands(peer, channel);
+				enet_peer_dispatch_incoming_unreliable_commands(peer, channel, NULL);
 		}
 
 		return 0;
@@ -3110,12 +3110,15 @@ extern "C" {
 		}
 	}
 
-	static void enet_peer_remove_incoming_commands(ENetList* queue, ENetListIterator startCommand, ENetListIterator endCommand) {
+	static void enet_peer_remove_incoming_commands(ENetList* queue, ENetListIterator startCommand, ENetListIterator endCommand, ENetIncomingCommand* excludeCommand) {
 		ENetListIterator currentCommand;
 
 		for (currentCommand = startCommand; currentCommand != endCommand;) {
 			ENetIncomingCommand* incomingCommand = (ENetIncomingCommand*)currentCommand;
 			currentCommand = enet_list_next(currentCommand);
+
+			if (incomingCommand == excludeCommand)
+				continue;
 
 			enet_list_remove(&incomingCommand->incomingCommandList);
 
@@ -3134,7 +3137,7 @@ extern "C" {
 	}
 
 	static void enet_peer_reset_incoming_commands(ENetList* queue) {
-		enet_peer_remove_incoming_commands(queue, enet_list_begin(queue), enet_list_end(queue));
+		enet_peer_remove_incoming_commands(queue, enet_list_begin(queue), enet_list_end(queue), NULL);
 	}
 
 	void enet_peer_reset_queues(ENetPeer* peer) {
@@ -3414,7 +3417,7 @@ extern "C" {
 		return outgoingCommand;
 	}
 
-	void enet_peer_dispatch_incoming_unreliable_commands(ENetPeer* peer, ENetChannel* channel) {
+	void enet_peer_dispatch_incoming_unreliable_commands(ENetPeer* peer, ENetChannel* channel, ENetIncomingCommand* queuedCommand) {
 		ENetListIterator droppedCommand, startCommand, currentCommand;
 
 		for (droppedCommand = startCommand = currentCommand = enet_list_begin(&channel->incomingUnreliableCommands); currentCommand != enet_list_end(&channel->incomingUnreliableCommands); currentCommand = enet_list_next(currentCommand)) {
@@ -3481,10 +3484,10 @@ extern "C" {
 			droppedCommand = currentCommand;
 		}
 
-		enet_peer_remove_incoming_commands(&channel->incomingUnreliableCommands, enet_list_begin(&channel->incomingUnreliableCommands), droppedCommand);
+		enet_peer_remove_incoming_commands(&channel->incomingUnreliableCommands, enet_list_begin(&channel->incomingUnreliableCommands), droppedCommand, queuedCommand);
 	}
 
-	void enet_peer_dispatch_incoming_reliable_commands(ENetPeer* peer, ENetChannel* channel) {
+	void enet_peer_dispatch_incoming_reliable_commands(ENetPeer* peer, ENetChannel* channel, ENetIncomingCommand* queuedCommand) {
 		ENetListIterator currentCommand;
 
 		for (currentCommand = enet_list_begin(&channel->incomingReliableCommands); currentCommand != enet_list_end(&channel->incomingReliableCommands); currentCommand = enet_list_next(currentCommand)) {
@@ -3513,7 +3516,7 @@ extern "C" {
 		}
 
 		if (!enet_list_empty(&channel->incomingUnreliableCommands))
-			enet_peer_dispatch_incoming_unreliable_commands(peer, channel);
+			enet_peer_dispatch_incoming_unreliable_commands(peer, channel, queuedCommand);
 	}
 
 	ENetIncomingCommand* enet_peer_queue_incoming_command(ENetPeer* peer, const ENetProtocol* command, const void* data, size_t dataLength, uint32_t flags, uint32_t fragmentCount) {
@@ -3656,12 +3659,12 @@ extern "C" {
 		switch (command->header.command & ENET_PROTOCOL_COMMAND_MASK) {
 			case ENET_PROTOCOL_COMMAND_SEND_FRAGMENT:
 			case ENET_PROTOCOL_COMMAND_SEND_RELIABLE:
-				enet_peer_dispatch_incoming_reliable_commands(peer, channel);
+				enet_peer_dispatch_incoming_reliable_commands(peer, channel, incomingCommand);
 
 				break;
 
 			default:
-				enet_peer_dispatch_incoming_unreliable_commands(peer, channel);
+				enet_peer_dispatch_incoming_unreliable_commands(peer, channel, incomingCommand);
 
 				break;
 		}

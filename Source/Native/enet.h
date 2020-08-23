@@ -31,7 +31,7 @@
 
 #define ENET_VERSION_MAJOR 2
 #define ENET_VERSION_MINOR 4
-#define ENET_VERSION_PATCH 0
+#define ENET_VERSION_PATCH 1
 #define ENET_VERSION_CREATE(major, minor, patch) (((major) << 16) | ((minor) << 8) | (patch))
 #define ENET_VERSION_GET_MAJOR(version) (((version) >> 16) & 0xFF)
 #define ENET_VERSION_GET_MINOR(version) (((version) >> 8) & 0xFF)
@@ -511,19 +511,17 @@ extern "C" {
 		ENET_HOST_DEFAULT_MAXIMUM_WAITING_DATA = 32 * 1024 * 1024,
 		ENET_PEER_DEFAULT_ROUND_TRIP_TIME      = 1,
 		ENET_PEER_DEFAULT_PACKET_THROTTLE      = 32,
-		ENET_PEER_PACKET_THROTTLE_THRESHOLD    = 20,
+		ENET_PEER_PACKET_THROTTLE_THRESHOLD    = 40,
 		ENET_PEER_PACKET_THROTTLE_SCALE        = 32,
 		ENET_PEER_PACKET_THROTTLE_COUNTER      = 7,
 		ENET_PEER_PACKET_THROTTLE_ACCELERATION = 2,
 		ENET_PEER_PACKET_THROTTLE_DECELERATION = 2,
 		ENET_PEER_PACKET_THROTTLE_INTERVAL     = 5000,
-		ENET_PEER_PACKET_LOSS_SCALE            = (1 << 16),
-		ENET_PEER_PACKET_LOSS_INTERVAL         = 10000,
 		ENET_PEER_WINDOW_SIZE_SCALE            = 64 * 1024,
 		ENET_PEER_TIMEOUT_LIMIT                = 32,
 		ENET_PEER_TIMEOUT_MINIMUM              = 5000,
 		ENET_PEER_TIMEOUT_MAXIMUM              = 30000,
-		ENET_PEER_PING_INTERVAL                = 500,
+		ENET_PEER_PING_INTERVAL                = 250,
 		ENET_PEER_UNSEQUENCED_WINDOWS          = 64,
 		ENET_PEER_UNSEQUENCED_WINDOW_SIZE      = 1024,
 		ENET_PEER_FREE_UNSEQUENCED_WINDOWS     = 32,
@@ -568,13 +566,8 @@ extern "C" {
 		uint32_t lastReceiveTime;
 		uint32_t nextTimeout;
 		uint32_t earliestTimeout;
-		uint32_t packetLossEpoch;
-		uint32_t packetsSent;
 		uint64_t totalPacketsSent;
-		uint32_t packetsLost;
 		uint64_t totalPacketsLost;
-		uint32_t packetLoss;
-		uint32_t packetLossVariance;
 		uint32_t packetThrottle;
 		uint32_t packetThrottleThreshold;
 		uint32_t packetThrottleLimit;
@@ -760,6 +753,7 @@ extern "C" {
 	ENET_API uint32_t enet_peer_get_lastreceivetime(const ENetPeer*);
 	ENET_API uint64_t enet_peer_get_packets_sent(const ENetPeer*);
 	ENET_API uint64_t enet_peer_get_packets_lost(const ENetPeer*);
+	ENET_API float enet_peer_get_packets_throttle(const ENetPeer*);
 	ENET_API uint64_t enet_peer_get_bytes_sent(const ENetPeer*);
 	ENET_API uint64_t enet_peer_get_bytes_received(const ENetPeer*);
 	ENET_API void* enet_peer_get_data(const ENetPeer*);
@@ -2562,7 +2556,6 @@ extern "C" {
 			if (outgoingCommand->packet != NULL)
 				peer->reliableDataInTransit -= outgoingCommand->fragmentLength;
 
-			++peer->packetsLost;
 			++peer->totalPacketsLost;
 			outgoingCommand->roundTripTimeout = peer->roundTripTime + 4 * peer->roundTripTimeVariance;
 			outgoingCommand->roundTripTimeoutLimit = peer->timeoutLimit * outgoingCommand->roundTripTimeout;
@@ -2711,7 +2704,6 @@ extern "C" {
 				enet_free(outgoingCommand);
 			}
 
-			++peer->packetsSent;
 			++peer->totalPacketsSent;
 			++command;
 			++buffer;
@@ -2760,39 +2752,6 @@ extern "C" {
 
 				if (host->commandCount == 0)
 					continue;
-
-				if (currentPeer->packetLossEpoch == 0) {
-					currentPeer->packetLossEpoch = host->serviceTime;
-				} else if (ENET_TIME_DIFFERENCE(host->serviceTime, currentPeer->packetLossEpoch) >= ENET_PEER_PACKET_LOSS_INTERVAL && currentPeer->packetsSent > 0) {
-					uint32_t packetLoss = currentPeer->packetsLost * ENET_PEER_PACKET_LOSS_SCALE / currentPeer->packetsSent;
-
-					#ifdef ENET_DEBUG
-						printf(
-							"peer %u: %f%%+-%f%% packet loss, %u+-%u ms round trip time, %f%% throttle, %u outgoing, %u/%u incoming\n", currentPeer->incomingPeerID,
-							currentPeer->packetLoss / (float)ENET_PEER_PACKET_LOSS_SCALE,
-							currentPeer->packetLossVariance / (float)ENET_PEER_PACKET_LOSS_SCALE,
-							currentPeer->roundTripTime, currentPeer->roundTripTimeVariance,
-							currentPeer->packetThrottle / (float)ENET_PEER_PACKET_THROTTLE_SCALE,
-
-							enet_list_size(&currentPeer->outgoingCommands), currentPeer->channels != NULL ? enet_list_size(&currentPeer->channels->incomingReliableCommands) : 0,
-
-							currentPeer->channels != NULL ? enet_list_size(&currentPeer->channels->incomingUnreliableCommands) : 0);
-					#endif
-
-					currentPeer->packetLossVariance -= currentPeer->packetLossVariance / 4;
-
-					if (packetLoss >= currentPeer->packetLoss) {
-						currentPeer->packetLoss += (packetLoss - currentPeer->packetLoss) / 8;
-						currentPeer->packetLossVariance += (packetLoss - currentPeer->packetLoss) / 4;
-					} else {
-						currentPeer->packetLoss -= (currentPeer->packetLoss - packetLoss) / 8;
-						currentPeer->packetLossVariance += (currentPeer->packetLoss - packetLoss) / 4;
-					}
-
-					currentPeer->packetLossEpoch = host->serviceTime;
-					currentPeer->packetsSent = 0;
-					currentPeer->packetsLost = 0;
-				}
 
 				host->buffers->data = headerData;
 
@@ -3244,13 +3203,8 @@ extern "C" {
 		peer->lastReceiveTime = 0;
 		peer->nextTimeout = 0;
 		peer->earliestTimeout = 0;
-		peer->packetLossEpoch = 0;
-		peer->packetsSent = 0;
 		peer->totalPacketsSent = 0;
-		peer->packetsLost = 0;
 		peer->totalPacketsLost = 0;
-		peer->packetLoss = 0;
-		peer->packetLossVariance = 0;
 		peer->packetThrottle = ENET_PEER_DEFAULT_PACKET_THROTTLE;
 		peer->packetThrottleThreshold = ENET_PEER_PACKET_THROTTLE_THRESHOLD;
 		peer->packetThrottleLimit = ENET_PEER_PACKET_THROTTLE_SCALE;
@@ -4994,6 +4948,10 @@ extern "C" {
 
 	uint64_t enet_peer_get_packets_lost(const ENetPeer* peer) {
 		return peer->totalPacketsLost;
+	}
+
+	float enet_peer_get_packets_throttle(const ENetPeer* peer) {
+		return peer->packetThrottle / (float)ENET_PEER_PACKET_THROTTLE_SCALE * 100.0f;
 	}
 
 	uint64_t enet_peer_get_bytes_sent(const ENetPeer* peer) {

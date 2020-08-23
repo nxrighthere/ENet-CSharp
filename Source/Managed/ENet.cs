@@ -774,6 +774,14 @@ namespace ENet {
 			}
 		}
 
+		public float PacketsThrottle {
+			get {
+				IsCreated();
+
+				return Native.enet_peer_get_packets_throttle(nativePeer);
+			}
+		}
+
 		public ulong BytesSent {
 			get {
 				IsCreated();
@@ -899,7 +907,7 @@ namespace ENet {
 		public const uint maxChannelCount = 0xFF;
 		public const uint maxPeers = 0xFFF;
 		public const uint maxPacketSize = 32 * 1024 * 1024;
-		public const uint throttleThreshold = 20;
+		public const uint throttleThreshold = 40;
 		public const uint throttleScale = 32;
 		public const uint throttleAcceleration = 2;
 		public const uint throttleDeceleration = 2;
@@ -907,7 +915,7 @@ namespace ENet {
 		public const uint timeoutLimit = 32;
 		public const uint timeoutMinimum = 5000;
 		public const uint timeoutMaximum = 30000;
-		public const uint version = (2 << 16) | (4 << 8) | (0);
+		public const uint version = (2 << 16) | (4 << 8) | (1);
 
 		public static bool Initialize() {
 			if (Native.enet_linked_version() != version)
@@ -1099,6 +1107,9 @@ namespace ENet {
 
 		[DllImport(nativeLibrary, CallingConvention = CallingConvention.Cdecl)]
 		internal static extern ulong enet_peer_get_packets_lost(IntPtr peer);
+
+		[DllImport(nativeLibrary, CallingConvention = CallingConvention.Cdecl)]
+		internal static extern float enet_peer_get_packets_throttle(IntPtr peer);
 
 		[DllImport(nativeLibrary, CallingConvention = CallingConvention.Cdecl)]
 		internal static extern ulong enet_peer_get_bytes_sent(IntPtr peer);

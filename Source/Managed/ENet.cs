@@ -89,6 +89,7 @@ namespace ENet {
 	public delegate void FreeCallback(IntPtr memory);
 	public delegate void NoMemoryCallback();
 	public delegate void PacketFreeCallback(Packet packet);
+	public delegate int InterceptCallback(ref Event @event, IntPtr receivedData, int receivedDataLength);
 
 	internal static class ArrayPool {
 		[ThreadStatic]
@@ -653,6 +654,18 @@ namespace ENet {
 			Native.enet_host_set_max_duplicate_peers(nativeHost, number);
 		}
 
+		public void SetInterceptCallback(IntPtr callback) {
+			IsCreated();
+
+			Native.enet_host_set_intercept_callback(nativeHost, callback);
+		}
+
+		public void SetInterceptCallback(InterceptCallback callback) {
+			IsCreated();
+
+			Native.enet_host_set_intercept_callback(nativeHost, Marshal.GetFunctionPointerForDelegate(callback));
+		}
+
 		public void Flush() {
 			IsCreated();
 
@@ -1062,6 +1075,9 @@ namespace ENet {
 
 		[DllImport(nativeLibrary, CallingConvention = CallingConvention.Cdecl)]
 		internal static extern void enet_host_set_max_duplicate_peers(IntPtr host, ushort number);
+
+		[DllImport(nativeLibrary, CallingConvention = CallingConvention.Cdecl)]
+		internal static extern void enet_host_set_intercept_callback(IntPtr host, IntPtr callback);
 
 		[DllImport(nativeLibrary, CallingConvention = CallingConvention.Cdecl)]
 		internal static extern void enet_host_flush(IntPtr host);

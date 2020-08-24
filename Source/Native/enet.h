@@ -603,9 +603,25 @@ extern "C" {
 		size_t totalWaitingData;
 	} ENetPeer;
 
+	typedef enum _ENetEventType {
+		ENET_EVENT_TYPE_NONE               = 0,
+		ENET_EVENT_TYPE_CONNECT            = 1,
+		ENET_EVENT_TYPE_DISCONNECT         = 2,
+		ENET_EVENT_TYPE_RECEIVE            = 3,
+		ENET_EVENT_TYPE_DISCONNECT_TIMEOUT = 4
+	} ENetEventType;
+
+	typedef struct _ENetEvent {
+		ENetEventType type;
+		ENetPeer* peer;
+		uint8_t channelID;
+		uint32_t data;
+		ENetPacket* packet;
+	} ENetEvent;
+
 	typedef uint32_t (ENET_CALLBACK *ENetChecksumCallback)(const ENetBuffer* buffers, size_t bufferCount);
 
-	typedef int (ENET_CALLBACK *ENetInterceptCallback)(struct _ENetHost* host, void* event);
+	typedef int (ENET_CALLBACK *ENetInterceptCallback)(ENetEvent* event, uint8_t* receivedData, int receivedDataLength);
 
 	typedef struct _ENetHost {
 		ENetSocket socket;
@@ -645,22 +661,6 @@ extern "C" {
 		size_t maximumPacketSize;
 		size_t maximumWaitingData;
 	} ENetHost;
-
-	typedef enum _ENetEventType {
-		ENET_EVENT_TYPE_NONE               = 0,
-		ENET_EVENT_TYPE_CONNECT            = 1,
-		ENET_EVENT_TYPE_DISCONNECT         = 2,
-		ENET_EVENT_TYPE_RECEIVE            = 3,
-		ENET_EVENT_TYPE_DISCONNECT_TIMEOUT = 4
-	} ENetEventType;
-
-	typedef struct _ENetEvent {
-		ENetEventType type;
-		ENetPeer* peer;
-		uint8_t channelID;
-		uint32_t data;
-		ENetPacket* packet;
-	} ENetEvent;
 
 /*
 =======================================================================
@@ -731,7 +731,7 @@ extern "C" {
 	ENET_API void* enet_packet_get_user_data(const ENetPacket*);
 	ENET_API void enet_packet_set_user_data(ENetPacket*, void* userData);
 	ENET_API int enet_packet_get_length(const ENetPacket*);
-	ENET_API void enet_packet_set_free_callback(ENetPacket*, const void*);
+	ENET_API void enet_packet_set_free_callback(ENetPacket*, ENetPacketFreeCallback);
 	ENET_API int enet_packet_check_references(const ENetPacket*);
 	ENET_API void enet_packet_dispose(ENetPacket*);
 
@@ -741,6 +741,7 @@ extern "C" {
 	ENET_API uint32_t enet_host_get_bytes_sent(const ENetHost*);
 	ENET_API uint32_t enet_host_get_bytes_received(const ENetHost*);
 	ENET_API void enet_host_set_max_duplicate_peers(ENetHost*, uint16_t);
+	ENET_API void enet_host_set_intercept_callback(ENetHost* host, ENetInterceptCallback callback);
 
 	ENET_API uint32_t enet_peer_get_id(const ENetPeer*);
 	ENET_API int enet_peer_get_ip(const ENetPeer*, char*, size_t);
@@ -2460,7 +2461,7 @@ extern "C" {
 			host->totalReceivedPackets++;
 
 			if (host->interceptCallback != NULL) {
-				switch (host->interceptCallback(host, (void*)event)) {
+				switch (host->interceptCallback(event, host->receivedData, host->receivedDataLength)) {
 					case 1:
 						if (event != NULL && event->type != ENET_EVENT_TYPE_NONE)
 							return 1;
@@ -4866,8 +4867,8 @@ extern "C" {
 		return packet->dataLength;
 	}
 
-	void enet_packet_set_free_callback(ENetPacket* packet, const void* callback) {
-		packet->freeCallback = (ENetPacketFreeCallback)callback;
+	void enet_packet_set_free_callback(ENetPacket* packet, ENetPacketFreeCallback callback) {
+		packet->freeCallback = callback;
 	}
 
 	int enet_packet_check_references(const ENetPacket* packet) {
@@ -4907,6 +4908,10 @@ extern "C" {
 			number = ENET_PROTOCOL_MAXIMUM_PEER_ID;
 
 		host->duplicatePeers = number;
+	}
+
+	void enet_host_set_intercept_callback(ENetHost* host, ENetInterceptCallback callback) {
+		host->interceptCallback = callback;
 	}
 
 	uint32_t enet_peer_get_id(const ENetPeer* peer) {

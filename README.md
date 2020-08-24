@@ -1,4 +1,4 @@
-<p align="center"> 
+<p align="center">
   <img src="https://i.imgur.com/CxkUxTs.png" alt="alt logo">
 </p>
 
@@ -277,6 +277,11 @@ Provides per packet events.
 
 `PacketFreeCallback(Packet packet)` notifies when a packet is being destroyed. A reference to the delegate should be preserved from being garbage collected.
 
+#### Host callbacks
+Provides per host events.
+
+`InterceptCallback(ref Event @event, IntPtr receivedData, int receivedDataLength)` notifies when a raw UDP packet is intercepted. Status code returned from this callback instructs ENet how the set event should be handled. Returning 1 indicates dispatching of the set event by the service. Returning 0 indicates that ENet subsystems should handle received data. Returning -1 indicates an error.
+
 ### Structures
 #### Address
 Contains structure with anonymous host data and port number.
@@ -285,7 +290,7 @@ Contains structure with anonymous host data and port number.
 
 `Address.GetIP()` gets an IP address.
 
-`Address.SetIP(string ip)` sets an IP address. To use IPv4 broadcast in the local network the address can be set to _255.255.255.255_ for a client. ENet will automatically respond to the broadcast and update the address to a server's actual IP. 
+`Address.SetIP(string ip)` sets an IP address. To use IPv4 broadcast in the local network the address can be set to _255.255.255.255_ for a client. ENet will automatically respond to the broadcast and update the address to a server's actual IP.
 
 `Address.GetHost()` attempts to do a reverse lookup from the address. Returns a string with a resolved name or an IP address.
 
@@ -319,7 +324,7 @@ Contains a managed pointer to the packet.
 
 `Packet.HasReferences` checks references to the packet.
 
-`Packet.SetFreeCallback(PacketFreeCallback callback)` set callback to notify the programmer when an appropriate packet is being destroyed. A pointer `IntPtr` to a callback can be used instead of a reference to a delegate.
+`Packet.SetFreeCallback(PacketFreeCallback callback)` sets callback to notify when an appropriate packet is being destroyed. A pointer `IntPtr` to a callback can be used instead of a reference to a delegate.
 
 `Packet.Create(byte[] data, int offset, int length, PacketFlags flags)` creates a packet that may be sent to a peer. The offset parameter indicates the starting point of data in an array, the length is the ending point of data in an array. All parameters are optional. Multiple packet flags can be specified at once. A pointer `IntPtr` to a native buffer can be used instead of a reference to a byte array.
 
@@ -352,13 +357,13 @@ Contains a managed pointer to the peer and cached ID.
 
 `Peer.PacketsLost` returns a total number of packets that considered lost during the connection based on retransmission logic.
 
-`Peer.PacketsThrottle` return a ratio of packets throttle depending on conditions of the connection to the peer.
+`Peer.PacketsThrottle` returns a ratio of packets throttle depending on conditions of the connection to the peer.
 
 `Peer.BytesSent` returns a total number of bytes sent during the connection.
 
 `Peer.BytesReceived` returns a total number of bytes received during the connection.
 
-`Peer.Data` set or get the user-supplied data. Should be used with an explicit cast to appropriate data type.
+`Peer.Data` gets or sets the user-supplied data. Should be used with an explicit cast to appropriate data type.
 
 `Peer.ConfigureThrottle(uint interval, uint acceleration, uint deceleration, uint threshold)` configures throttle parameter for a peer. Unreliable packets are dropped by ENet in response to the varying conditions of the connection to the peer. The throttle represents a probability that an unreliable packet should not be dropped and thus sent by ENet to the peer. The lowest mean round-trip time from the sending of a reliable packet to the receipt of its acknowledgment is measured over an amount of time specified by the interval parameter in milliseconds. If a measured round-trip time happens to be significantly less than the mean round-trip time measured over the interval, then the throttle probability is increased to allow more traffic by an amount specified in the acceleration parameter, which is a ratio to the `Library.throttleScale` constant. If a measured round-trip time happens to be significantly greater than the mean round-trip time measured over the interval, then the throttle probability is decreased to limit traffic by an amount specified in the deceleration parameter, which is a ratio to the `Library.throttleScale` constant. When the throttle has a value of `Library.throttleScale`, no unreliable packets are dropped by ENet, and so 100% of all unreliable packets will be sent. When the throttle has a value of 0, all unreliable packets are dropped by ENet, and so 0% of all unreliable packets will be sent. Intermediate values for the throttle represent intermediate probabilities between 0% and 100% of unreliable packets being sent. The bandwidth limits of the local and foreign hosts are taken into account to determine a sensible limit for the throttle probability above which it should not raise even in the best of conditions. To disable throttling the deceleration parameter should be set to zero. The threshold parameter can be used to reduce packet throttling relative to measured round-trip time in unstable network environments with high jitter and low average latency which is a common condition for Wi-Fi networks in crowded places. By default the threshold parameter set to `Library.throttleThreshold` in milliseconds.
 
@@ -372,11 +377,11 @@ Contains a managed pointer to the peer and cached ID.
 
 `Peer.Timeout(uint timeoutLimit, uint timeoutMinimum, uint timeoutMaximum)` sets a timeout parameters for a peer. The timeout parameters control how and when a peer will timeout from a failure to acknowledge reliable traffic. Timeout values used in the semi-linear mechanism, where if a reliable packet is not acknowledged within an average round-trip time plus a variance tolerance until timeout reaches a set limit. If the timeout is thus at this limit and reliable packets have been sent but not acknowledged within a certain minimum time period, the peer will be disconnected. Alternatively, if reliable packets have been sent but not acknowledged for a certain maximum time period, the peer will be disconnected regardless of the current timeout limit value.
 
-`Peer.Disconnect(uint data)` request a disconnection from a peer.
+`Peer.Disconnect(uint data)` requests a disconnection from a peer.
 
-`Peer.DisconnectNow(uint data)` force an immediate disconnection from a peer.
+`Peer.DisconnectNow(uint data)` forces an immediate disconnection from a peer.
 
-`Peer.DisconnectLater(uint data)` request a disconnection from a peer, but only after all queued outgoing packets are sent.
+`Peer.DisconnectLater(uint data)` requests a disconnection from a peer, but only after all queued outgoing packets are sent.
 
 `Peer.Reset()` forcefully disconnects a peer. The foreign host represented by the peer is not notified of the disconnection and will timeout on its connection to the local host.
 
@@ -412,11 +417,13 @@ Contains a managed pointer to the host.
 
 `Host.SetBandwidthLimit(uint incomingBandwidth, uint outgoingBandwidth)` adjusts the bandwidth limits of a host in bytes per second.
 
-`Host.SetChannelLimit(int channelLimit)` limits the maximum allowed channels of future incoming connections. 
+`Host.SetChannelLimit(int channelLimit)` limits the maximum allowed channels of future incoming connections.
 
 `Host.SetMaxDuplicatePeers(ushort number)` limits the maximum allowed duplicate peers from the same host and prevents connection if exceeded. By default set to `Library.maxPeers`, can't be less than one.
 
-`Host.Flush()` sends any queued packets on the specified host to its designated peers. 
+`Host.SetInterceptCallback(InterceptCallback callback)` sets callback to notify when a raw UDP packet is interecepted. A pointer `IntPtr` to a callback can be used instead of a reference to a delegate.
+
+`Host.Flush()` sends any queued packets on the specified host to its designated peers.
 
 #### Library
 Contains constant fields.

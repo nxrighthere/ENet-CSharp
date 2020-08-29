@@ -37,7 +37,7 @@ namespace ENet {
 		NoAllocate = 1 << 2,
 		UnreliableFragmented = 1 << 3,
 		Instant = 1 << 4,
-		Crucial = 1 << 5,
+		Unthrottled = 1 << 5,
 		Sent =  1 << 8
 	}
 
@@ -928,7 +928,7 @@ namespace ENet {
 		public const uint timeoutLimit = 32;
 		public const uint timeoutMinimum = 5000;
 		public const uint timeoutMaximum = 30000;
-		public const uint version = (2 << 16) | (4 << 8) | (1);
+		public const uint version = (2 << 16) | (4 << 8) | (2);
 
 		public static bool Initialize() {
 			if (Native.enet_linked_version() != version)

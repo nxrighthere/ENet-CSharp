@@ -31,7 +31,7 @@
 
 #define ENET_VERSION_MAJOR 2
 #define ENET_VERSION_MINOR 4
-#define ENET_VERSION_PATCH 1
+#define ENET_VERSION_PATCH 2
 #define ENET_VERSION_CREATE(major, minor, patch) (((major) << 16) | ((minor) << 8) | (patch))
 #define ENET_VERSION_GET_MAJOR(version) (((version) >> 16) & 0xFF)
 #define ENET_VERSION_GET_MINOR(version) (((version) >> 8) & 0xFF)
@@ -443,7 +443,7 @@ extern "C" {
 		ENET_PACKET_FLAG_NO_ALLOCATE           = (1 << 2),
 		ENET_PACKET_FLAG_UNRELIABLE_FRAGMENTED = (1 << 3),
 		ENET_PACKET_FLAG_INSTANT               = (1 << 4),
-		ENET_PACKET_FLAG_CRUCIAL               = (1 << 5),
+		ENET_PACKET_FLAG_UNTHROTTLED           = (1 << 5),
 		ENET_PACKET_FLAG_SENT                  = (1 << 8)
 	} ENetPacketFlag;
 
@@ -2652,7 +2652,7 @@ extern "C" {
 				host->headerFlags |= ENET_PROTOCOL_HEADER_FLAG_SENT_TIME;
 				peer->reliableDataInTransit += outgoingCommand->fragmentLength;
 			} else {
-				if (outgoingCommand->packet != NULL && outgoingCommand->fragmentOffset == 0) {
+				if (outgoingCommand->packet != NULL && outgoingCommand->fragmentOffset == 0 && !(outgoingCommand->packet->flags & (ENET_PACKET_FLAG_UNTHROTTLED))) {
 					peer->packetThrottleCounter += ENET_PEER_PACKET_THROTTLE_COUNTER;
 					peer->packetThrottleCounter %= ENET_PEER_PACKET_THROTTLE_SCALE;
 
@@ -2953,7 +2953,7 @@ extern "C" {
 	int enet_peer_throttle(ENetPeer* peer, uint32_t rtt) {
 		if (peer->lastRoundTripTime <= peer->lastRoundTripTimeVariance) {
 			peer->packetThrottle = peer->packetThrottleLimit;
-		} else if (rtt < peer->lastRoundTripTime + (peer -> lastRoundTripTimeVariance + 1) / 2) {
+		} else if (rtt < peer->lastRoundTripTime + (peer->lastRoundTripTimeVariance + 1) / 2) {
 			peer->packetThrottle += peer->packetThrottleAcceleration;
 
 			if (peer->packetThrottle > peer->packetThrottleLimit)

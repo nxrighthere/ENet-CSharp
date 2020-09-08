@@ -90,6 +90,7 @@ namespace ENet {
 	public delegate void NoMemoryCallback();
 	public delegate void PacketFreeCallback(Packet packet);
 	public delegate int InterceptCallback(ref Event @event, IntPtr receivedData, int receivedDataLength);
+	public delegate ulong ChecksumCallback(IntPtr buffers, int bufferCount);
 
 	internal static class ArrayPool {
 		[ThreadStatic]
@@ -666,6 +667,18 @@ namespace ENet {
 			Native.enet_host_set_intercept_callback(nativeHost, Marshal.GetFunctionPointerForDelegate(callback));
 		}
 
+		public void SetChecksumCallback(IntPtr callback) {
+			IsCreated();
+
+			Native.enet_host_set_checksum_callback(nativeHost, callback);
+		}
+
+		public void SetChecksumCallback(ChecksumCallback callback) {
+			IsCreated();
+
+			Native.enet_host_set_checksum_callback(nativeHost, Marshal.GetFunctionPointerForDelegate(callback));
+		}
+
 		public void Flush() {
 			IsCreated();
 
@@ -928,7 +941,13 @@ namespace ENet {
 		public const uint timeoutLimit = 32;
 		public const uint timeoutMinimum = 5000;
 		public const uint timeoutMaximum = 30000;
-		public const uint version = (2 << 16) | (4 << 8) | (2);
+		public const uint version = (2 << 16) | (4 << 8) | (3);
+
+		public static uint Time {
+			get {
+				return Native.enet_time_get();
+			}
+		}
 
 		public static bool Initialize() {
 			if (Native.enet_linked_version() != version)
@@ -953,10 +972,8 @@ namespace ENet {
 			Native.enet_deinitialize();
 		}
 
-		public static uint Time {
-			get {
-				return Native.enet_time_get();
-			}
+		public static ulong CRC64(IntPtr buffers, int bufferCount) {
+			return Native.enet_crc64(buffers, bufferCount);
 		}
 	}
 
@@ -982,6 +999,9 @@ namespace ENet {
 
 		[DllImport(nativeLibrary, CallingConvention = CallingConvention.Cdecl)]
 		internal static extern uint enet_time_get();
+
+		[DllImport(nativeLibrary, CallingConvention = CallingConvention.Cdecl)]
+		internal static extern ulong enet_crc64(IntPtr buffers, int bufferCount);
 
 		[DllImport(nativeLibrary, CallingConvention = CallingConvention.Cdecl)]
 		internal static extern int enet_address_set_ip(ref ENetAddress address, string ip);
@@ -1078,6 +1098,9 @@ namespace ENet {
 
 		[DllImport(nativeLibrary, CallingConvention = CallingConvention.Cdecl)]
 		internal static extern void enet_host_set_intercept_callback(IntPtr host, IntPtr callback);
+
+		[DllImport(nativeLibrary, CallingConvention = CallingConvention.Cdecl)]
+		internal static extern void enet_host_set_checksum_callback(IntPtr host, IntPtr callback);
 
 		[DllImport(nativeLibrary, CallingConvention = CallingConvention.Cdecl)]
 		internal static extern void enet_host_flush(IntPtr host);

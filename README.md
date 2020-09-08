@@ -282,6 +282,8 @@ Provides per host events.
 
 `InterceptCallback(ref Event @event, IntPtr receivedData, int receivedDataLength)` notifies when a raw UDP packet is intercepted. Status code returned from this callback instructs ENet how the set event should be handled. Returning 1 indicates dispatching of the set event by the service. Returning 0 indicates that ENet subsystems should handle received data. Returning -1 indicates an error. A reference to the delegate should be preserved from being garbage collected.
 
+`ChecksumCallback(IntPtr buffers, int bufferCount)` notifies when a checksum should be computed for buffers at sending and receiving. A value returned from this callback is a 64-bit checksum. Can be used with `ENet.Library.CRC64()` function. A reference to the delegate should be preserved from being garbage collected.
+
 ### Structures
 #### Address
 Contains structure with anonymous host data and port number.
@@ -324,7 +326,7 @@ Contains a managed pointer to the packet.
 
 `Packet.HasReferences` checks references to the packet.
 
-`Packet.SetFreeCallback(PacketFreeCallback callback)` sets callback to notify when an appropriate packet is being destroyed. A pointer `IntPtr` to a callback can be used instead of a reference to a delegate.
+`Packet.SetFreeCallback(PacketFreeCallback callback)` sets the callback to notify when an appropriate packet is being destroyed. A pointer `IntPtr` to a callback can be used instead of a reference to a delegate.
 
 `Packet.Create(byte[] data, int offset, int length, PacketFlags flags)` creates a packet that may be sent to a peer. The offset parameter indicates the starting point of data in an array, the length is the ending point of data in an array. All parameters are optional. Multiple packet flags can be specified at once. A pointer `IntPtr` to a native buffer can be used instead of a reference to a byte array.
 
@@ -421,7 +423,9 @@ Contains a managed pointer to the host.
 
 `Host.SetMaxDuplicatePeers(ushort number)` limits the maximum allowed duplicate peers from the same host and prevents connection if exceeded. By default set to `Library.maxPeers`, can't be less than one.
 
-`Host.SetInterceptCallback(InterceptCallback callback)` sets callback to notify when a raw UDP packet is interecepted. A pointer `IntPtr` to a callback can be used instead of a reference to a delegate.
+`Host.SetInterceptCallback(InterceptCallback callback)` sets the callback to notify when a raw UDP packet is interecepted. A pointer `IntPtr` to a callback can be used instead of a reference to a delegate.
+
+`Host.SetChecksumCallback(ChecksumCallback callback)` sets the callback to notify when a checksum should be computed. A pointer `IntPtr` to a callback can be used instead of a reference to a delegate.
 
 `Host.Flush()` sends any queued packets on the specified host to its designated peers.
 
@@ -436,11 +440,13 @@ Contains constant fields.
 
 `Library.version` the current compatibility version relative to the native library.
 
+`Library.Time` returns a current local monotonic time in milliseconds. It never reset while the application remains alive.
+
 `Library.Initialize(Callbacks callbacks)` initializes the native library. Callbacks parameter is optional and should be used only with a custom memory allocator. Should be called before starting the work. Returns true on success or false on failure.
 
 `Library.Deinitialize()` deinitializes the native library. Should be called after the work is done.
 
-`Library.Time` returns a current local monotonic time in milliseconds. It never reset while the application remains alive.
+`Library.CRC64(IntPtr buffers, int bufferCount)` computes a checksum for unmanaged buffers.
 
 Supporters
 --------

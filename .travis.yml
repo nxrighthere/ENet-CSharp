@@ -1,14 +1,10 @@
 os:
   - osx
-
 language: c
-
 compiler: clang
-
 script:
   - cmake ./Source/Native/ -DCMAKE_BUILD_TYPE=Release -DENET_SHARED=1
   - cmake --build .
-
 deploy:
   provider: surge
   domain: enet.surge.sh

@@ -224,7 +224,7 @@ Definitions of a flags for `Peer.Send()` function:
 
 `PacketFlags.Unsequenced` a packet will not be sequenced with other packets and may be delivered out of order. This flag makes delivery unreliable.
 
-`PacketFlags.NoAllocate` a packet will not allocate data, and the user must supply it instead. Packet lifetime should be tracked using the appropriate callback.
+`PacketFlags.NoAllocate` a packet will not allocate data, and the user must supply it instead. Packet lifetime should be tracked using the `PacketFreeCallback` callback.
 
 `PacketFlags.UnreliableFragmented` a packet will be unreliably fragmented if it exceeds the MTU. By default, unreliable packets that exceed the MTU are fragmented and transmitted reliably. This flag should be used to explicitly indicate packets that should remain unreliable.
 
@@ -241,11 +241,11 @@ Definitions of event types for `Event.Type` property:
 
 `EventType.Connect` a connection request initiated by `Peer.Connect()` function has completed. `Event.Peer` returns a peer which successfully connected. `Event.Data` returns the user-supplied data describing the connection or 0 if none is available.
 
-`EventType.Disconnect` a peer has disconnected. This event is generated on a successful completion of a disconnect initiated by `Peer.Disconnect`. `Event.Peer` returns a peer which disconnected. `Event.Data` returns the user-supplied data describing the disconnection or 0 if none is available.
+`EventType.Disconnect` a peer has disconnected. This event is generated on a successful completion of a disconnect initiated by `Peer.Disconnect()` function. `Event.Peer` returns a peer which disconnected. `Event.Data` returns the user-supplied data describing the disconnection or 0 if none is available.
 
 `EventType.Receive` a packet has been received from a peer. `Event.Peer` returns a peer which sent the packet. `Event.ChannelID` specifies the channel number upon which the packet was received. `Event.Packet` returns a packet that was received, and this packet must be destroyed using `Event.Packet.Dispose()` function after use.
 
-`EventType.Timeout` a peer has timed out. This event occurs if a peer has timed out or if a connection request initialized by `Peer.Connect` has timed out. `Event.Peer` returns a peer which timed out.
+`EventType.Timeout` a peer has timed out. This event occurs if a peer has timed out or if a connection request initialized by `Peer.Connect()` has timed out. `Event.Peer` returns a peer which timed out.
 
 #### PeerState
 Definitions of peer states for `Peer.State` property:

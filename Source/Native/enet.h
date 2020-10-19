@@ -31,7 +31,7 @@
 
 #define ENET_VERSION_MAJOR 2
 #define ENET_VERSION_MINOR 4
-#define ENET_VERSION_PATCH 3
+#define ENET_VERSION_PATCH 4
 #define ENET_VERSION_CREATE(major, minor, patch) (((major) << 16) | ((minor) << 8) | (patch))
 #define ENET_VERSION_GET_MAJOR(version) (((version) >> 16) & 0xFF)
 #define ENET_VERSION_GET_MINOR(version) (((version) >> 8) & 0xFF)
@@ -629,7 +629,7 @@ extern "C" {
 
 	typedef uint64_t (ENET_CALLBACK *ENetChecksumCallback)(const ENetBuffer* buffers, int bufferCount);
 
-	typedef int (ENET_CALLBACK *ENetInterceptCallback)(ENetEvent* event, uint8_t* receivedData, int receivedDataLength);
+	typedef int (ENET_CALLBACK *ENetInterceptCallback)(ENetEvent* event, ENetAddress* address, uint8_t* receivedData, int receivedDataLength);
 
 	typedef struct _ENetHost {
 		ENetSocket socket;
@@ -2562,7 +2562,7 @@ extern "C" {
 			host->totalReceivedPackets++;
 
 			if (host->interceptCallback != NULL) {
-				switch (host->interceptCallback(event, host->receivedData, host->receivedDataLength)) {
+				switch (host->interceptCallback(event, &host->receivedAddress, host->receivedData, host->receivedDataLength)) {
 					case 1:
 						if (event != NULL && event->type != ENET_EVENT_TYPE_NONE)
 							return 1;

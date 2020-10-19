@@ -280,7 +280,7 @@ Provides per packet events.
 #### Host callbacks
 Provides per host events.
 
-`InterceptCallback(ref Event @event, IntPtr receivedData, int receivedDataLength)` notifies when a raw UDP packet is intercepted. Status code returned from this callback instructs ENet how the set event should be handled. Returning 1 indicates dispatching of the set event by the service. Returning 0 indicates that ENet subsystems should handle received data. Returning -1 indicates an error. A reference to the delegate should be preserved from being garbage collected.
+`InterceptCallback(ref Event @event, ref Address address, IntPtr receivedData, int receivedDataLength)` notifies when a raw UDP packet is intercepted. Status code returned from this callback instructs ENet how the set event should be handled. Returning 1 indicates dispatching of the set event by the service. Returning 0 indicates that ENet subsystems should handle received data. Returning -1 indicates an error. A reference to the delegate should be preserved from being garbage collected.
 
 `ChecksumCallback(IntPtr buffers, int bufferCount)` notifies when a checksum should be computed for buffers at sending and receiving. A value returned from this callback is a 64-bit checksum. ENet automatically handles integrity verification of packets if a checksum mechanism is enabled at both ends. Can be used with `ENet.Library.CRC64()` function. A reference to the delegate should be preserved from being garbage collected.
 

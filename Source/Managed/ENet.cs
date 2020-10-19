@@ -89,7 +89,7 @@ namespace ENet {
 	public delegate void FreeCallback(IntPtr memory);
 	public delegate void NoMemoryCallback();
 	public delegate void PacketFreeCallback(Packet packet);
-	public delegate int InterceptCallback(ref Event @event, IntPtr receivedData, int receivedDataLength);
+	public delegate int InterceptCallback(ref Event @event, ref Address address, IntPtr receivedData, int receivedDataLength);
 	public delegate ulong ChecksumCallback(IntPtr buffers, int bufferCount);
 
 	internal static class ArrayPool {
@@ -941,7 +941,7 @@ namespace ENet {
 		public const uint timeoutLimit = 32;
 		public const uint timeoutMinimum = 5000;
 		public const uint timeoutMaximum = 30000;
-		public const uint version = (2 << 16) | (4 << 8) | (3);
+		public const uint version = (2 << 16) | (4 << 8) | (4);
 
 		public static uint Time {
 			get {

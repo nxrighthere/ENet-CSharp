@@ -457,3 +457,6 @@ This project is sponsored by:
 
 [Square Root Studios](https://titanreach.com)<br/>
 <a href="https://titanreach.com"><img src="https://i.imgur.com/LkC7sNv.png" alt="Square Root Studios"></a>
+
+[Strange Loop Games](https://play.eco)<br/>
+<a href="https://play.eco"><img src="https://i.imgur.com/v8MOgth.png" alt="Strange Loop Games"></a>

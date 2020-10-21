@@ -1247,7 +1247,7 @@ extern "C" {
 =======================================================================
 */
 
-	#define ENET_CHECKSUM_SIZE sizeof(uint64_t)
+	typedef uint64_t enet_checksum;
 
 	static const uint64_t crcTable[256] = {
 		UINT64_C(0x0000000000000000), UINT64_C(0x7ad870c830358979),
@@ -2359,7 +2359,7 @@ extern "C" {
 		headerSize = (flags & ENET_PROTOCOL_HEADER_FLAG_SENT_TIME ? sizeof(ENetProtocolHeader) : (size_t)&((ENetProtocolHeader*)0)->sentTime);
 
 		if (host->checksumCallback != NULL)
-			headerSize += ENET_CHECKSUM_SIZE;
+			headerSize += sizeof(enet_checksum);
 
 		if (peerID == ENET_PROTOCOL_MAXIMUM_PEER_ID) {
 			peer = NULL;
@@ -2373,8 +2373,8 @@ extern "C" {
 		}
 
 		if (host->checksumCallback != NULL) {
-			uint64_t* checksum = (uint64_t*)&host->receivedData[headerSize - ENET_CHECKSUM_SIZE];
-			uint64_t desiredChecksum = *checksum;
+			enet_checksum* checksum = (enet_checksum*)&host->receivedData[headerSize - sizeof(enet_checksum)];
+			enet_checksum desiredChecksum = *checksum;
 			ENetBuffer buffer;
 			*checksum = peer != NULL ? peer->connectID : 0;
 			buffer.data = host->receivedData;
@@ -2823,7 +2823,7 @@ extern "C" {
 	}
 
 	static int enet_protocol_send_outgoing_commands(ENetHost* host, ENetEvent* event, int checkForTimeouts) {
-		uint8_t headerData[sizeof(ENetProtocolHeader) + ENET_CHECKSUM_SIZE];
+		uint8_t headerData[sizeof(ENetProtocolHeader) + sizeof(enet_checksum)];
 		ENetProtocolHeader* header = (ENetProtocolHeader*)headerData;
 		ENetPeer* currentPeer;
 		int sentLength;
@@ -2872,9 +2872,9 @@ extern "C" {
 				header->peerID = ENET_HOST_TO_NET_16(currentPeer->outgoingPeerID | host->headerFlags);
 
 				if (host->checksumCallback != NULL) {
-					uint64_t* checksum = (uint64_t*)&headerData[host->buffers->dataLength];
+					enet_checksum* checksum = (enet_checksum*)&headerData[host->buffers->dataLength];
 					*checksum = currentPeer->outgoingPeerID < ENET_PROTOCOL_MAXIMUM_PEER_ID ? currentPeer->connectID : 0;
-					host->buffers->dataLength += ENET_CHECKSUM_SIZE;
+					host->buffers->dataLength += sizeof(enet_checksum);
 					*checksum = host->checksumCallback(host->buffers, host->bufferCount);
 				}
 
@@ -3086,7 +3086,7 @@ extern "C" {
 		fragmentLength = peer->mtu - sizeof(ENetProtocolHeader) - sizeof(ENetProtocolSendFragment);
 
 		if (peer->host->checksumCallback != NULL)
-			fragmentLength -= ENET_CHECKSUM_SIZE;
+			fragmentLength -= sizeof(enet_checksum);
 
 		if (packet->dataLength > fragmentLength) {
 			uint32_t fragmentCount = (packet->dataLength + fragmentLength - 1) / fragmentLength, fragmentNumber, fragmentOffset;

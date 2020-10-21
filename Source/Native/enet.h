@@ -31,7 +31,7 @@
 
 #define ENET_VERSION_MAJOR 2
 #define ENET_VERSION_MINOR 4
-#define ENET_VERSION_PATCH 4
+#define ENET_VERSION_PATCH 5
 #define ENET_VERSION_CREATE(major, minor, patch) (((major) << 16) | ((minor) << 8) | (patch))
 #define ENET_VERSION_GET_MAJOR(version) (((version) >> 16) & 0xFF)
 #define ENET_VERSION_GET_MINOR(version) (((version) >> 8) & 0xFF)
@@ -1247,6 +1247,8 @@ extern "C" {
 =======================================================================
 */
 
+	#define ENET_CHECKSUM_SIZE sizeof(uint64_t)
+
 	static const uint64_t crcTable[256] = {
 		UINT64_C(0x0000000000000000), UINT64_C(0x7ad870c830358979),
 		UINT64_C(0xf5b0e190606b12f2), UINT64_C(0x8f689158505e9b8b),
@@ -2357,7 +2359,7 @@ extern "C" {
 		headerSize = (flags & ENET_PROTOCOL_HEADER_FLAG_SENT_TIME ? sizeof(ENetProtocolHeader) : (size_t)&((ENetProtocolHeader*)0)->sentTime);
 
 		if (host->checksumCallback != NULL)
-			headerSize += sizeof(uint64_t);
+			headerSize += ENET_CHECKSUM_SIZE;
 
 		if (peerID == ENET_PROTOCOL_MAXIMUM_PEER_ID) {
 			peer = NULL;
@@ -2371,7 +2373,7 @@ extern "C" {
 		}
 
 		if (host->checksumCallback != NULL) {
-			uint64_t* checksum = (uint64_t*)&host->receivedData[headerSize - sizeof(uint64_t)];
+			uint64_t* checksum = (uint64_t*)&host->receivedData[headerSize - ENET_CHECKSUM_SIZE];
 			uint64_t desiredChecksum = *checksum;
 			ENetBuffer buffer;
 			*checksum = peer != NULL ? peer->connectID : 0;
@@ -2821,7 +2823,7 @@ extern "C" {
 	}
 
 	static int enet_protocol_send_outgoing_commands(ENetHost* host, ENetEvent* event, int checkForTimeouts) {
-		uint8_t headerData[sizeof(ENetProtocolHeader) + sizeof(uint32_t)];
+		uint8_t headerData[sizeof(ENetProtocolHeader) + ENET_CHECKSUM_SIZE];
 		ENetProtocolHeader* header = (ENetProtocolHeader*)headerData;
 		ENetPeer* currentPeer;
 		int sentLength;
@@ -2872,7 +2874,7 @@ extern "C" {
 				if (host->checksumCallback != NULL) {
 					uint64_t* checksum = (uint64_t*)&headerData[host->buffers->dataLength];
 					*checksum = currentPeer->outgoingPeerID < ENET_PROTOCOL_MAXIMUM_PEER_ID ? currentPeer->connectID : 0;
-					host->buffers->dataLength += sizeof(uint64_t);
+					host->buffers->dataLength += ENET_CHECKSUM_SIZE;
 					*checksum = host->checksumCallback(host->buffers, host->bufferCount);
 				}
 
@@ -3084,7 +3086,7 @@ extern "C" {
 		fragmentLength = peer->mtu - sizeof(ENetProtocolHeader) - sizeof(ENetProtocolSendFragment);
 
 		if (peer->host->checksumCallback != NULL)
-			fragmentLength -= sizeof(uint64_t);
+			fragmentLength -= ENET_CHECKSUM_SIZE;
 
 		if (packet->dataLength > fragmentLength) {
 			uint32_t fragmentCount = (packet->dataLength + fragmentLength - 1) / fragmentLength, fragmentNumber, fragmentOffset;

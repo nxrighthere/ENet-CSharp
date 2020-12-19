@@ -423,7 +423,7 @@ Contains a managed pointer to the host.
 
 `Host.SetMaxDuplicatePeers(ushort number)` limits the maximum allowed duplicate peers from the same host and prevents connection if exceeded. By default set to `Library.maxPeers`, can't be less than one.
 
-`Host.SetInterceptCallback(InterceptCallback callback)` sets the callback to notify when a raw UDP packet is interecepted. A pointer `IntPtr` to a callback can be used instead of a reference to a delegate.
+`Host.SetInterceptCallback(InterceptCallback callback)` sets the callback to notify when a raw UDP packet is intercepted. A pointer `IntPtr` to a callback can be used instead of a reference to a delegate.
 
 `Host.SetChecksumCallback(ChecksumCallback callback)` sets the callback to notify when a checksum should be computed. A pointer `IntPtr` to a callback can be used instead of a reference to a delegate.
 

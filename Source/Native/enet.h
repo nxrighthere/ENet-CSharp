@@ -758,6 +758,7 @@ extern "C" {
 	ENET_API uint32_t enet_peer_get_mtu(const ENetPeer*);
 	ENET_API ENetPeerState enet_peer_get_state(const ENetPeer*);
 	ENET_API uint32_t enet_peer_get_rtt(const ENetPeer*);
+	ENET_API uint32_t enet_peer_get_rtt_variance(const ENetPeer*);
 	ENET_API uint32_t enet_peer_get_last_rtt(const ENetPeer* peer);
 	ENET_API uint32_t enet_peer_get_lastsendtime(const ENetPeer*);
 	ENET_API uint32_t enet_peer_get_lastreceivetime(const ENetPeer*);
@@ -5043,6 +5044,10 @@ extern "C" {
 
 	uint32_t enet_peer_get_rtt(const ENetPeer* peer) {
 		return peer->roundTripTime;
+	}
+
+	uint32_t enet_peer_get_rtt_variance(const ENetPeer* peer) {
+		return peer->roundTripTimeVariance;
 	}
 
 	uint32_t enet_peer_get_last_rtt(const ENetPeer* peer) {

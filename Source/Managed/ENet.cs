@@ -760,6 +760,14 @@ namespace ENet {
 			}
 		}
 
+		public uint RoundTripTimeVariance {
+			get {
+				ThrowIfNotCreated();
+
+				return Native.enet_peer_get_rtt_variance(nativePeer);
+			}
+		}
+
 		public uint LastRoundTripTime {
 			get {
 				ThrowIfNotCreated();
@@ -1131,6 +1139,9 @@ namespace ENet {
 
 		[DllImport(nativeLibrary, CallingConvention = CallingConvention.Cdecl)]
 		internal static extern uint enet_peer_get_rtt(IntPtr peer);
+
+		[DllImport(nativeLibrary, CallingConvention = CallingConvention.Cdecl)]
+		internal static extern uint enet_peer_get_rtt_variance(IntPtr peer);
 
 		[DllImport(nativeLibrary, CallingConvention = CallingConvention.Cdecl)]
 		internal static extern uint enet_peer_get_last_rtt(IntPtr peer);

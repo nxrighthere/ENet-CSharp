@@ -347,7 +347,9 @@ Contains a managed pointer to the peer and cached ID.
 
 `Peer.State` returns a peer state described in the `PeerState` enumeration.
 
-`Peer.RoundTripTime` returns a round-trip time in milliseconds.
+`Peer.RoundTripTime` returns the mean round-trip time in milliseconds (using [Jacobson's alogrithm](https://www.netlab.tkk.fi/opetus/s383141/kalvot/E_tcp_flc.pdf)).
+
+`Peer.RoundTripTimeVariance` returns the round-trip time variance in milliseconds (using [Jacobson's alogrithm](https://www.netlab.tkk.fi/opetus/s383141/kalvot/E_tcp_flc.pdf)).
 
 `Peer.LastRoundTripTime` returns a round-trip time since the last acknowledgment in milliseconds.
 

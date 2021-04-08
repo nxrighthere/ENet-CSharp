@@ -31,7 +31,7 @@
 
 #define ENET_VERSION_MAJOR 2
 #define ENET_VERSION_MINOR 4
-#define ENET_VERSION_PATCH 6
+#define ENET_VERSION_PATCH 7
 #define ENET_VERSION_CREATE(major, minor, patch) (((major) << 16) | ((minor) << 8) | (patch))
 #define ENET_VERSION_GET_MAJOR(version) (((version) >> 16) & 0xFF)
 #define ENET_VERSION_GET_MINOR(version) (((version) >> 8) & 0xFF)
@@ -2839,6 +2839,9 @@ extern "C" {
 				host->bufferCount = 1;
 				host->packetSize = sizeof(ENetProtocolHeader);
 
+				if (host->checksumCallback != NULL)
+					host->packetSize += sizeof(enet_checksum);
+
 				if (!enet_list_empty(&currentPeer->acknowledgements))
 					enet_protocol_send_acknowledgements(host, currentPeer);
 
@@ -3083,7 +3086,7 @@ extern "C" {
 		if (peer->state != ENET_PEER_STATE_CONNECTED || channelID >= peer->channelCount || packet->dataLength > peer->host->maximumPacketSize)
 			return -1;
 
-		fragmentLength = peer->mtu - sizeof(ENetProtocolHeader) - sizeof(ENetProtocolSendFragment);
+		fragmentLength = peer->mtu - sizeof(ENetProtocolHeader) - sizeof(ENetProtocolSendFragment) - sizeof(ENetProtocolAcknowledge);
 
 		if (peer->host->checksumCallback != NULL)
 			fragmentLength -= sizeof(enet_checksum);

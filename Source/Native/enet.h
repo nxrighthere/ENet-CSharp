@@ -2680,9 +2680,9 @@ extern "C" {
 		ENetBuffer* buffer = &host->buffers[host->bufferCount];
 		ENetOutgoingCommand* outgoingCommand;
 		ENetListIterator currentCommand;
-		ENetChannel* channel;
-		uint16_t reliableWindow;
-		size_t commandSize;
+		ENetChannel* channel = NULL;
+		uint16_t reliableWindow = 0;
+		size_t commandSize = 0;
 		int windowExceeded = 0, windowWrap = 0, canPing = 1;
 		currentCommand = enet_list_begin(&peer->outgoingCommands);
 
@@ -3079,13 +3079,14 @@ extern "C" {
 	}
 
 	int enet_peer_send(ENetPeer* peer, uint8_t channelID, ENetPacket* packet) {
-		ENetChannel* channel = &peer->channels[channelID];
+		ENetChannel* channel;
 		ENetProtocol command;
 		size_t fragmentLength;
 
 		if (peer->state != ENET_PEER_STATE_CONNECTED || channelID >= peer->channelCount || packet->dataLength > peer->host->maximumPacketSize)
 			return -1;
 
+ 		channel = &peer->channels[channelID];
 		fragmentLength = peer->mtu - sizeof(ENetProtocolHeader) - sizeof(ENetProtocolSendFragment) - sizeof(ENetProtocolAcknowledge);
 
 		if (peer->host->checksumCallback != NULL)

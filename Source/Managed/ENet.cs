@@ -571,9 +571,12 @@ namespace ENet {
 				}
 
 				Native.enet_host_broadcast_selective(nativeHost, channelID, packet.NativeData, nativePeers, (IntPtr)nativeCount);
-			}
+				packet.NativeData = IntPtr.Zero;
+			} else {
+				packet.Dispose();
 
-			packet.NativeData = IntPtr.Zero;
+				throw new ArgumentOutOfRangeException("Peers array can't be empty");
+			}
 		}
 
 		public int CheckEvents(out Event @event) {
@@ -941,7 +944,7 @@ namespace ENet {
 		public const uint timeoutLimit = 32;
 		public const uint timeoutMinimum = 5000;
 		public const uint timeoutMaximum = 30000;
-		public const uint version = (2 << 16) | (4 << 8) | (7);
+		public const uint version = (2 << 16) | (4 << 8) | (8);
 
 		public static uint Time {
 			get {

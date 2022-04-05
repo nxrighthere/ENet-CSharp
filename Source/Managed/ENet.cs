@@ -954,7 +954,7 @@ namespace ENet {
 
 		public static bool Initialize() {
 			if (Native.enet_linked_version() != version)
-				throw new InvalidOperationException("Incompatatible version");
+				throw new InvalidOperationException("Incompatible version");
 
 			return Native.enet_initialize() == 0;
 		}
@@ -964,7 +964,7 @@ namespace ENet {
 				throw new ArgumentNullException("callbacks");
 
 			if (Native.enet_linked_version() != version)
-				throw new InvalidOperationException("Incompatatible version");
+				throw new InvalidOperationException("Incompatible version");
 
 			ENetCallbacks nativeCallbacks = callbacks.NativeData;
 

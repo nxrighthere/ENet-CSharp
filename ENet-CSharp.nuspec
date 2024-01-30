@@ -18,7 +18,7 @@
   <files>
     <file src="build\ENet-CSharp.targets" target="build\ENet-CSharp.targets" />
     <file src="lib\net35\ENet-CSharp.dll" target="lib\net35\ENet-CSharp.dll" />
-    <file src="lib\net5.0\ENet-CSharp.dll" target="lib\net5.0\ENet-CSharp.dll" />
+    <file src="lib\net8.0\ENet-CSharp.dll" target="lib\net5.0\ENet-CSharp.dll" />
     <file src="lib\netcoreapp3.1\ENet-CSharp.dll" target="lib\netcoreapp2.0\ENet-CSharp.dll" />
     <file src="lib\netstandard2.1\ENet-CSharp.dll" target="lib\netstandard2.0\ENet-CSharp.dll" />
     <file src="license\license.txt" target="license\license.txt" />

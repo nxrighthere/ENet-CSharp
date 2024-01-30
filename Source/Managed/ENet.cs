@@ -944,7 +944,7 @@ namespace ENet {
 		public const uint timeoutLimit = 32;
 		public const uint timeoutMinimum = 5000;
 		public const uint timeoutMaximum = 30000;
-		public const uint version = (2 << 16) | (4 << 8) | (8);
+		public const uint version = (2 << 16) | (5 << 8) | (0);
 
 		public static uint Time {
 			get {

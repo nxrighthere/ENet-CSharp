@@ -69,13 +69,18 @@
 		#define ENET_NOT_UNDERSCORED_INTERLOCKED_EXCHANGE
 	#endif
 
-	#define _INC_WINDOWS // Prevent the inclusion of the "windows.h" header
+	#ifdef ENET_EXCLUDE_WINDOWS_H
+		#define _INC_WINDOWS // Prevent the inclusion of the "windows.h" header
 
-	#include <windef.h>
-	#include <minwinbase.h>
-	#include <timezoneapi.h>
-	#include <profileapi.h>
-	#include <sysinfoapi.h>
+		#include <windef.h>
+		#include <minwinbase.h>
+		#include <timezoneapi.h>
+		#include <profileapi.h>
+		#include <sysinfoapi.h>
+	#else
+		#define WIN32_LEAN_AND_MEAN
+	#endif
+
 	#include <winsock2.h>
 	#include <ws2tcpip.h>
 	#include <mmsystem.h>
@@ -2687,9 +2692,7 @@ extern "C" {
 				peer->reliableDataInTransit -= outgoingCommand->fragmentLength;
 
 				enet_list_insert(insertSendReliablePosition, enet_list_remove(&outgoingCommand->outgoingCommandList));
-	  		}
-	   		else
-			{
+	  		} else {
 				enet_list_insert(insertPosition, enet_list_remove(&outgoingCommand->outgoingCommandList));
 			}
 

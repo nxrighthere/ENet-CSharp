@@ -31,7 +31,7 @@
 
 #define ENET_VERSION_MAJOR 2
 #define ENET_VERSION_MINOR 5
-#define ENET_VERSION_PATCH 0
+#define ENET_VERSION_PATCH 1
 #define ENET_VERSION_CREATE(major, minor, patch) (((major) << 16) | ((minor) << 8) | (patch))
 #define ENET_VERSION_GET_MAJOR(version) (((version) >> 16) & 0xFF)
 #define ENET_VERSION_GET_MINOR(version) (((version) >> 8) & 0xFF)
@@ -2401,9 +2401,15 @@ extern "C" {
 
 		if (host->checksumCallback != NULL) {
 			enet_checksum* checksum = (enet_checksum*)&host->receivedData[headerSize - sizeof(enet_checksum)];
-			enet_checksum desiredChecksum = *checksum;
+			enet_checksum desiredChecksum, newChecksum;
 			ENetBuffer buffer;
-			*checksum = peer != NULL ? peer->connectID : 0;
+
+			memcpy(&desiredChecksum, checksum, sizeof(enet_checksum));
+
+			newChecksum = peer != NULL ? peer->connectID : 0;
+
+			memcpy(checksum, &newChecksum, sizeof(enet_checksum));
+
 			buffer.data = host->receivedData;
 			buffer.dataLength = host->receivedDataLength;
 
@@ -2679,7 +2685,7 @@ extern "C" {
 			if (peer->earliestTimeout == 0 || ENET_TIME_LESS(outgoingCommand->sentTime, peer->earliestTimeout))
 				peer->earliestTimeout = outgoingCommand->sentTime;
 
-			if (peer->earliestTimeout != 0 && (ENET_TIME_DIFFERENCE(host->serviceTime, peer->earliestTimeout) >= peer->timeoutMaximum || ((1 << (outgoingCommand->sendAttempts - 1)) >= peer->timeoutLimit && ENET_TIME_DIFFERENCE(host->serviceTime, peer->earliestTimeout) >= peer->timeoutMinimum))) {
+			if (peer->earliestTimeout != 0 && (ENET_TIME_DIFFERENCE(host->serviceTime, peer->earliestTimeout) >= peer->timeoutMaximum || ((uint32_t)(1 << (outgoingCommand->sendAttempts - 1)) >= peer->timeoutLimit && ENET_TIME_DIFFERENCE(host->serviceTime, peer->earliestTimeout) >= peer->timeoutMinimum))) {
 				enet_protocol_notify_disconnect_timeout(host, peer, event);
 
 				return 1;
@@ -2918,9 +2924,14 @@ extern "C" {
 
 				if (host->checksumCallback != NULL) {
 					enet_checksum* checksum = (enet_checksum*)&headerData[host->buffers->dataLength];
-					*checksum = currentPeer->outgoingPeerID < ENET_PROTOCOL_MAXIMUM_PEER_ID ? currentPeer->connectID : 0;
+					enet_checksum newChecksum = currentPeer->outgoingPeerID < ENET_PROTOCOL_MAXIMUM_PEER_ID ? currentPeer->connectID : 0;
+
+					memcpy(checksum, &newChecksum, sizeof(enet_checksum));
+
 					host->buffers->dataLength += sizeof(enet_checksum);
-					*checksum = host->checksumCallback(host->buffers, host->bufferCount);
+					newChecksum = host->checksumCallback(host->buffers, host->bufferCount);
+
+					memcpy(checksum, &newChecksum, sizeof(enet_checksum));
 				}
 
 				currentPeer->lastSendTime = host->serviceTime;

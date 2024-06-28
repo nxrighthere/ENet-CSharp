@@ -31,7 +31,7 @@
 
 #define ENET_VERSION_MAJOR 2
 #define ENET_VERSION_MINOR 5
-#define ENET_VERSION_PATCH 1
+#define ENET_VERSION_PATCH 2
 #define ENET_VERSION_CREATE(major, minor, patch) (((major) << 16) | ((minor) << 8) | (patch))
 #define ENET_VERSION_GET_MAJOR(version) (((version) >> 16) & 0xFF)
 #define ENET_VERSION_GET_MINOR(version) (((version) >> 8) & 0xFF)
@@ -1732,7 +1732,7 @@ extern "C" {
 				--channel->reliableWindows[reliableWindow];
 
 				if (!channel->reliableWindows[reliableWindow])
-					channel->usedReliableWindows &= ~(1 << reliableWindow);
+					channel->usedReliableWindows &= ~(1u << reliableWindow);
 			}
 		}
 
@@ -1940,14 +1940,14 @@ extern "C" {
 			peer->incomingUnsequencedGroup = unsequencedGroup - index;
 
 			memset(peer->unsequencedWindow, 0, sizeof(peer->unsequencedWindow));
-		} else if (peer->unsequencedWindow[index / 32] & (1 << (index % 32))) {
+		} else if (peer->unsequencedWindow[index / 32] & (1u << (index % 32))) {
 			return 0;
 		}
 
 		if (enet_peer_queue_incoming_command(peer, command, (const uint8_t*)command + sizeof(ENetProtocolSendUnsequenced), dataLength, ENET_PACKET_FLAG_UNSEQUENCED, 0) == NULL)
 			return -1;
 
-		peer->unsequencedWindow[index / 32] |= 1 << (index % 32);
+		peer->unsequencedWindow[index / 32] |= 1u << (index % 32);
 
 		return 0;
 	}
@@ -2037,9 +2037,9 @@ extern "C" {
 				return -1;
 		}
 
-		if ((startCommand->fragments[fragmentNumber / 32] & (1 << (fragmentNumber % 32))) == 0) {
+		if ((startCommand->fragments[fragmentNumber / 32] & (1u << (fragmentNumber % 32))) == 0) {
 			--startCommand->fragmentsRemaining;
-			startCommand->fragments[fragmentNumber / 32] |= (1 << (fragmentNumber % 32));
+			startCommand->fragments[fragmentNumber / 32] |= (1u << (fragmentNumber % 32));
 
 			if (fragmentOffset + fragmentLength > startCommand->packet->dataLength)
 				fragmentLength = startCommand->packet->dataLength - fragmentOffset;
@@ -2128,9 +2128,9 @@ extern "C" {
 					return -1;
 			}
 
-			if ((startCommand->fragments[fragmentNumber / 32] & (1 << (fragmentNumber % 32))) == 0) {
+			if ((startCommand->fragments[fragmentNumber / 32] & (1u << (fragmentNumber % 32))) == 0) {
 				--startCommand->fragmentsRemaining;
-				startCommand->fragments[fragmentNumber / 32] |= (1 << (fragmentNumber % 32));
+				startCommand->fragments[fragmentNumber / 32] |= (1u << (fragmentNumber % 32));
 
 			if (fragmentOffset + fragmentLength > startCommand->packet->dataLength)
 				fragmentLength = startCommand->packet->dataLength - fragmentOffset;
@@ -2685,7 +2685,7 @@ extern "C" {
 			if (peer->earliestTimeout == 0 || ENET_TIME_LESS(outgoingCommand->sentTime, peer->earliestTimeout))
 				peer->earliestTimeout = outgoingCommand->sentTime;
 
-			if (peer->earliestTimeout != 0 && (ENET_TIME_DIFFERENCE(host->serviceTime, peer->earliestTimeout) >= peer->timeoutMaximum || ((uint32_t)(1 << (outgoingCommand->sendAttempts - 1)) >= peer->timeoutLimit && ENET_TIME_DIFFERENCE(host->serviceTime, peer->earliestTimeout) >= peer->timeoutMinimum))) {
+			if (peer->earliestTimeout != 0 && (ENET_TIME_DIFFERENCE(host->serviceTime, peer->earliestTimeout) >= peer->timeoutMaximum || ((uint32_t)(1u << (outgoingCommand->sendAttempts - 1)) >= peer->timeoutLimit && ENET_TIME_DIFFERENCE(host->serviceTime, peer->earliestTimeout) >= peer->timeoutMinimum))) {
 				enet_protocol_notify_disconnect_timeout(host, peer, event);
 
 				return 1;
@@ -2750,7 +2750,7 @@ extern "C" {
 				if (channel != NULL) {
 					if (windowWrap) {
 			   			continue;
-					} else if (outgoingCommand->sendAttempts < 1 && !(outgoingCommand->reliableSequenceNumber % ENET_PEER_RELIABLE_WINDOW_SIZE) && (channel->reliableWindows[(reliableWindow + ENET_PEER_RELIABLE_WINDOWS - 1) % ENET_PEER_RELIABLE_WINDOWS] >= ENET_PEER_RELIABLE_WINDOW_SIZE || channel->usedReliableWindows & ((((1 << (ENET_PEER_FREE_RELIABLE_WINDOWS + 2)) - 1) << reliableWindow) | (((1 << (ENET_PEER_FREE_RELIABLE_WINDOWS + 2)) - 1) >> (ENET_PEER_RELIABLE_WINDOWS - reliableWindow))))) {
+					} else if (outgoingCommand->sendAttempts < 1 && !(outgoingCommand->reliableSequenceNumber % ENET_PEER_RELIABLE_WINDOW_SIZE) && (channel->reliableWindows[(reliableWindow + ENET_PEER_RELIABLE_WINDOWS - 1) % ENET_PEER_RELIABLE_WINDOWS] >= ENET_PEER_RELIABLE_WINDOW_SIZE || channel->usedReliableWindows & ((((1u << (ENET_PEER_FREE_RELIABLE_WINDOWS + 2)) - 1) << reliableWindow) | (((1u << (ENET_PEER_FREE_RELIABLE_WINDOWS + 2)) - 1) >> (ENET_PEER_RELIABLE_WINDOWS - reliableWindow))))) {
 						windowWrap = 1;
 						currentSendReliableCommand = enet_list_end(&peer->outgoingSendReliableCommands);
 
@@ -2781,7 +2781,7 @@ extern "C" {
 
 			if (outgoingCommand->command.header.command & ENET_PROTOCOL_COMMAND_FLAG_ACKNOWLEDGE) {
 				if (channel != NULL && outgoingCommand->sendAttempts < 1) {
-					channel->usedReliableWindows |= 1 << reliableWindow;
+					channel->usedReliableWindows |= 1u << reliableWindow;
 					++channel->reliableWindows[reliableWindow];
 				}
 

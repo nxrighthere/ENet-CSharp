@@ -31,6 +31,9 @@ if (ENET_STATIC)
 endif()
 
 if (ENET_SHARED)
+    if (APPLE)
+        SET(CMAKE_OSX_ARCHITECTURES "arm64;x86_64")
+    endif()
     add_definitions(-DENET_DLL)
     add_library(enet SHARED enet.c ${SOURCES})
 

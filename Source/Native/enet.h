@@ -2685,7 +2685,7 @@ extern "C" {
 			if (peer->earliestTimeout == 0 || ENET_TIME_LESS(outgoingCommand->sentTime, peer->earliestTimeout))
 				peer->earliestTimeout = outgoingCommand->sentTime;
 
-			if (peer->earliestTimeout != 0 && (ENET_TIME_DIFFERENCE(host->serviceTime, peer->earliestTimeout) >= peer->timeoutMaximum || ((uint32_t)(1u << (outgoingCommand->sendAttempts - 1)) >= peer->timeoutLimit && ENET_TIME_DIFFERENCE(host->serviceTime, peer->earliestTimeout) >= peer->timeoutMinimum))) {
+			if (peer->earliestTimeout != 0 && (ENET_TIME_DIFFERENCE(host->serviceTime, peer->earliestTimeout) >= peer->timeoutMaximum || ((uint32_t)(1u << ((outgoingCommand->sendAttempts - 1) % 32)) >= peer->timeoutLimit && ENET_TIME_DIFFERENCE(host->serviceTime, peer->earliestTimeout) >= peer->timeoutMinimum))) {
 				enet_protocol_notify_disconnect_timeout(host, peer, event);
 
 				return 1;
@@ -3523,7 +3523,13 @@ extern "C" {
 	}
 
 	void enet_peer_setup_outgoing_command(ENetPeer* peer, ENetOutgoingCommand* outgoingCommand) {
-		ENetChannel* channel = &peer->channels[outgoingCommand->command.header.channelID];
+		ENetChannel *channel = NULL;
+
+		if (outgoingCommand->command.header.channelID < peer->channelCount)
+		{
+			channel = &peer->channels[outgoingCommand->command.header.channelID];
+		}
+
 		peer->outgoingDataTotal += enet_protocol_command_size(outgoingCommand->command.header.command) + outgoingCommand->fragmentLength;
 
 		if (outgoingCommand->command.header.channelID == 0xFF) {

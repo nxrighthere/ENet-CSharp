@@ -5,6 +5,7 @@
     <!-- AnyCPU: the referenced library is MSIL, and the test host must run natively on each runner,
          including the arm64 macOS runner (loading the arm64 slice of the universal dylib). -->
     <LangVersion>latest</LangVersion>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <IsPackable>false</IsPackable>
     <RootNamespace>ENet.Tests</RootNamespace>
   </PropertyGroup>

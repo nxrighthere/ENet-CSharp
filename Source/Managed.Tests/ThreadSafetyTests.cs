@@ -2,6 +2,8 @@ using System;
 using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Globalization;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using System.Threading;
 using Xunit;
 using Xunit.Abstractions;
@@ -224,26 +226,138 @@ namespace ENet.Tests {
 		}
 
 		[Fact]
-		public void FreeCallbacks_SetFromSeveralThreads_EachInvokedOnce() {
-			// The managed callback registry is process-wide; 2.6.1 used a plain Dictionary here
+		public void FreeCallbacks_DisposedOnOtherThreadAfterGC_EachInvokedOnce() {
 			const int threadCount = 4;
+			// 2.6.1 used a plain Dictionary; concurrent registration, then concurrent removal, need sustained contention.
 			const int perThread = 20000;
-			long invoked = 0;
-
-			PacketFreeCallback callback = packet => Interlocked.Increment(ref invoked);
+			int[] invoked = new int[threadCount * perThread];
+			using BlockingCollection<Packet> queue = new BlockingCollection<Packet>();
 
 			RunThreads(threadCount, index => {
-				byte[] data = new byte[32];
+				for (int i = 0; i < perThread; i++)
+					queue.Add(CreateCallbackPacket(index * perThread + i, invoked));
+			});
 
-				for (int i = 0; i < perThread; i++) {
-					Packet packet = new Packet();
-					packet.Create(data);
-					packet.SetFreeCallback(callback);
+			queue.CompleteAdding();
+			CollectDelegates();
+
+			// Producers have exited and hold no delegates; different threads destroy their packets.
+			RunThreads(threadCount, index => {
+				foreach (Packet received in queue.GetConsumingEnumerable()) {
+					Packet packet = received;
 					packet.Dispose();
 				}
 			});
 
-			Assert.Equal((long)threadCount * perThread, Interlocked.Read(ref invoked));
+			int total = 0;
+
+			for (int id = 0; id < invoked.Length; id++) {
+				Assert.True(invoked[id] == 1, $"Packet {id}: expected one callback, got {invoked[id]}");
+				total += invoked[id];
+			}
+
+			Assert.Equal(threadCount * perThread, total);
+		}
+
+		[MethodImpl(MethodImplOptions.NoInlining)]
+		private static Packet CreateCallbackPacket(int id, int[] invoked) {
+			Packet packet = new Packet();
+			packet.Create(new byte[32]);
+			packet.SetFreeCallback(freed => Interlocked.Increment(ref invoked[id]));
+			return packet;
+		}
+
+		[Fact]
+		public void Initialize_RejectedOrPartialCallbacks_KeepLiveDelegatesRooted() {
+			Library.DrainPool();
+			AllocatorCounters counters = new AllocatorCounters();
+			int initialized = 0;
+
+			try {
+				WeakReference[] original = InstallAllocator(counters);
+				initialized++;
+				RejectPartialAllocator(new AllocatorCounters());
+
+				CollectDelegates();
+				Assert.True(original[0].IsAlive, "Rejected init must retain A's malloc delegate");
+				Assert.True(original[1].IsAlive, "Rejected init must retain A's free delegate");
+				Assert.True(original[2].IsAlive, "Rejected init must retain A's noMemory delegate");
+
+				WeakReference replacement = InstallNoMemory(new AllocatorCounters());
+				initialized++;
+
+				CollectDelegates();
+				Assert.True(original[0].IsAlive, "Partial init must retain A's malloc delegate");
+				Assert.True(original[1].IsAlive, "Partial init must retain A's free delegate");
+				Assert.True(replacement.IsAlive, "Partial init must retain C's noMemory delegate");
+
+				long allocations = Interlocked.Read(ref counters.Allocations);
+				long frees = Interlocked.Read(ref counters.Frees);
+
+				for (int i = 0; i < 1000; i++) {
+					Packet packet = new Packet();
+					packet.Create(new byte[2000]);
+					packet.Dispose();
+				}
+
+				Assert.True(Interlocked.Read(ref counters.Allocations) - allocations >= 1000, "A's malloc must service 1000 oversized packets");
+				Assert.True(Interlocked.Read(ref counters.Frees) - frees >= 1000, "A's free must release 1000 oversized packets");
+			} finally {
+				// Replace dangling pointers even on the unfixed build before any drain can invoke them.
+				InstallAllocator(new AllocatorCounters());
+				// Balance the fixture's init, this test's successful inits and the cleanup init (WSAStartup).
+				for (int i = 0; i < initialized + 2; i++)
+					Library.Deinitialize();
+				Assert.True(Library.Initialize(), "Restore the fixture's initialized state");
+			}
+		}
+
+		private sealed class AllocatorCounters {
+			public long Allocations;
+			public long Frees;
+			public long OutOfMemory;
+
+			public unsafe IntPtr Allocate(IntPtr size) {
+				Interlocked.Increment(ref Allocations);
+				return (IntPtr)NativeMemory.Alloc((nuint)size);
+			}
+
+			public unsafe void Free(IntPtr memory) {
+				Interlocked.Increment(ref Frees);
+				NativeMemory.Free((void*)memory);
+			}
+
+			public void NoMemory() {
+				Interlocked.Increment(ref OutOfMemory);
+			}
+		}
+
+		[MethodImpl(MethodImplOptions.NoInlining)]
+		private static WeakReference[] InstallAllocator(AllocatorCounters counters) {
+			AllocCallback malloc = counters.Allocate;
+			FreeCallback free = counters.Free;
+			NoMemoryCallback noMemory = counters.NoMemory;
+			Assert.True(Library.Initialize(new Callbacks(malloc, free, noMemory)));
+			return new[] { new WeakReference(malloc), new WeakReference(free), new WeakReference(noMemory) };
+		}
+
+		[MethodImpl(MethodImplOptions.NoInlining)]
+		private static void RejectPartialAllocator(AllocatorCounters counters) {
+			Assert.False(Library.Initialize(new Callbacks(counters.Allocate, null, null)), "Native must reject a malloc-only init");
+		}
+
+		[MethodImpl(MethodImplOptions.NoInlining)]
+		private static WeakReference InstallNoMemory(AllocatorCounters counters) {
+			NoMemoryCallback noMemory = counters.NoMemory;
+			Assert.True(Library.Initialize(new Callbacks(null, null, noMemory)));
+			return new WeakReference(noMemory);
+		}
+
+		private static void CollectDelegates() {
+			for (int i = 0; i < 2; i++) {
+				GC.Collect();
+				GC.WaitForPendingFinalizers();
+			}
 		}
 
 		[Fact]

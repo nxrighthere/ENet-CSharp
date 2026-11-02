@@ -1,3 +1,11 @@
+Unreleased
+--------
+
+- Keep each live native allocator callback rooted across rejected or partial initialization (F1).
+- Apply the offset to caller-owned NoAllocate packet data without changing ownership (F2).
+- Permanently retire Windows thread caches at DLL_THREAD_DETACH so later cleanup bypasses pooling (F5).
+- Strengthen packet free-callback tests with cross-thread disposal after garbage collection and one invocation per packet (F9).
+
 ENet-CSharp-FigNet 2.7.0
 --------
 

@@ -1072,13 +1072,22 @@ namespace ENet {
 			if (Native.enet_linked_version() != version)
 				throw new InvalidOperationException("Incompatible version");
 
-			// Rooted for the lifetime of the process: native keeps the function pointers, and the
-			// custom free can still run after Deinitialize when a held packet is disposed late
-			rootedCallbacks = callbacks;
-
 			ENetCallbacks nativeCallbacks = callbacks.NativeData;
+			int result = Native.enet_initialize_with_callbacks(version, ref nativeCallbacks);
 
-			return Native.enet_initialize_with_callbacks(version, ref nativeCallbacks) == 0;
+			// Native rejects an incomplete allocator pair without changing any callbacks. Otherwise
+			// it accepts the supplied fields before platform initialization (which can itself fail).
+			if ((nativeCallbacks.malloc == null) == (nativeCallbacks.free == null)) {
+				if (nativeCallbacks.malloc != null) {
+					rootedMalloc = nativeCallbacks.malloc;
+					rootedFree = nativeCallbacks.free;
+				}
+
+				if (nativeCallbacks.noMemory != null)
+					rootedNoMemory = nativeCallbacks.noMemory;
+			}
+
+			return result == 0;
 		}
 
 		public static void Deinitialize() {
@@ -1131,7 +1140,10 @@ namespace ENet {
 			}
 		}
 
-		private static Callbacks rootedCallbacks;
+		// Native retains omitted fields and can invoke free even after Deinitialize.
+		private static AllocCallback rootedMalloc;
+		private static FreeCallback rootedFree;
+		private static NoMemoryCallback rootedNoMemory;
 	}
 
 	public struct PoolStatistics {

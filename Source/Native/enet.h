@@ -1165,6 +1165,9 @@ extern "C" {
 		uint32_t pendingFreed;
 		int32_t pendingRetained;
 		int active;
+		#ifdef _WIN32
+			int retired;
+		#endif
 		ENetPoolBlock* slots[ENET_POOL_MAX_RETAINED]; /* free blocks; slots[retained - 1] is the top */
 		char trailingPadding[ENET_POOL_CACHE_LINE];
 	} ENetPoolCache;
@@ -1284,6 +1287,9 @@ extern "C" {
 		static ENetPoolCache* enet_pool_cache_get(void) {
 			ENetPoolCache* cache = &enet_pool_thread_cache;
 
+			if (cache->retired)
+				return NULL;
+
 			if (!cache->active) {
 				cache->active = 1;
 
@@ -1299,8 +1305,13 @@ extern "C" {
 				(void)instance;
 				(void)reserved;
 
-				if (reason == DLL_THREAD_DETACH && enet_pool_thread_cache.active)
-					enet_pool_cache_retire(&enet_pool_thread_cache);
+				if (reason == DLL_THREAD_DETACH) {
+					// Later DLL detach handlers may still destroy packets on this thread.
+					enet_pool_thread_cache.retired = 1;
+
+					if (enet_pool_thread_cache.active)
+						enet_pool_cache_retire(&enet_pool_thread_cache);
+				}
 
 				return TRUE;
 			}
@@ -1956,7 +1967,7 @@ extern "C" {
 			if (packet == NULL)
 				return NULL;
 
-			packet->data = (uint8_t*)data;
+			packet->data = data != NULL ? (uint8_t*)data + dataOffset : NULL;
 		} else {
 			packet = (ENetPacket*)enet_pool_acquire(sizeof(ENetPacket) + dataLength - dataOffset, &pooled);
 

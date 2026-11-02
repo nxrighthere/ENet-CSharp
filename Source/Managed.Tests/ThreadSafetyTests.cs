@@ -228,7 +228,7 @@ namespace ENet.Tests {
 		[Fact]
 		public void FreeCallbacks_DisposedOnOtherThreadAfterGC_EachInvokedOnce() {
 			const int threadCount = 4;
-			// 2.6.1 used a plain Dictionary; concurrent registration and removal need sustained contention.
+			// 2.6.1 used a plain Dictionary; concurrent registration, then concurrent removal, need sustained contention.
 			const int perThread = 20000;
 			int[] invoked = new int[threadCount * perThread];
 			using BlockingCollection<Packet> queue = new BlockingCollection<Packet>();

@@ -1,4 +1,5 @@
 using System;
+using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using Xunit;
 
@@ -6,6 +7,69 @@ namespace ENet.Tests {
 	[Collection("ENet")]
 	[FlushPoolCounters]
 	public class PacketTests {
+		[Fact]
+		public void Create_NoAllocateWithOffset_PointsAtOffsetData() {
+			byte[] source = { 0, 1, 2, 3, 4, 5 };
+			byte[] expected = { 2, 3, 4, 5 };
+			IntPtr memory = Marshal.AllocHGlobal(source.Length);
+
+			try {
+				Marshal.Copy(source, 0, memory, source.Length);
+				Packet packet = new Packet();
+
+				try {
+					packet.Create(memory, 2, 6, PacketFlags.NoAllocate);
+					Assert.Equal(4, packet.Length);
+					byte[] actual = new byte[packet.Length];
+					packet.CopyTo(actual);
+					Assert.Equal(expected, actual);
+					Assert.Equal(IntPtr.Add(memory, 2), packet.Data);
+				} finally {
+					packet.Dispose();
+				}
+
+				try {
+					packet.Create(memory, 2, 6, PacketFlags.None);
+					Assert.Equal(4, packet.Length);
+					byte[] actual = new byte[packet.Length];
+					packet.CopyTo(actual);
+					Assert.Equal(expected, actual);
+				} finally {
+					packet.Dispose();
+				}
+
+				// Dispose the hosts before freeing caller-owned memory, including on a timeout.
+				using LoopbackPair pair = new LoopbackPair();
+				packet.Create(memory, 2, 6, PacketFlags.NoAllocate);
+
+				try {
+					Assert.True(pair.ClientToServer.Send(0, ref packet));
+					packet = default(Packet); // The host now owns the outgoing packet.
+				} finally {
+					packet.Dispose();
+				}
+
+				byte[] received = null;
+				Assert.True(pair.PumpUntil(() => received != null, (host, e) => {
+					if (e.Type != EventType.Receive)
+						return;
+
+					Packet incoming = e.Packet;
+					try {
+						if (host == pair.Server) {
+							received = new byte[incoming.Length];
+							incoming.CopyTo(received);
+						}
+					} finally {
+						incoming.Dispose();
+					}
+				}), "Timed out receiving the external-memory packet");
+				Assert.Equal(expected, received);
+			} finally {
+				Marshal.FreeHGlobal(memory);
+			}
+		}
+
 		internal static byte[] MakePayload(int size, int seed) {
 			byte[] payload = new byte[size];
 

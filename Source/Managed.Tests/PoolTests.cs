@@ -1,11 +1,69 @@
 using System;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
+using System.Threading;
 using Xunit;
 
 namespace ENet.Tests {
 	[Collection("ENet")]
 	[FlushPoolCounters]
 	public class PoolTests {
+		[UnmanagedFunctionPointer(CallingConvention.Winapi)]
+		[return: MarshalAs(UnmanagedType.Bool)]
+		private delegate bool DllEntryPoint(IntPtr module, uint reason, IntPtr reserved);
+
+		[DllImport("kernel32.dll", CharSet = CharSet.Unicode)]
+		private static extern IntPtr GetModuleHandleW(string moduleName);
+
+		[WindowsPoolFact]
+		public void ThreadDetach_AfterRetire_PacketDestroyBypassesPool() {
+			Library.DrainPool();
+			IntPtr module = GetModuleHandleW("enet.dll");
+			Assert.NotEqual(IntPtr.Zero, module);
+
+			// AddressOfEntryPoint is at optional-header + 16 in both PE32 and PE32+.
+			Assert.Equal((short)0x5a4d, Marshal.ReadInt16(module));
+			int peOffset = Marshal.ReadInt32(module, 0x3c);
+			Assert.Equal(0x00004550, Marshal.ReadInt32(module, peOffset));
+			int entryOffset = Marshal.ReadInt32(module, peOffset + 24 + 16);
+			Assert.True(entryOffset > 0, "The native DLL must have a thread-detach entry point");
+			DllEntryPoint entry = Marshal.GetDelegateForFunctionPointer<DllEntryPoint>(IntPtr.Add(module, entryOffset));
+			Exception failure = null;
+
+			Thread worker = new Thread(() => {
+				Packet first = new Packet();
+				Packet second = new Packet();
+
+				try {
+					first.Create(new byte[1000]);
+					Assert.True(entry(module, 3, IntPtr.Zero), "DLL_THREAD_DETACH failed");
+					PoolStatistics retired = Library.GetPoolStatistics();
+
+					first.Dispose();
+					second.Create(new byte[1000]);
+					second.Dispose();
+
+					PoolStatistics after = Library.GetPoolStatistics();
+					Assert.True(after.Caches == retired.Caches, $"Retired cache reactivated: Caches {retired.Caches} -> {after.Caches}, ThreadRetained {after.ThreadRetained}");
+					Assert.Equal(0u, after.ThreadRetained);
+					Assert.Equal(retired.Hits, after.Hits);
+					Assert.Equal(retired.Misses, after.Misses);
+					Assert.Equal(retired.Freed + 1, after.Freed);
+				} catch (Exception exception) {
+					failure = exception;
+				} finally {
+					first.Dispose();
+					second.Dispose();
+					Library.DrainPool();
+				}
+			});
+
+			worker.IsBackground = true;
+			worker.Start();
+			Assert.True(worker.Join(TimeSpan.FromSeconds(30)), "The detach worker did not finish");
+			Assert.Null(failure);
+		}
+
 		[PoolFact]
 		public void PoolExhaustion_Hold700Undisposed_ThenDisposeAll() {
 			using LoopbackPair pair = new LoopbackPair();

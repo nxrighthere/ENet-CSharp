@@ -50,6 +50,15 @@ namespace ENet.Tests {
 		}
 	}
 
+	public sealed class WindowsPoolFactAttribute : FactAttribute {
+		public WindowsPoolFactAttribute() {
+			if (!OperatingSystem.IsWindows())
+				Skip = "DLL_THREAD_DETACH is Windows-only";
+			else if (!ENetFixture.PoolCompiledIn)
+				Skip = "Native library was built with ENET_NO_POOL";
+		}
+	}
+
 	public class ENetFixture : IDisposable {
 		static ENetFixture() {
 			NativeLibrary.SetDllImportResolver(typeof(Library).Assembly, ResolveNativeLibrary);

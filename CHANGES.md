@@ -1,10 +1,11 @@
-Unreleased
+ENet-CSharp-FigNet 2.7.1
 --------
 
 - Keep each live native allocator callback rooted across rejected or partial initialization (F1).
 - Apply the offset to caller-owned NoAllocate packet data without changing ownership (F2).
 - Permanently retire Windows thread caches at DLL_THREAD_DETACH so later cleanup bypasses pooling (F5).
 - Strengthen packet free-callback tests with cross-thread disposal after garbage collection and one invocation per packet (F9).
+- Version bumped to 2.7.1 in lockstep (`ENET_VERSION`, managed `Library.version`, package, assembly and file versions); no wire-protocol change, interoperable with 2.7.0, 2.6.x and 2.5.3 peers.
 
 ENet-CSharp-FigNet 2.7.0
 --------

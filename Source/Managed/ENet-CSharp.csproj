@@ -7,9 +7,9 @@
     <RootNamespace>ENet</RootNamespace>
     <LangVersion>9</LangVersion>
 
-    <Version>2.7.0</Version>
-    <AssemblyVersion>2.7.0.0</AssemblyVersion>
-    <FileVersion>2.7.0.0</FileVersion>
+    <Version>2.7.1</Version>
+    <AssemblyVersion>2.7.1.0</AssemblyVersion>
+    <FileVersion>2.7.1.0</FileVersion>
 
     <PackageId>ENet-CSharp-FigNet</PackageId>
     <Authors>Stanislav Denisov, Ahmed310</Authors>

@@ -61,10 +61,12 @@ Windows static/MinGW limitations, and ENET_NO_POOL behavior are unchanged.
 - PoolTests.ThreadDetach_AfterRetire_PacketDestroyBypassesPool exercises a real Windows DLL
   entry point on a disposable worker and checks cache, retention, hit/miss and free counters.
 - ThreadSafetyTests.FreeCallbacks_DisposedOnOtherThreadAfterGC_EachInvokedOnce uses four
-  producers, a queue, separate consumers, full GC and unique per-packet callback counts.
+  producers with 20,000 packets each, a queue, separate consumers, full GC and unique per-packet
+  callback counts. Keep the sustained registry contention alongside the delegate lifetime check.
 - The Windows pooled and no-pool suites, both managed targets and both native builds must pass.
   Dispatcher CI must additionally verify Linux, macOS and Linux sanitizers before merge.
 
 ## Spec end-mode
-Contract back-filled for ticket #2. Runtime results and remaining delivery checks are recorded
-in internals.md; independent review and remote CI are required before merge.
+Contract back-filled for ticket #2; review follow-up restores the callback stress workload.
+Runtime results, the committed-source stamp and remaining delivery checks are recorded in
+internals.md; independent re-review and remote CI are required before merge.
